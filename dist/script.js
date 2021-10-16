@@ -35,7 +35,8 @@ class MyClass {
             remappingPlayer1: false,
             hasRoms: false,
             romList: [],
-            inputLoopStarted: false
+            inputLoopStarted: false,
+            noLocalSave: true
         };
 
         if (window["CLOUDSAVEURL"]!="")
@@ -135,6 +136,7 @@ class MyClass {
         this.WriteConfigFile();
         $('#canvasDiv').show();
         Module.callMain(['custom.v64']);
+        this.findInDatabase();
         this.configureEmulator();
         this.initAudio();
         this.rivetsData.beforeEmulatorStarted = false;
@@ -486,6 +488,7 @@ class MyClass {
 
     saveStateLocal(){
         console.log('saveStateLocal');
+        this.rivetsData.noLocalSave = false;
         Module._neil_serialize();
     }
 
@@ -540,7 +543,36 @@ class MyClass {
 
     }
 
+    findInDatabase() {
 
+        if (!window["indexedDB"]==undefined){
+            console.log('indexedDB not available');
+            return;
+        }
+        
+        var request = indexedDB.open('N64WASMDB');
+        request.onsuccess = function (ev) {
+            var db = ev.target.result;
+            var romStore = db.transaction("N64WASMSTATES", "readwrite").objectStore("N64WASMSTATES");
+            try {
+                romStore.openCursor().onsuccess = function (ev) {
+                    var cursor = ev.target.result;
+                    if (cursor) {
+                        let rom = cursor.key.toString();
+                        if (myClass.rom_name == rom)
+                        {
+                            myClass.rivetsData.noLocalSave = false;
+                        }
+                        cursor.continue();
+                    }
+                }
+
+            } catch (error) {
+                console.log('error reading keys');
+                console.log(error);
+            }
+        }
+    }
 
     saveToDatabase(data) {
 

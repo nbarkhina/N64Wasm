@@ -93,7 +93,7 @@
                 <button rv-if="data.loggedIn | ev '==false'" class="btn btn-primary mt-2 mb-2" 
                     onclick="myApp.saveStateLocal()" >Save State</button>
                 <button rv-if="data.loggedIn | ev '==false'" class="btn btn-primary mt-2 mb-2" 
-                    onclick="myApp.loadStateLocal()" >Load State</button>
+                    onclick="myApp.loadStateLocal()" rv-disabled="data.noLocalSave" >Load State</button>
                 <button class="btn btn-primary mt-2 mb-2" onclick="myApp.zoomOut()">Zoom Out</button>
                 <button class="btn btn-primary mt-2 mb-2" onclick="myApp.zoomIn()">Zoom In</button>
                 <button class="btn btn-primary mt-2 mb-2" onclick="myApp.fullscreen()" >Full Screen</button>
