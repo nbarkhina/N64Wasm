@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>N64 Wasm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="keywords" content="N64 Emulator, N64 JavaScript Emulator, WebAssembly, HTML5">
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rivets/0.9.6/rivets.bundled.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <style>
+        input[type="file"] {
+            display: none;
+        }
+
+        .regularTable td,
+        .regularTable th {
+            padding: 0;
+            vertical-align: top;
+            border-top: 0px;
+        }
+
+        .table td,
+        .table th {
+            padding: 5px;
+        }
+
+        .nav-tabs .nav-item.show .nav-link,
+        .nav-tabs .nav-link.active {
+            color: #007bff;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="maindiv" class="container text-center">
+        <h1>
+            N64 Wasm
+        </h1>
+        <div id="topPanel" style="display: none;">
+
+            <!-- BEFORE LOAD -->
+            <div rv-if="data.beforeEmulatorStarted">
+                <button id="btnPlayGame" class="btn btn-primary mt-4" onclick="myClass.loadRom();" rv-if="data.hasRoms"
+                    rv-disabled="data.moduleInitializing">Play Game</button>
+                <button id="btnUploadRom" class="btn btn-primary mt-4" onclick="myApp.uploadBrowse()"
+                        rv-disabled="data.moduleInitializing">Browse</button>
+                <button type="button" class="btn btn-primary mt-4" id="btnRemap" onclick="myApp.showRemapModal()">
+                    Remap Buttons
+                </button>
+                <span rv-if="data.showLogin">
+                    <button class="btn btn-primary mt-4" rv-if="data.loggedIn | ev '==false'"
+                        onclick="myApp.loginModal()">Login</button>
+                    <button class="btn btn-primary mt-4" rv-if="data.loggedIn | ev '==true'"  
+                        onclick="myApp.logout()">Logout</button>
+                </span>
+                
+                <input id="file-upload" type="file" />
+
+                <!-- ROM LIST -->
+                <div class="form-group mt-2 mb-4" rv-if="data.hasRoms" style="width: 300px;margin-left: auto; margin-right:auto;">
+                    <select class="form-control" id="romselect">
+                        <option rv-each-rom="data.romList" rv-value="rom.url">{rom.title}</option>
+                    </select>
+                </div>
+
+                <!-- SAVE STATES -->
+                <div id="dbSaveStates" rv-if="data.loggedIn | ev '==true'">
+                    <button id="btnLoadRomAndSaveState" class="btn btn-primary mt-2 mb-2" onclick="myApp.loadRomAndSavestate()"
+                        rv-disabled="data.moduleInitializing">Load Savestate</button>
+                    <div class="form-group mt-2 mb-4" style="width: 300px;margin-left: auto; margin-right:auto;">
+                        <select class="form-control" id="savestateSelect">
+                            <option rv-each-item="data.n64SaveStates" rv-value="item.Name">{item.Name}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- AFTER LOAD -->
+            <div rv-hide="data.beforeEmulatorStarted">
+                <button class="btn btn-primary mt-2 mb-2" 
+                    onclick="myApp.newRom()" >New Rom</button>
+                <button rv-if="data.loggedIn | ev '==true'" class="btn btn-primary mt-2 mb-2" 
+                    onclick="myApp.saveCloud()" >Save Cloud</button>
+                <button rv-if="data.loggedIn | ev '==true'" class="btn btn-primary mt-2 mb-2" 
+                    onclick="myApp.loadCloud()"  rv-disabled="data.noCloudSave">Load Cloud</button>
+                <button rv-if="data.loggedIn | ev '==false'" class="btn btn-primary mt-2 mb-2" 
+                    onclick="myApp.saveStateLocal()" >Save State</button>
+                <button rv-if="data.loggedIn | ev '==false'" class="btn btn-primary mt-2 mb-2" 
+                    onclick="myApp.loadStateLocal()" >Load State</button>
+                <button class="btn btn-primary mt-2 mb-2" onclick="myApp.zoomOut()">Zoom Out</button>
+                <button class="btn btn-primary mt-2 mb-2" onclick="myApp.zoomIn()">Zoom In</button>
+                <button class="btn btn-primary mt-2 mb-2" onclick="myApp.fullscreen()" >Full Screen</button>
+
+            </div>
+
+
+
+            <div style="margin-top:40px;" rv-if="data.beforeEmulatorStarted">
+                <div id="dropArea" style="width: 150px; height: 150px; border: gray 1px solid;margin-left: auto;
+                    color: darkgrey;margin-right: auto; border-style: dashed;">
+                    <br>
+                    <br>
+                    Drag/Drop 
+                    <br>
+                    Rom File
+                </div>
+            </div>
+        </div>
+
+        <div id="mydiv" class="mt-4"></div>
+        <!-- ID has to be canvas it's hardcoded in the EM generated .js -->
+        <div id="canvasDiv" style="display: none;">
+            <canvas id="canvas" style="width: 640px;"></canvas>
+        </div>
+
+        <div id="bottomPanel" rv-hide="data.beforeEmulatorStarted">
+            <!-- <div>{ data.audioSkipCount}</div> -->
+        </div>
+
+        <h6 class="card-title mt-4">
+            <a href="https://github.com/nbarkhina/n64wasm" target="_blank" style="color: black;">
+                View source on GitHub
+                <img src="github_logo.png" style="height: 25px; padding-bottom: 5px; padding-left: 10px;">
+            </a>
+        </h6>
+
+    </div>
+
+    <!--  Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-control" id="txtPassword" autocomplete="off"
+                            rv-value="data.password" onkeydown="" placeholder="Enter Password">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="myApp.loginSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Keymapping Modal -->
+    <div class="modal fade" id="buttonsModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Remap Buttons</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalMain" style="padding-bottom: 0;">
+                    <table class="table" rv-hide="data.remapWait">
+                        <thead>
+                            <tr>
+                                <th scope="col">Button</th>
+                                <th scope="col">Keyboard</th>
+                                <th scope="col">Joypad</th>
+                                <th scope="col">Remap</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">Up</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Up" type="text" class="form-control"
+                                        disabled>
+                                </td>
+                                <td>
+                                    <input rv-value="data.remappings.Joy_Mapping_Up" type="text" class="form-control"
+                                        disabled>
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(1)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapJoy(1)"
+                                                    class="btn btn-primary ml-2">Joypad</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Down</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Down" type="text" class="form-control"
+                                        disabled>
+                                </td>
+                                <td>
+                                    <input rv-value="data.remappings.Joy_Mapping_Down" type="text" class="form-control"
+                                        disabled>
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(2)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapJoy(2)"
+                                                    class="btn btn-primary ml-2">Joypad</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Left</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Left" type="text" class="form-control"
+                                        disabled>
+                                </td>
+                                <td>
+                                    <input rv-value="data.remappings.Joy_Mapping_Left" type="text" class="form-control"
+                                        disabled>
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(3)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapJoy(3)"
+                                                    class="btn btn-primary ml-2">Joypad</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Right</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Right" type="text" class="form-control"
+                                        disabled>
+                                </td>
+                                <td>
+                                    <input rv-value="data.remappings.Joy_Mapping_Right" type="text" class="form-control"
+                                        disabled>
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(4)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapJoy(4)"
+                                                    class="btn btn-primary ml-2">Joypad</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">A</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_A" type="text" class="form-control"
+                                        disabled>
+                                </td>
+                                <td>
+                                    <input rv-value="data.remappings.Joy_Mapping_Action_A" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(5)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapJoy(5)"
+                                                    class="btn btn-primary ml-2">Joypad</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">B</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_B" type="text" class="form-control"
+                                        disabled>
+                                </td>
+                                <td>
+                                    <input rv-value="data.remappings.Joy_Mapping_Action_B" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(6)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapJoy(6)"
+                                                    class="btn btn-primary ml-2">Joypad</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Start</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_Start" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    <input rv-value="data.remappings.Joy_Mapping_Action_Start" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(8)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapJoy(8)"
+                                                    class="btn btn-primary ml-2">Joypad</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Z</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_Z" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    <input rv-value="data.remappings.Joy_Mapping_Action_Z" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(10)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapJoy(10)"
+                                                    class="btn btn-primary ml-2">Joypad</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">L</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_L" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    <input rv-value="data.remappings.Joy_Mapping_Action_L" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(11)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapJoy(11)"
+                                                    class="btn btn-primary ml-2">Joypad</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">R</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_R" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    <input rv-value="data.remappings.Joy_Mapping_Action_R" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(12)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapJoy(12)"
+                                                    class="btn btn-primary ml-2">Joypad</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Menu</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Menu" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    <input rv-value="data.remappings.Joy_Mapping_Menu" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(9)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapJoy(9)"
+                                                    class="btn btn-primary ml-2">Joypad</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">CUP</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_CUP" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(13)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">CDOWN</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_CDOWN" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(14)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">CLEFT</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_CLEFT" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(15)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">CRIGHT</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_CRIGHT" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(16)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div rv-if="data.remapWait">
+                        <div class="mt-4 mb-4 text-center">
+                            Please press a { data.remapMode }
+                            <br>
+                            <br>
+                            { data.inputController.Key_Last }
+                            <br>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding-top: 0;" rv-hide="data.remapWait">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" onclick="myApp.restoreDefaultKeymappings()" class="btn btn-primary">Restore Defaults</button>
+                    <button type="button" class="btn btn-primary" onclick="myApp.saveRemap()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="input_controller.js"></script>
+    <script src="savestates.js"></script>
+    <script src="romlist.js"></script>
+    <script type="text/javascript">
+        var rando = Math.floor(Math.random() * Math.floor(100000));
+        var script = document.createElement('script');
+        script.src = 'script.js?v=' + rando;
+        document.getElementsByTagName('head')[0].appendChild(script);
+    </script>
+</body>
+
+</html>

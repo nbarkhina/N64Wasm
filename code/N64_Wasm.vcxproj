@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{113205f4-f6d0-4dc9-9467-289ea5518613}</ProjectGuid>
+    <RootNamespace>N64_Parallel</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <SccProjectName>SAK</SccProjectName>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\EMSDK\SDL2-2.0.14\include;C:\EMSDK\SDL2_image-2.0.5\include;C:\EMSDK\SDL2_ttf-2.0.15\include;C:\EMSDK\glew-2.2.0\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src\api;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src\plugin\audio_libretro;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\libretro-common\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\libretro;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\EMSDK\SDL2-2.0.14\lib\x86;C:\EMSDK\SDL2_image-2.0.5\lib\x86;C:\EMSDK\SDL2_ttf-2.0.15\lib\x86;C:\EMSDK\glew-2.2.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\EMSDK\SDL2-2.0.14\include;C:\EMSDK\SDL2_image-2.0.5\include;C:\EMSDK\SDL2_ttf-2.0.15\include;C:\EMSDK\glew-2.2.0\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src\api;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src\plugin\audio_libretro;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\libretro-common\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\libretro;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\EMSDK\SDL2-2.0.14\lib\x86;C:\EMSDK\SDL2_image-2.0.5\lib\x86;C:\EMSDK\SDL2_ttf-2.0.15\lib\x86;C:\EMSDK\glew-2.2.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;HAVE_OPENGL;HAVE_GLIDE64;NDEBUG;__LIBRETRO__;M64P_PLUGIN_API;M64P_CORE_PROTOTYPES;_ENDUSER_RELEASE;SINC_LOWER_QUALITY;NOSSE;NO_ASM;NO_LIBCO;ENABLE_3POINT;ENABLE_TEXTURE_SAMPLING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\EMSDK\SDL2-2.0.14\lib\x86;C:\EMSDK\SDL2_image-2.0.5\lib\x86;C:\EMSDK\SDL2_ttf-2.0.15\lib\x86;C:\EMSDK\glew-2.2.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_image.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;HAVE_OPENGL;HAVE_GLIDE64;NDEBUG;__LIBRETRO__;M64P_PLUGIN_API;M64P_CORE_PROTOTYPES;_ENDUSER_RELEASE;SINC_LOWER_QUALITY;NOSSE;NO_ASM;NO_LIBCO;ENABLE_3POINT;ENABLE_TEXTURE_SAMPLING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\EMSDK\SDL2-2.0.14\lib\x86;C:\EMSDK\SDL2_image-2.0.5\lib\x86;C:\EMSDK\SDL2_ttf-2.0.15\lib\x86;C:\EMSDK\glew-2.2.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_image.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="mymain.cpp" />
+    <ClCompile Include="src\glide2gl\src\Glide64\Combine.c" />
+    <ClCompile Include="src\glide2gl\src\Glide64\Framebuffer_glide64.c" />
+    <ClCompile Include="src\glide2gl\src\Glide64\glide64_3dmath.c" />
+    <ClCompile Include="src\glide2gl\src\Glide64\glide64_gDP.c" />
+    <ClCompile Include="src\glide2gl\src\Glide64\glide64_gSP.c" />
+    <ClCompile Include="src\glide2gl\src\Glide64\Glide64_Ini.c" />
+    <ClCompile Include="src\glide2gl\src\Glide64\glide64_rdp.c" />
+    <ClCompile Include="src\glide2gl\src\Glide64\Glide64_UCode.c" />
+    <ClCompile Include="src\glide2gl\src\Glide64\glide64_util.c" />
+    <ClCompile Include="src\glide2gl\src\Glide64\glidemain.c" />
+    <ClCompile Include="src\glide2gl\src\Glide64\MiClWr.c" />
+    <ClCompile Include="src\glide2gl\src\Glide64\TexCache.c" />
+    <ClCompile Include="src\glide2gl\src\Glide64\TexLoad.c" />
+    <ClCompile Include="src\glide2gl\src\Glitch64\geometry.c" />
+    <ClCompile Include="src\glide2gl\src\Glitch64\glitch64_combiner.c" />
+    <ClCompile Include="src\glide2gl\src\Glitch64\glitch64_textures.c" />
+    <ClCompile Include="src\glide2gl\src\Glitch64\glitchmain.c" />
+    <ClCompile Include="src\Graphics\3dmaths.c" />
+    <ClCompile Include="src\Graphics\HLE\Microcode\Fast3D.c" />
+    <ClCompile Include="src\Graphics\plugins.c" />
+    <ClCompile Include="src\Graphics\RDP\gDP_funcs.cpp" />
+    <ClCompile Include="src\Graphics\RDP\gDP_funcs_C.c" />
+    <ClCompile Include="src\Graphics\RDP\gDP_state.c" />
+    <ClCompile Include="src\Graphics\RDP\RDP_state.c" />
+    <ClCompile Include="src\Graphics\RSP\gSP_funcs.cpp" />
+    <ClCompile Include="src\Graphics\RSP\gSP_funcs_C.c" />
+    <ClCompile Include="src\Graphics\RSP\gSP_state.c" />
+    <ClCompile Include="src\Graphics\RSP\RSP_state.c" />
+    <ClCompile Include="src\libretro-common\audio\conversion\float_to_s16.c" />
+    <ClCompile Include="src\libretro-common\audio\conversion\s16_to_float.c" />
+    <ClCompile Include="src\libretro-common\audio\resampler\audio_resampler.c" />
+    <ClCompile Include="src\libretro-common\audio\resampler\drivers\nearest_resampler.c" />
+    <ClCompile Include="src\libretro-common\audio\resampler\drivers\null_resampler.c" />
+    <ClCompile Include="src\libretro-common\audio\resampler\drivers\sinc_resampler.c" />
+    <ClCompile Include="src\libretro-common\compat\compat_posix_string.c" />
+    <ClCompile Include="src\libretro-common\compat\compat_snprintf.c" />
+    <ClCompile Include="src\libretro-common\compat\compat_strcasestr.c" />
+    <ClCompile Include="src\libretro-common\compat\compat_strl.c" />
+    <ClCompile Include="src\libretro-common\compat\fopen_utf8.c" />
+    <ClCompile Include="src\libretro-common\encodings\encoding_crc32.c" />
+    <ClCompile Include="src\libretro-common\encodings\encoding_utf.c" />
+    <ClCompile Include="src\libretro-common\features\features_cpu.c" />
+    <ClCompile Include="src\libretro-common\file\config_file.c" />
+    <ClCompile Include="src\libretro-common\file\config_file_userdata.c" />
+    <ClCompile Include="src\libretro-common\file\file_path.c" />
+    <ClCompile Include="src\libretro-common\gfx\gl_capabilities.c" />
+    <ClCompile Include="src\libretro-common\glsm\glsm.c" />
+    <ClCompile Include="src\libretro-common\glsym\rglgen.c" />
+    <ClCompile Include="src\libretro-common\hash\rhash.c" />
+    <ClCompile Include="src\libretro-common\lists\string_list.c" />
+    <ClCompile Include="src\libretro-common\memmap\memalign.c" />
+    <ClCompile Include="src\libretro-common\streams\file_stream.c" />
+    <ClCompile Include="src\libretro-common\string\stdstring.c" />
+    <ClCompile Include="src\libretro-common\vfs\vfs_implementation.c" />
+    <ClCompile Include="src\libretro\brumme_crc.c" />
+    <ClCompile Include="src\libretro\libretronew.c" />
+    <ClCompile Include="src\mupen64plus-core\src\ai\ai_controller.c" />
+    <ClCompile Include="src\mupen64plus-core\src\api\callbacks.c" />
+    <ClCompile Include="src\mupen64plus-core\src\api\common.c" />
+    <ClCompile Include="src\mupen64plus-core\src\api\config.c" />
+    <ClCompile Include="src\mupen64plus-core\src\api\frontend.c" />
+    <ClCompile Include="src\mupen64plus-core\src\api\vidext_libretro.c" />
+    <ClCompile Include="src\mupen64plus-core\src\dd\dd_controller.c" />
+    <ClCompile Include="src\mupen64plus-core\src\dd\dd_disk.c" />
+    <ClCompile Include="src\mupen64plus-core\src\dd\dd_rom.c" />
+    <ClCompile Include="src\mupen64plus-core\src\gb\gb_cart.c" />
+    <ClCompile Include="src\mupen64plus-core\src\main\cheat.c" />
+    <ClCompile Include="src\mupen64plus-core\src\main\device.c" />
+    <ClCompile Include="src\mupen64plus-core\src\main\eventloop.c" />
+    <ClCompile Include="src\mupen64plus-core\src\main\main.c" />
+    <ClCompile Include="src\mupen64plus-core\src\main\md5.c" />
+    <ClCompile Include="src\mupen64plus-core\src\main\profile.c" />
+    <ClCompile Include="src\mupen64plus-core\src\main\rom.c" />
+    <ClCompile Include="src\mupen64plus-core\src\main\savestates.c" />
+    <ClCompile Include="src\mupen64plus-core\src\main\util.c" />
+    <ClCompile Include="src\mupen64plus-core\src\memory\m64p_memory.c" />
+    <ClCompile Include="src\mupen64plus-core\src\pifbootrom\pifbootrom.c" />
+    <ClCompile Include="src\mupen64plus-core\src\pi\cart_rom.c" />
+    <ClCompile Include="src\mupen64plus-core\src\pi\flashram.c" />
+    <ClCompile Include="src\mupen64plus-core\src\pi\pi_controller.c" />
+    <ClCompile Include="src\mupen64plus-core\src\pi\sram.c" />
+    <ClCompile Include="src\mupen64plus-core\src\plugin\audio_libretro\audio_backend_libretro.c" />
+    <ClCompile Include="src\mupen64plus-core\src\plugin\emulate_game_controller_via_libretro.c" />
+    <ClCompile Include="src\mupen64plus-core\src\plugin\get_time_using_C_localtime.c" />
+    <ClCompile Include="src\mupen64plus-core\src\plugin\plugin.c" />
+    <ClCompile Include="src\mupen64plus-core\src\plugin\rumble_via_input_plugin.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\cached_interp.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\cp0.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\cp1.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\empty_dynarec.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\exception.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\instr_counters.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\interrupt.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\mi_controller.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\pure_interp.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\r4300.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\r4300_core.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\recomp.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\reset.c" />
+    <ClCompile Include="src\mupen64plus-core\src\r4300\tlb.c" />
+    <ClCompile Include="src\mupen64plus-core\src\rdp\fb.c" />
+    <ClCompile Include="src\mupen64plus-core\src\rdp\rdp_core.c" />
+    <ClCompile Include="src\mupen64plus-core\src\ri\rdram.c" />
+    <ClCompile Include="src\mupen64plus-core\src\ri\rdram_detection_hack.c" />
+    <ClCompile Include="src\mupen64plus-core\src\ri\ri_controller.c" />
+    <ClCompile Include="src\mupen64plus-core\src\rsp\rsp_core.c" />
+    <ClCompile Include="src\mupen64plus-core\src\si\af_rtc.c" />
+    <ClCompile Include="src\mupen64plus-core\src\si\cic.c" />
+    <ClCompile Include="src\mupen64plus-core\src\si\eeprom.c" />
+    <ClCompile Include="src\mupen64plus-core\src\si\game_controller.c" />
+    <ClCompile Include="src\mupen64plus-core\src\si\mempak.c" />
+    <ClCompile Include="src\mupen64plus-core\src\si\n64_cic_nus_6105.c" />
+    <ClCompile Include="src\mupen64plus-core\src\si\pif.c" />
+    <ClCompile Include="src\mupen64plus-core\src\si\rumblepak.c" />
+    <ClCompile Include="src\mupen64plus-core\src\si\si_controller.c" />
+    <ClCompile Include="src\mupen64plus-core\src\si\transferpak.c" />
+    <ClCompile Include="src\mupen64plus-core\src\vi\vi_controller.c" />
+    <ClCompile Include="src\mupen64plus-rsp-cxd4\rsp.c" />
+    <ClCompile Include="src\mupen64plus-rsp-hle\src\alist.c" />
+    <ClCompile Include="src\mupen64plus-rsp-hle\src\alist_audio.c" />
+    <ClCompile Include="src\mupen64plus-rsp-hle\src\alist_naudio.c" />
+    <ClCompile Include="src\mupen64plus-rsp-hle\src\alist_nead.c" />
+    <ClCompile Include="src\mupen64plus-rsp-hle\src\audio.c" />
+    <ClCompile Include="src\mupen64plus-rsp-hle\src\cicx105.c" />
+    <ClCompile Include="src\mupen64plus-rsp-hle\src\hle.c" />
+    <ClCompile Include="src\mupen64plus-rsp-hle\src\hle_memory.c" />
+    <ClCompile Include="src\mupen64plus-rsp-hle\src\hle_plugin.c" />
+    <ClCompile Include="src\mupen64plus-rsp-hle\src\jpeg.c" />
+    <ClCompile Include="src\mupen64plus-rsp-hle\src\mp3.c" />
+    <ClCompile Include="src\mupen64plus-rsp-hle\src\musyx.c" />
+    <ClCompile Include="src\mupen64plus-rsp-hle\src\re2.c" />
+    <ClCompile Include="zlib\adler32.c" />
+    <ClCompile Include="zlib\compress.c" />
+    <ClCompile Include="zlib\crc32.c" />
+    <ClCompile Include="zlib\deflate.c" />
+    <ClCompile Include="zlib\gzclose.c" />
+    <ClCompile Include="zlib\gzlib.c" />
+    <ClCompile Include="zlib\gzread.c" />
+    <ClCompile Include="zlib\gzwrite.c" />
+    <ClCompile Include="zlib\infback.c" />
+    <ClCompile Include="zlib\inffast.c" />
+    <ClCompile Include="zlib\inflate.c" />
+    <ClCompile Include="zlib\inftrees.c" />
+    <ClCompile Include="zlib\trees.c" />
+    <ClCompile Include="zlib\uncompr.c" />
+    <ClCompile Include="zlib\zutil.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="neil_controller.h" />
+    <ClInclude Include="src\libretro\neil.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="zlib\crc32.h" />
+    <ClInclude Include="zlib\deflate.h" />
+    <ClInclude Include="zlib\gzguts.h" />
+    <ClInclude Include="zlib\inffast.h" />
+    <ClInclude Include="zlib\inffixed.h" />
+    <ClInclude Include="zlib\inflate.h" />
+    <ClInclude Include="zlib\inftrees.h" />
+    <ClInclude Include="zlib\trees.h" />
+    <ClInclude Include="zlib\zconf.h" />
+    <ClInclude Include="zlib\zlib.h" />
+    <ClInclude Include="zlib\zutil.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="res\arial.ttf" />
+    <Font Include="res\font.ttf" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
