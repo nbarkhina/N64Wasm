@@ -41,7 +41,7 @@ var ROMLIST = [
 ```
 This will then display a dropdown on the UI to select a game
 
-![romlist](screenshots/romlist.png)
+![romlist](screenshots/romlist.PNG)
 
 
 # Windows Version
@@ -66,11 +66,11 @@ If you want to actually do debugging you will want to get the Windows version wo
 
 # Screenshots
 
-![screenshot](screenshots/screenshot1.png)
-![screenshot](screenshots/screenshot2.png)
-![screenshot](screenshots/screenshot3.png)
-![screenshot](screenshots/screenshot4.png)
-![screenshot](screenshots/screenshot5.png)
+![screenshot](screenshots/screenshot1.PNG)
+![screenshot](screenshots/screenshot2.PNG)
+![screenshot](screenshots/screenshot3.PNG)
+![screenshot](screenshots/screenshot4.PNG)
+![screenshot](screenshots/screenshot5.PNG)
 
 # iPhone 13 Pro
 ![screenshot](screenshots/iphone.jpg)
