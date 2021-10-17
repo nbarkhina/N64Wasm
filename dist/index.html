@@ -114,6 +114,13 @@
             </div>
         </div>
 
+        <div id="lblErrorOuter" style="display: none;">
+            <div rv-if="data.lblError | ev_string '.length > 0'"
+                class="alert alert-danger mt-4" id="lblError" role="alert" 
+                rv-html="data.lblError">
+            </div>
+        </div>
+
         <div id="mydiv" class="mt-4"></div>
         <!-- ID has to be canvas it's hardcoded in the EM generated .js -->
         <div id="canvasDiv" style="display: none;">

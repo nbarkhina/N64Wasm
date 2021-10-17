@@ -36,7 +36,8 @@ class MyClass {
             hasRoms: false,
             romList: [],
             inputLoopStarted: false,
-            noLocalSave: true
+            noLocalSave: true,
+            lblError: ''
         };
 
         if (window["CLOUDSAVEURL"]!="")
@@ -64,6 +65,7 @@ class MyClass {
         rivets.bind(document.getElementById('bottomPanel'), { data: this.rivetsData });
         rivets.bind(document.getElementById('loginModal'), { data: this.rivetsData });
         rivets.bind(document.getElementById('buttonsModal'), { data: this.rivetsData });
+        rivets.bind(document.getElementById('lblError'), { data: this.rivetsData });
         
 
         this.setupDragDropRom();
@@ -73,6 +75,8 @@ class MyClass {
         this.createDB();
 
         $('#topPanel').show();
+        $('#lblErrorOuter').show();
+        
     }
 
     setupInputController(){
@@ -132,14 +136,23 @@ class MyClass {
     }
 
     async LoadEmulator(byteArray){
-        FS.writeFile('custom.v64',byteArray);
-        this.WriteConfigFile();
-        $('#canvasDiv').show();
-        Module.callMain(['custom.v64']);
-        this.findInDatabase();
-        this.configureEmulator();
-        this.initAudio();
-        this.rivetsData.beforeEmulatorStarted = false;
+        if (this.rom_name.toLocaleLowerCase().endsWith('.zip'))
+        {
+            this.rivetsData.lblError = 'Zip format not supported. Please uncompress first.'
+            this.rivetsData.beforeEmulatorStarted = false;
+        }
+        else
+        {
+            FS.writeFile('custom.v64',byteArray);
+            this.WriteConfigFile();
+            $('#canvasDiv').show();
+            Module.callMain(['custom.v64']);
+            this.findInDatabase();
+            this.configureEmulator();
+            this.initAudio();
+            this.rivetsData.beforeEmulatorStarted = false;
+        }
+
     }
 
     async initAudio() {
