@@ -180,7 +180,7 @@ n64wasm.js: $(FILES)
 	-O3 \
 	-s EXIT_RUNTIME=0 \
 	-s EXTRA_EXPORTED_RUNTIME_METHODS="['callMain','cwrap']" \
-    -s EXPORTED_FUNCTIONS="['_main','_runMainLoop','_neilGetSoundBufferResampledAddress','_neilGetAudioWritePosition','_neil_serialize','_neil_unserialize']" \
+    -s EXPORTED_FUNCTIONS="['_main','_runMainLoop','_neilGetSoundBufferResampledAddress','_neilGetAudioWritePosition','_neil_serialize','_neil_unserialize','_neil_toast_message']" \
 	-s INVOKE_RUN=0 \
 	--preload-file 'shader_frag.hlsl' \
 	--preload-file 'shader_vert.hlsl' \

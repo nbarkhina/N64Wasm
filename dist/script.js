@@ -151,6 +151,7 @@ class MyClass {
             this.configureEmulator();
             this.initAudio();
             this.rivetsData.beforeEmulatorStarted = false;
+            this.showToast = Module.cwrap('neil_toast_message', null, ['string']);
         }
 
     }
@@ -680,6 +681,7 @@ class MyClass {
                     if (result=="\"Success\""){
                         myClass.rivetsData.noCloudSave = false;
                         toastr.info("Cloud State Saved");
+                        myClass.showToast("Cloud State Saved");
                     }else{
                         toastr.error('Error Saving Cloud Save');
                     }

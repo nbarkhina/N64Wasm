@@ -180,7 +180,8 @@ int hadSkip = 0;
 int currentHadSkip = 0;
 int maxAudioBufferQueue = 0;
 int currentMaxAudioBufferQueue = 0;
-
+char toast_message[250];
+int toastCounter = 0;
 
 SDL_Window* WindowOpenGL;
 void mainLoop();
@@ -662,6 +663,12 @@ void mainLoop()
 
         //draw fps
         drawTextOpenGL(fps_text, 0, 0,fontcolorWhite,FONTSIZE_24);
+
+        if (toastCounter > 0)
+        {
+            drawTextOpenGL(toast_message, 0, 30, fontcolorWhite, FONTSIZE_24);
+            toastCounter--;
+        }
         
         SDL_GL_SwapWindow(WindowOpenGL);
         resetReadyToSwap();
@@ -1190,4 +1197,12 @@ int getKeyMapping(std::string line)
     //default
     return 0;
 
+}
+
+extern "C" {
+    void neil_toast_message(char* message)
+    {
+        sprintf(toast_message, message);
+        toastCounter = 60;
+    }
 }
