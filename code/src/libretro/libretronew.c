@@ -1058,18 +1058,35 @@ char* loadFile(char* filename, int* size)
     return filecontent;
 }
 
-static void format_saved_memory(void)
+static void format_saved_memory(bool loadEep, bool loadSra, bool loadFla)
 {
     format_sram(saved_memory.sram);
     format_eeprom(saved_memory.eeprom, sizeof(saved_memory.eeprom));
-
-    //EXAMPLE OF LOADING SAVE
-    //int size = 0;
-    //char* eep = loadFile("diddy.eep",&size);
-    //memcpy(saved_memory.eeprom, eep, size);
-
-
     format_flashram(saved_memory.flashram);
+
+    if (loadEep)
+    {
+         int size = 0;
+         char* eep = loadFile("game.eep",&size);
+         memcpy(saved_memory.eeprom, eep, size);
+         printf("eep loaded\n");
+    }
+    if (loadSra)
+    {
+         int size = 0;
+         char* sra = loadFile("game.sra",&size);
+         memcpy(saved_memory.sram, sra, size);
+         printf("sra loaded\n");
+    }
+    if (loadFla)
+    {
+         int size = 0;
+         char* fla = loadFile("game.fla",&size);
+         memcpy(saved_memory.flashram, fla, size);
+         printf("fla loaded\n");
+    }
+
+
     format_mempak(saved_memory.mempack[0]);
     format_mempak(saved_memory.mempack[1]);
     format_mempak(saved_memory.mempack[2]);
@@ -1077,9 +1094,9 @@ static void format_saved_memory(void)
     format_disk(saved_memory.disk);
 }
 
-bool retro_load_game_new(uint8_t* romdata, int size)
+bool retro_load_game_new(uint8_t* romdata, int size, bool loadEep, bool loadSra, bool loadFla)
 {
-    format_saved_memory();
+    format_saved_memory(loadEep, loadSra, loadFla);
 
     update_variables(true);
     initial_boot = false;
@@ -1256,12 +1273,12 @@ unsigned char savestate_buffer[16788288 + 1024];
 int savestates_load_m64p(const unsigned char *data, size_t size);
 int savestates_save_m64p(unsigned char *data, size_t size);
 
-// void write_save_state_file()
-// {
-//     FILE* f = fopen("savestate.sav", "wb");
-//     fwrite(&savestate_buffer, sizeof(unsigned char), sizeof(savestate_buffer), f);
-//     fclose(f);
-// }
+ void write_save_state_file()
+ {
+     FILE* f = fopen("savestate.sav", "wb");
+     fwrite(&savestate_buffer, sizeof(unsigned char), sizeof(savestate_buffer), f);
+     fclose(f);
+ }
 
 #ifdef __EMSCRIPTEN__
 #include <zlib.h>
@@ -1279,11 +1296,12 @@ bool neil_serialize()
         gzwrite(fi, &savestate_buffer, sizeof(savestate_buffer));
         gzclose(fi);
 
-        //write_save_state_file();
 #ifdef __EMSCRIPTEN__
         EM_ASM(
                myApp.SaveStateEvent();
         );
+#else
+        write_save_state_file();
 #endif
         return true;
     }
@@ -1291,6 +1309,51 @@ bool neil_serialize()
 
 
     return false;
+}
+
+bool neil_export_eep()
+{
+    printf("export eep\n");
+    FILE *file = fopen("game.eep", "wb");        // w for write, b for binary
+    fwrite(saved_memory.eeprom, 0x800, 1, file); // write 10 bytes from our buffer
+    fclose(file);
+
+#ifdef __EMSCRIPTEN__
+    EM_ASM(
+        myApp.ExportEepEvent();
+        );
+#endif
+    return true;
+}
+
+bool neil_export_sra()
+{
+    printf("export sra\n");
+    FILE *file = fopen("game.sra", "wb");        // w for write, b for binary
+    fwrite(saved_memory.sram, 0x8000, 1, file); // write 10 bytes from our buffer
+    fclose(file);
+
+#ifdef __EMSCRIPTEN__
+    EM_ASM(
+        myApp.ExportSraEvent();
+        );
+#endif
+    return true;
+}
+
+bool neil_export_fla()
+{
+    printf("export fla\n");
+    FILE *file = fopen("game.fla", "wb");        // w for write, b for binary
+    fwrite(saved_memory.flashram, 0x20000, 1, file); // write 10 bytes from our buffer
+    fclose(file);
+
+#ifdef __EMSCRIPTEN__
+    EM_ASM(
+        myApp.ExportFlaEvent();
+        );
+#endif
+    return true;
 }
 
 bool neil_unserialize()

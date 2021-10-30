@@ -6,6 +6,8 @@ Supports the following features -
 - Button and Keyboard Remapping
 - Save States
   - They save in your browser so you can close and come back later
+- Import/Export Save Files
+  - Enable in settings.js set showadvanced to true
 - Zoom Controls
 - Full Screen
 - Audio Support

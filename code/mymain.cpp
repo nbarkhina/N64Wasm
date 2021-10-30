@@ -59,6 +59,9 @@ int axis4 = 0;
 int axis5 = 0;
 Uint8* keyboardState;
 struct NeilButtons neilbuttons;
+bool loadEep = false;
+bool loadSra = false;
+bool loadFla = false;
 
 void connectGamepad()
 {
@@ -288,6 +291,33 @@ void readConfig()
             if (counter==24) Mapping_Action_A = getKeyMapping(line);
             if (counter==25) Mapping_Menu = getKeyMapping(line);
 
+            //load eep file
+            if (counter == 26)
+            {
+                if (mapping == 0)
+                    loadEep = false;
+                else
+                    loadEep = true;
+            }
+
+            //load sra file
+            if (counter == 27)
+            {
+                if (mapping == 0)
+                    loadSra = false;
+                else
+                    loadSra = true;
+            }
+
+            //load fla file
+            if (counter == 28)
+            {
+                if (mapping == 0)
+                    loadFla = false;
+                else
+                    loadFla = true;
+            }
+
             counter++;
 
 
@@ -418,7 +448,7 @@ int main(int argc, char* argv[])
     fread(filecontent, 1, fsize, f);
     fclose(f);
 
-    bool loaded = retro_load_game_new(filecontent, fsize);
+    bool loaded = retro_load_game_new(filecontent, fsize, loadEep, loadSra, loadFla);
     if (!loaded)
         printf("problem loading rom\n");
 
@@ -757,6 +787,18 @@ void processMenuItemButtons()
             EM_ASM(
                 myApp.fullscreen();
             );
+        }
+#else
+        //"Load State" - 1
+        if (selectedMenuItem == 1)
+        {
+            neil_unserialize();
+        }
+
+        //"Save State" - 2
+        if (selectedMenuItem == 2)
+        {
+            neil_serialize();
         }
 #endif
 

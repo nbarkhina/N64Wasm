@@ -8,11 +8,17 @@ class MyClass {
         this.loginModalOpened = false;
         this.loadSavestateAfterBoot = false;
         this.canvasSize = 640;
+        this.eepData = null;
+        this.sraData = null;
+        this.flaData = null;
         this.dblist = [];
         var Module = {};
         Module['canvas'] = document.getElementById('canvas');
         window['Module'] = Module;
         document.getElementById('file-upload').addEventListener('change', this.uploadRom.bind(this));
+        document.getElementById('file-upload-eep').addEventListener('change', this.uploadEep.bind(this));
+        document.getElementById('file-upload-sra').addEventListener('change', this.uploadSra.bind(this));
+        document.getElementById('file-upload-fla').addEventListener('change', this.uploadFla.bind(this));
 
 
         this.rivetsData = {
@@ -37,10 +43,21 @@ class MyClass {
             romList: [],
             inputLoopStarted: false,
             noLocalSave: true,
-            lblError: ''
+            lblError: '',
+            chkAdvanced: false,
+            eepName: '',
+            sraName: '',
+            flaName: '',
+            settings: {
+                CLOUDSAVEURL: "",
+                SHOWADVANCED: false
+            }
         };
 
-        if (window["CLOUDSAVEURL"]!="")
+        //comes from settings.js
+        this.rivetsData.settings = window["N64WASMSETTINGS"];
+
+        if (this.rivetsData.settings.CLOUDSAVEURL!="")
         {
             this.rivetsData.showLogin = true;
         }
@@ -227,16 +244,15 @@ class MyClass {
         let outputData1 = outputBuffer.getChannelData(0);
         let outputData2 = outputBuffer.getChannelData(1);
 
-        this.audioWritePosition = Module._neilGetAudioWritePosition();
-
-        if (!this.hasEnoughSamples())
-            Module._runMainLoop();
+        Module._runMainLoop();
 
         this.audioWritePosition = Module._neilGetAudioWritePosition();
 
 
         if (!this.hasEnoughSamples())
+        {
             Module._runMainLoop();
+        }
 
         this.audioWritePosition = Module._neilGetAudioWritePosition();
     
@@ -322,12 +338,88 @@ class MyClass {
         configString += this.rivetsData.inputController.KeyMappings.Mapping_Action_A + "\r\n";
         configString += this.rivetsData.inputController.KeyMappings.Mapping_Menu + "\r\n";
 
+        //load save files
+        if (this.eepData == null) configString += "0" + "\r\n"; else configString += "1" + "\r\n";
+        if (this.sraData == null) configString += "0" + "\r\n"; else configString += "1" + "\r\n";
+        if (this.flaData == null) configString += "0" + "\r\n"; else configString += "1" + "\r\n";
+         
         FS.writeFile('config.txt',configString);
     }
 
 
     uploadBrowse() {
         document.getElementById('file-upload').click();
+    }
+
+    uploadEepBrowse() {
+        document.getElementById('file-upload-eep').click();
+    }
+    uploadSraBrowse() {
+        document.getElementById('file-upload-sra').click();
+    }
+    uploadFlaBrowse() {
+        document.getElementById('file-upload-fla').click();
+    }
+
+    uploadEep(event) {
+        var file = event.currentTarget.files[0];
+        console.log(file);
+        myClass.rivetsData.eepName = file.name;
+        var reader = new FileReader();
+        reader.onprogress = function (e) {
+            console.log('loaded: ' + e.loaded);
+        };
+        reader.onload = function (e) {
+            console.log('finished loading');
+            var byteArray = new Uint8Array(this.result);
+            myClass.eepData = byteArray;
+
+            FS.writeFile(
+                "game.eep", // file name
+                byteArray
+            );
+        }
+        reader.readAsArrayBuffer(file);
+    }
+    uploadSra(event) {
+        var file = event.currentTarget.files[0];
+        console.log(file);
+        myClass.rivetsData.sraName = file.name;
+        var reader = new FileReader();
+        reader.onprogress = function (e) {
+            console.log('loaded: ' + e.loaded);
+        };
+        reader.onload = function (e) {
+            console.log('finished loading');
+            var byteArray = new Uint8Array(this.result);
+            myClass.sraData = byteArray;
+
+            FS.writeFile(
+                "game.sra", // file name
+                byteArray
+            );
+        }
+        reader.readAsArrayBuffer(file);
+    }
+    uploadFla(event) {
+        var file = event.currentTarget.files[0];
+        console.log(file);
+        myClass.rivetsData.flaName = file.name;
+        var reader = new FileReader();
+        reader.onprogress = function (e) {
+            console.log('loaded: ' + e.loaded);
+        };
+        reader.onload = function (e) {
+            console.log('finished loading');
+            var byteArray = new Uint8Array(this.result);
+            myClass.flaData = byteArray;
+
+            FS.writeFile(
+                "game.fla", // file name
+                byteArray
+            );
+        }
+        reader.readAsArrayBuffer(file);
     }
 
     uploadRom(event) {
@@ -654,6 +746,39 @@ class MyClass {
     }
     
 
+    exportEep(){
+        Module._neil_export_eep();
+    }
+    ExportEepEvent()
+    {
+        console.log('js eep event');
+
+        let filearray = FS.readFile("/game.eep");   
+        var file = new File([filearray], "game.eep", {type: "text/plain; charset=x-user-defined"});
+        saveAs(file);
+    }
+    exportSra(){
+        Module._neil_export_sra();
+    }
+    ExportSraEvent()
+    {
+        console.log('js sra event');
+
+        let filearray = FS.readFile("/game.sra");   
+        var file = new File([filearray], "game.sra", {type: "text/plain; charset=x-user-defined"});
+        saveAs(file);
+    }
+    exportFla(){
+        Module._neil_export_fla();
+    }
+    ExportFlaEvent()
+    {
+        console.log('js fla event');
+
+        let filearray = FS.readFile("/game.fla");   
+        var file = new File([filearray], "game.fla", {type: "text/plain; charset=x-user-defined"});
+        saveAs(file);
+    }
 
     //when it returns from emscripten
     SaveStateEvent()
@@ -670,7 +795,7 @@ class MyClass {
 
 
         var xhr = new XMLHttpRequest;
-        xhr.open("POST", window["CLOUDSAVEURL"] + "/SendStaveState?name=" + this.rom_name + '.n64wasm' + 
+        xhr.open("POST", this.rivetsData.settings.CLOUDSAVEURL + "/SendStaveState?name=" + this.rom_name + '.n64wasm' + 
             "&password=" + this.rivetsData.password + "&emulator=n64", true);
         xhr.send(compressed);
 
@@ -709,7 +834,7 @@ class MyClass {
         }
 
         var oReq = new XMLHttpRequest();
-        oReq.open("GET", window["CLOUDSAVEURL"] + "/LoadStaveState?name=" + this.rom_name + '.n64wasm' +
+        oReq.open("GET", this.rivetsData.settings.CLOUDSAVEURL + "/LoadStaveState?name=" + this.rom_name + '.n64wasm' +
          "&password=" + this.rivetsData.password, true);
         oReq.responseType = "arraybuffer";
 
@@ -951,13 +1076,13 @@ class MyClass {
     }
 
     async loginToServer(){
-        let result = await $.get(window["CLOUDSAVEURL"] + '/Login?password=' + this.rivetsData.password);
+        let result = await $.get(this.rivetsData.settings.CLOUDSAVEURL + '/Login?password=' + this.rivetsData.password);
         console.log('login result: ' + result);
         return result;
     }
 
     async getSaveStates(){
-        let result = await $.get(window["CLOUDSAVEURL"] + '/GetSaveStates?password=' + this.rivetsData.password);
+        let result = await $.get(this.rivetsData.settings.CLOUDSAVEURL + '/GetSaveStates?password=' + this.rivetsData.password);
         console.log('getSaveStates result: ', result);
         this.allSaveStates = result;
         result.forEach(element => {
