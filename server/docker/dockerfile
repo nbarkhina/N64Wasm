@@ -1,0 +1,18 @@
+FROM node:latest
+
+WORKDIR "/home/node"
+
+RUN git clone https://github.com/nbarkhina/N64Wasm
+
+WORKDIR "/home/node/N64Wasm/server"
+
+RUN npm install
+
+EXPOSE 5500
+
+CMD ["npm","start"]
+
+# TO BUILD AND RUN
+# docker build -t n64wasmserver .
+# docker run -p 80:5500 -d n64wasmserver
+#    (open a browser to port 80)

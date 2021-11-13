@@ -10,6 +10,7 @@ Supports the following features -
 - Zoom Controls
 - Full Screen
 - Audio Support
+- Cloud Save States (Host your own server)
 
 
 You can try it here: https://www.neilb.net/n64wasm/
@@ -30,7 +31,7 @@ I used WSL on Windows but any Linux environment would work as well. First Instal
   - n64wasm.wasm
 
 # Hosting
-To play a game you can simply drag and drop a rom or just click Browse to select a rom from your computer. It also supports hosting the app yourself with your own rom list. Simply create a folder called `roms` in the dist\ folder and copy them there. Then go into `romlist.js` and uncomment the code and populate the paths and names of your roms.
+This emulator supports hosting the app yourself with your own rom list. Create a folder called `roms` in the dist\ folder and copy them there. Then go into `romlist.js` and uncomment the code and populate the paths and names of your roms.
 
 ```javascript
 
@@ -44,6 +45,8 @@ var ROMLIST = [
 This will then display a dropdown on the UI to select a game
 
 ![romlist](screenshots/romlist.PNG)
+
+You can also enable Cloud Save States with some additional configuration. See this [README](server/README.md) for information on how to set that up.
 
 
 # Windows Version

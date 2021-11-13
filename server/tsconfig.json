@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "lib": [
+            "es6",
+            "dom"
+        ],
+        "strict": false,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "sourceMap": true,
+    },
+    "exclude": [
+        "wwwroot/*"
+    ]
+}
