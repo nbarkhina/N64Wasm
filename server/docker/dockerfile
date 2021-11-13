@@ -8,6 +8,14 @@ WORKDIR "/home/node/N64Wasm/server"
 
 RUN npm install
 
+RUN mkdir wwwroot
+
+RUN mkdir roms
+
+RUN cp ../dist/* ./wwwroot/
+
+COPY dockersettings.js "/home/node/N64Wasm/server/wwwroot/settings.js"
+
 EXPOSE 5500
 
 CMD ["npm","start"]
