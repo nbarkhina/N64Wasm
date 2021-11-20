@@ -364,7 +364,7 @@ class MyClass {
     uploadEep(event) {
         var file = event.currentTarget.files[0];
         console.log(file);
-        myClass.rivetsData.eepName = file.name;
+        myClass.rivetsData.eepName = 'File Ready';
         var reader = new FileReader();
         reader.onprogress = function (e) {
             console.log('loaded: ' + e.loaded);
@@ -384,7 +384,7 @@ class MyClass {
     uploadSra(event) {
         var file = event.currentTarget.files[0];
         console.log(file);
-        myClass.rivetsData.sraName = file.name;
+        myClass.rivetsData.sraName = 'File Ready';
         var reader = new FileReader();
         reader.onprogress = function (e) {
             console.log('loaded: ' + e.loaded);
@@ -404,7 +404,7 @@ class MyClass {
     uploadFla(event) {
         var file = event.currentTarget.files[0];
         console.log(file);
-        myClass.rivetsData.flaName = file.name;
+        myClass.rivetsData.flaName = 'File Ready';
         var reader = new FileReader();
         reader.onprogress = function (e) {
             console.log('loaded: ' + e.loaded);
