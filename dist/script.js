@@ -50,7 +50,8 @@ class MyClass {
             flaName: '',
             settings: {
                 CLOUDSAVEURL: "",
-                SHOWADVANCED: false
+                SHOWADVANCED: false,
+                SHOWFPS: true
             }
         };
 
@@ -342,6 +343,9 @@ class MyClass {
         if (this.eepData == null) configString += "0" + "\r\n"; else configString += "1" + "\r\n";
         if (this.sraData == null) configString += "0" + "\r\n"; else configString += "1" + "\r\n";
         if (this.flaData == null) configString += "0" + "\r\n"; else configString += "1" + "\r\n";
+
+        //show FPS
+        if (this.rivetsData.settings.SHOWFPS) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
          
         FS.writeFile('config.txt',configString);
     }

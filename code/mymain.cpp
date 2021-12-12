@@ -62,6 +62,7 @@ struct NeilButtons neilbuttons;
 bool loadEep = false;
 bool loadSra = false;
 bool loadFla = false;
+bool showFPS = true;
 
 void connectGamepad()
 {
@@ -316,6 +317,15 @@ void readConfig()
                     loadFla = false;
                 else
                     loadFla = true;
+            }
+
+            //show FPS
+            if (counter == 29)
+            {
+                if (mapping == 1)
+                    showFPS = true;
+                else
+                    showFPS = false;
             }
 
             counter++;
@@ -692,7 +702,10 @@ void mainLoop()
         }
 
         //draw fps
-        drawTextOpenGL(fps_text, 0, 0,fontcolorWhite,FONTSIZE_24);
+        if (showFPS)
+        {
+            drawTextOpenGL(fps_text, 0, 0, fontcolorWhite, FONTSIZE_24);
+        }
 
         if (toastCounter > 0)
         {
