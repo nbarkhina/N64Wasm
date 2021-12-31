@@ -48,6 +48,7 @@ class MyClass {
             eepName: '',
             sraName: '',
             flaName: '',
+            swapSticks: false,
             settings: {
                 CLOUDSAVEURL: "",
                 SHOWADVANCED: false,
@@ -162,6 +163,7 @@ class MyClass {
         else
         {
             FS.writeFile('custom.v64',byteArray);
+            this.beforeRun();
             this.WriteConfigFile();
             $('#canvasDiv').show();
             Module.callMain(['custom.v64']);
@@ -305,6 +307,10 @@ class MyClass {
 
     }
 
+    beforeRun(){
+        //add any overriding logic here before the emulator starts
+    }
+
     WriteConfigFile()
     {
         let configString = "";
@@ -346,6 +352,9 @@ class MyClass {
 
         //show FPS
         if (this.rivetsData.settings.SHOWFPS) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
+
+        //swap sticks
+        if (this.rivetsData.swapSticks) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
          
         FS.writeFile('config.txt',configString);
     }
@@ -1101,6 +1110,12 @@ class MyClass {
 }
 let myClass = new MyClass();
 window["myApp"] = myClass; //so that I can reference from EM_ASM
+
+//add any post loading logic to the window object
+if (window.postLoad)
+{
+    window.postLoad();
+}
 
 window["Module"] = {
     onRuntimeInitialized: myClass.initModule,

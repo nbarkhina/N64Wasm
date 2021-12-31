@@ -63,6 +63,7 @@ bool loadEep = false;
 bool loadSra = false;
 bool loadFla = false;
 bool showFPS = true;
+bool swapSticks = false;
 
 void connectGamepad()
 {
@@ -261,7 +262,7 @@ void readConfig()
         int counter = 0;
         while (std::getline(infile, line))
         {
-            //printf("Line %s\n", line.c_str());
+            // printf("Counter: %d Line %s\n", counter, line.c_str());
             int mapping = atoi(line.c_str());
 
             if (counter==0) Joy_Mapping_Up = mapping;
@@ -326,6 +327,15 @@ void readConfig()
                     showFPS = true;
                 else
                     showFPS = false;
+            }
+
+            //swap sticks
+            if (counter == 30)
+            {
+                if (mapping == 1)
+                    swapSticks = true;
+                else
+                    swapSticks = false;
             }
 
             counter++;
@@ -593,10 +603,21 @@ void mainLoop()
 
     if (joyStick != NULL)
     {
-        neilbuttons.axis0 = SDL_JoystickGetAxis(joyStick, 0);
-        neilbuttons.axis1 = SDL_JoystickGetAxis(joyStick, 1);
-        neilbuttons.axis2 = SDL_JoystickGetAxis(joyStick, 2);
-        neilbuttons.axis3 = SDL_JoystickGetAxis(joyStick, 3);
+        if (swapSticks == 0)
+        {
+            neilbuttons.axis0 = SDL_JoystickGetAxis(joyStick, 0);
+            neilbuttons.axis1 = SDL_JoystickGetAxis(joyStick, 1);
+            neilbuttons.axis2 = SDL_JoystickGetAxis(joyStick, 2);
+            neilbuttons.axis3 = SDL_JoystickGetAxis(joyStick, 3);
+        }
+        else
+        {
+            neilbuttons.axis0 = SDL_JoystickGetAxis(joyStick, 2);
+            neilbuttons.axis1 = SDL_JoystickGetAxis(joyStick, 3);
+            neilbuttons.axis2 = SDL_JoystickGetAxis(joyStick, 0);
+            neilbuttons.axis3 = SDL_JoystickGetAxis(joyStick, 1);
+        }
+        
 
         if (neilbuttons.axis2 < -16000) neilbuttons.cbLeft = 1;
         if (neilbuttons.axis2 > 16000) neilbuttons.cbRight = 1;
