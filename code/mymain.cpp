@@ -654,12 +654,16 @@ void mainLoop()
 
     //KEYBOARD
     keyboardState = (Uint8*)SDL_GetKeyboardState(NULL);
-    if (keyboardState[Mapping_Up]) neilbuttons.axis1 = -32000;
-    if (keyboardState[Mapping_Down]) neilbuttons.axis1 = 32000;
-    if (keyboardState[Mapping_Left]) neilbuttons.axis0 = -32000;
-    if (keyboardState[Mapping_Right]) neilbuttons.axis0 = 32000;
-    if (keyboardState[Mapping_Action_Start]) neilbuttons.startKey = true;
 
+    if (!gamepadConnected)
+    {
+        if (keyboardState[Mapping_Up]) neilbuttons.axis1 = -32000;
+        if (keyboardState[Mapping_Down]) neilbuttons.axis1 = 32000;
+        if (keyboardState[Mapping_Left]) neilbuttons.axis0 = -32000;
+        if (keyboardState[Mapping_Right]) neilbuttons.axis0 = 32000;
+    }
+
+    if (keyboardState[Mapping_Action_Start]) neilbuttons.startKey = true;
     if (keyboardState[Mapping_Action_A]) neilbuttons.aKey = true;
     if (keyboardState[Mapping_Action_B]) neilbuttons.bKey = true;
     if (keyboardState[Mapping_Action_Z]) neilbuttons.zKey = true;
