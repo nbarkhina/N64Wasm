@@ -49,10 +49,10 @@ class MyClass {
             sraName: '',
             flaName: '',
             swapSticks: false,
+            showFPS: true,
             settings: {
                 CLOUDSAVEURL: "",
-                SHOWADVANCED: false,
-                SHOWFPS: true
+                SHOWADVANCED: false
             }
         };
 
@@ -164,6 +164,7 @@ class MyClass {
         {
             FS.writeFile('custom.v64',byteArray);
             this.beforeRun();
+            this.retrieveSettings();
             this.WriteConfigFile();
             $('#canvasDiv').show();
             Module.callMain(['custom.v64']);
@@ -172,6 +173,7 @@ class MyClass {
             this.initAudio();
             this.rivetsData.beforeEmulatorStarted = false;
             this.showToast = Module.cwrap('neil_toast_message', null, ['string']);
+            this.toggleFPSModule = Module.cwrap('toggleFPS', null, ['number']);
         }
 
     }
@@ -344,6 +346,10 @@ class MyClass {
         configString += this.rivetsData.inputController.KeyMappings.Mapping_Action_B + "\r\n";
         configString += this.rivetsData.inputController.KeyMappings.Mapping_Action_A + "\r\n";
         configString += this.rivetsData.inputController.KeyMappings.Mapping_Menu + "\r\n";
+        configString += this.rivetsData.inputController.KeyMappings.Mapping_Action_Analog_Up + "\r\n";
+        configString += this.rivetsData.inputController.KeyMappings.Mapping_Action_Analog_Down + "\r\n";
+        configString += this.rivetsData.inputController.KeyMappings.Mapping_Action_Analog_Left + "\r\n";
+        configString += this.rivetsData.inputController.KeyMappings.Mapping_Action_Analog_Right + "\r\n";
 
         //load save files
         if (this.eepData == null) configString += "0" + "\r\n"; else configString += "1" + "\r\n";
@@ -351,7 +357,7 @@ class MyClass {
         if (this.flaData == null) configString += "0" + "\r\n"; else configString += "1" + "\r\n";
 
         //show FPS
-        if (this.rivetsData.settings.SHOWFPS) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
+        if (this.rivetsData.showFPS) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
 
         //swap sticks
         if (this.rivetsData.swapSticks) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
@@ -901,6 +907,14 @@ class MyClass {
             this.loginSilent();
     }
 
+    retrieveSettings(){
+        let show = localStorage.getItem('n64wasm-showfps');
+        if (show) {
+            if (show=="true") this.rivetsData.showFPS = true;
+            if (show=="false") this.rivetsData.showFPS = false;
+        }
+    }
+
 
     showRemapModal() {
 
@@ -979,6 +993,10 @@ class MyClass {
             if (this.rivetsData.currKey == 14) this.rivetsData.remappings.Mapping_Action_CDOWN = keyLast;
             if (this.rivetsData.currKey == 15) this.rivetsData.remappings.Mapping_Action_CLEFT = keyLast;
             if (this.rivetsData.currKey == 16) this.rivetsData.remappings.Mapping_Action_CRIGHT = keyLast;
+            if (this.rivetsData.currKey == 17) this.rivetsData.remappings.Mapping_Action_Analog_Up = keyLast;
+            if (this.rivetsData.currKey == 18) this.rivetsData.remappings.Mapping_Action_Analog_Down = keyLast;
+            if (this.rivetsData.currKey == 19) this.rivetsData.remappings.Mapping_Action_Analog_Left = keyLast;
+            if (this.rivetsData.currKey == 20) this.rivetsData.remappings.Mapping_Action_Analog_Right = keyLast;
 
         }
         if (this.rivetsData.remapMode == 'Button') {
@@ -1103,6 +1121,25 @@ class MyClass {
                 this.rivetsData.noCloudSave = false;
         });
         return result;
+    }
+
+    reset(){
+        Module._neil_reset();
+    }
+
+    toggle_fps(){
+        this.rivetsData.showFPS = !this.rivetsData.showFPS;
+        if (this.rivetsData.showFPS)
+        {
+            myClass.toggleFPSModule(1);
+            localStorage.setItem('n64wasm-showfps', 'true');
+        } 
+        if (!this.rivetsData.showFPS)
+        {
+            myClass.toggleFPSModule(0);
+            localStorage.setItem('n64wasm-showfps', 'false');
+        } 
+
     }
 
     

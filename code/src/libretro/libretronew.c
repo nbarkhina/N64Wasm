@@ -403,6 +403,11 @@ void neil_invoke_linker()
 
 bool emu_step_render(void);
 
+void retro_reset_new()
+{
+    CoreDoCommand(M64CMD_RESET, 1, (void*)0);
+}
+
 int retro_return(bool just_flipping)
 {
     if (stop)
@@ -1370,4 +1375,7 @@ bool neil_unserialize()
 }
 
 
-
+void neil_reset()
+{
+    retro_reset_new();
+}

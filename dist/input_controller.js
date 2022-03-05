@@ -24,6 +24,10 @@ class KeyMappings {
         this.Mapping_Action_CDOWN = null;
         this.Mapping_Action_CLEFT = null;
         this.Mapping_Action_CRIGHT = null;
+        this.Mapping_Action_Analog_Up = null;
+        this.Mapping_Action_Analog_Down = null;
+        this.Mapping_Action_Analog_Left = null;
+        this.Mapping_Action_Analog_Right = null;
         this.Mapping_Action_Z = null;
         this.Mapping_Action_L = null;
         this.Mapping_Action_R = null;
@@ -87,10 +91,10 @@ class InputController {
 
     defaultKeymappings() {
         return {
-            Mapping_Left: 'ArrowLeft',
-            Mapping_Right: 'ArrowRight',
-            Mapping_Up: 'ArrowUp',
-            Mapping_Down: 'ArrowDown',
+            Mapping_Left: 'b',
+            Mapping_Right: 'n',
+            Mapping_Up: 'y',
+            Mapping_Down: 'h',
             Mapping_Action_A: 'd',
             Mapping_Action_B: 's',
             Mapping_Action_Start: 'Enter',
@@ -98,6 +102,10 @@ class InputController {
             Mapping_Action_CDOWN: 'k',
             Mapping_Action_CLEFT: 'j',
             Mapping_Action_CRIGHT: 'l',
+            Mapping_Action_Analog_Up: 'ArrowUp',
+            Mapping_Action_Analog_Down: 'ArrowDown',
+            Mapping_Action_Analog_Left: 'ArrowLeft',
+            Mapping_Action_Analog_Right: 'ArrowRight',
             Mapping_Action_Z: 'a',
             Mapping_Action_L: 'q',
             Mapping_Action_R: 'e',

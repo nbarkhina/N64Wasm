@@ -19,6 +19,11 @@
             display: none;
         }
 
+        .table td,
+        .table th {
+            padding: 5px;
+        }
+
         .regularTable td,
         .regularTable th {
             padding: 0;
@@ -26,11 +31,9 @@
             border-top: 0px;
         }
 
-        .table td,
-        .table th {
-            padding: 5px;
-        }
 
+
+        
         .nav-tabs .nav-item.show .nav-link,
         .nav-tabs .nav-link.active {
             color: #007bff;
@@ -138,6 +141,15 @@
                         <a class="dropdown-item" onclick="myApp.exportFla()" style="cursor: pointer;">Export Save (FLA)</a>
                     </div>
                 </div>
+                <div class="btn-group mt-2 mb-2">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Options
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" onclick="myApp.reset()" style="cursor: pointer;">Reset</a>
+                        <a class="dropdown-item" onclick="myApp.toggle_fps()" style="cursor: pointer;">Toggle FPS</a>
+                    </div>
+                </div>
                 <button rv-if="data.loggedIn | ev '==true'" class="btn btn-primary mt-2 mb-2" 
                     onclick="myApp.saveCloud()" >Save Cloud</button>
                 <button rv-if="data.loggedIn | ev '==true'" class="btn btn-primary mt-2 mb-2" 
@@ -241,7 +253,7 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <th scope="row">Up</th>
+                                <th scope="row">D-Up</th>
                                 <td>
                                     <input rv-value="data.remappings.Mapping_Up" type="text" class="form-control"
                                         disabled>
@@ -266,7 +278,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th scope="row">Down</th>
+                                <th scope="row">D-Down</th>
                                 <td>
                                     <input rv-value="data.remappings.Mapping_Down" type="text" class="form-control"
                                         disabled>
@@ -291,7 +303,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th scope="row">Left</th>
+                                <th scope="row">D-Left</th>
                                 <td>
                                     <input rv-value="data.remappings.Mapping_Left" type="text" class="form-control"
                                         disabled>
@@ -316,7 +328,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th scope="row">Right</th>
+                                <th scope="row">D-Right</th>
                                 <td>
                                     <input rv-value="data.remappings.Mapping_Right" type="text" class="form-control"
                                         disabled>
@@ -598,6 +610,98 @@
                                         <tr>
                                             <td>
                                                 <button type="button" onclick="myApp.btnRemapKey(16)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">UP</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_Analog_Up" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(17)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">DOWN</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_Analog_Down" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(18)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">LEFT</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_Analog_Left" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(19)"
+                                                    class="btn btn-primary">Key</button>
+                                            </td>
+                                            <td>
+                                                
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">RIGHT</th>
+                                <td>
+                                    <input rv-value="data.remappings.Mapping_Action_Analog_Right" type="text"
+                                        class="form-control" disabled>
+                                </td>
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                    <table class="regularTable">
+                                        <tr>
+                                            <td>
+                                                <button type="button" onclick="myApp.btnRemapKey(20)"
                                                     class="btn btn-primary">Key</button>
                                             </td>
                                             <td>

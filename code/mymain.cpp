@@ -238,13 +238,17 @@ int Mapping_Action_Start = 0;
 int Mapping_Action_CUP = 0;
 int Mapping_Action_CDOWN = 0;
 int Mapping_Action_CLEFT = 0;
-int Mapping_Action_CRIGHT = 0;
+int Mapping_Action_CRIGHT = 0; 
 int Mapping_Action_Z = 0;
 int Mapping_Action_L = 0;
 int Mapping_Action_R = 0;
 int Mapping_Action_B = 0;
 int Mapping_Action_A = 0;
 int Mapping_Menu = 0;
+int Mapping_Action_Analog_Up = 0;
+int Mapping_Action_Analog_Down = 0;
+int Mapping_Action_Analog_Left = 0;
+int Mapping_Action_Analog_Right = 0;
 
 int getKeyMapping(std::string line);
 
@@ -292,9 +296,13 @@ void readConfig()
             if (counter==23) Mapping_Action_B = getKeyMapping(line);
             if (counter==24) Mapping_Action_A = getKeyMapping(line);
             if (counter==25) Mapping_Menu = getKeyMapping(line);
+            if (counter==26) Mapping_Action_Analog_Up = getKeyMapping(line);
+            if (counter==27) Mapping_Action_Analog_Down = getKeyMapping(line);
+            if (counter==28) Mapping_Action_Analog_Left = getKeyMapping(line);
+            if (counter==29) Mapping_Action_Analog_Right = getKeyMapping(line);
 
             //load eep file
-            if (counter == 26)
+            if (counter == 30)
             {
                 if (mapping == 0)
                     loadEep = false;
@@ -303,7 +311,7 @@ void readConfig()
             }
 
             //load sra file
-            if (counter == 27)
+            if (counter == 31)
             {
                 if (mapping == 0)
                     loadSra = false;
@@ -312,7 +320,7 @@ void readConfig()
             }
 
             //load fla file
-            if (counter == 28)
+            if (counter == 32)
             {
                 if (mapping == 0)
                     loadFla = false;
@@ -321,7 +329,7 @@ void readConfig()
             }
 
             //show FPS
-            if (counter == 29)
+            if (counter == 33)
             {
                 if (mapping == 1)
                     showFPS = true;
@@ -330,7 +338,7 @@ void readConfig()
             }
 
             //swap sticks
-            if (counter == 30)
+            if (counter == 34)
             {
                 if (mapping == 1)
                     swapSticks = true;
@@ -655,12 +663,17 @@ void mainLoop()
     //KEYBOARD
     keyboardState = (Uint8*)SDL_GetKeyboardState(NULL);
 
+    if (keyboardState[Mapping_Up]) neilbuttons.upKey = true;
+    if (keyboardState[Mapping_Down]) neilbuttons.downKey = true;
+    if (keyboardState[Mapping_Left]) neilbuttons.leftKey = true;
+    if (keyboardState[Mapping_Right]) neilbuttons.rightKey = true;
+
     if (!gamepadConnected)
     {
-        if (keyboardState[Mapping_Up]) neilbuttons.axis1 = -32000;
-        if (keyboardState[Mapping_Down]) neilbuttons.axis1 = 32000;
-        if (keyboardState[Mapping_Left]) neilbuttons.axis0 = -32000;
-        if (keyboardState[Mapping_Right]) neilbuttons.axis0 = 32000;
+        if (keyboardState[Mapping_Action_Analog_Up]) neilbuttons.axis1 = -32000;
+        if (keyboardState[Mapping_Action_Analog_Down]) neilbuttons.axis1 = 32000;
+        if (keyboardState[Mapping_Action_Analog_Left]) neilbuttons.axis0 = -32000;
+        if (keyboardState[Mapping_Action_Analog_Right]) neilbuttons.axis0 = 32000;
     }
 
     if (keyboardState[Mapping_Action_Start]) neilbuttons.startKey = true;
@@ -908,6 +921,11 @@ extern "C" {
 
     void runMainLoop(){
         mainLoop();
+    }
+
+    void toggleFPS(int show){
+        if (show==1) showFPS = true;
+        if (show==0) showFPS = false;
     }
 
     struct NeilButtons* getNeilButtons()

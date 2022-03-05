@@ -16,3 +16,4 @@ bool neil_unserialize();
 bool neil_export_eep();
 bool neil_export_sra();
 bool neil_export_fla();
+void retro_reset_new();
