@@ -128,7 +128,13 @@ CFILES := src/glide2gl/src/Glide64/Combine.c \
     src/mupen64plus-rsp-hle/src/jpeg.c \
     src/mupen64plus-rsp-hle/src/mp3.c \
     src/mupen64plus-rsp-hle/src/musyx.c \
-    src/mupen64plus-rsp-hle/src/re2.c
+    src/mupen64plus-rsp-hle/src/re2.c \
+    minizip/ioapi.c \
+    minizip/miniunz.c \
+    minizip/minizip.c \
+    minizip/mztools.c \
+    minizip/unzip.c \
+    minizip/zip.c
 
 CPPFILES := mymain.cpp \
 	src/Graphics/RDP/gDP_funcs.cpp \
@@ -183,11 +189,7 @@ n64wasm.js: $(FILES)
     -s EXPORTED_FUNCTIONS="['_main','_runMainLoop','_neilGetSoundBufferResampledAddress', \
     '_neilGetAudioWritePosition','_neil_serialize','_neil_unserialize','_neil_toast_message', \
     '_neil_export_eep','_neil_export_sra','_neil_export_fla','_neil_reset','_toggleFPS']" \
-	-s INVOKE_RUN=0 \
-	--preload-file 'shader_frag.hlsl' \
-	--preload-file 'shader_vert.hlsl' \
-	--preload-file 'overlay.png' \
-	--preload-file 'res/'
+	-s INVOKE_RUN=0
 
 %.o : %.cpp
 	emcc -c $< -o $@ \

@@ -111,9 +111,17 @@ void poweron_flashram(struct flashram* flashram)
    flashram->write_pointer = 0;
 }
 
+#include <boolean.h>
+int counter_flash = 0;
+extern int export_save_memory_counter;
+bool neil_export_save_memory();
+
 void flashram_save(struct flashram* flashram)
 {
    flashram->save(flashram->user_data);
+   counter_flash++;
+   // printf("flash save %d\n",counter_flash);
+   export_save_memory_counter = 30;
 }
 
 void format_flashram(uint8_t* flash)

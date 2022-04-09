@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <boolean.h>
 
 void init_mempak(struct mempak* mpk, void* user_data, void (*save)(void*), uint8_t* data)
 {
@@ -30,9 +31,17 @@ void init_mempak(struct mempak* mpk, void* user_data, void (*save)(void*), uint8
    mpk->data = data;
 }
 
+int counter_mempak = 0;
+extern int export_save_memory_counter;
+bool neil_export_save_memory();
+
 void mempak_save(struct mempak* mpk)
 {
    mpk->save(mpk->user_data);
+   counter_mempak++;
+   // printf("mempak save %d\n",counter_mempak);
+   export_save_memory_counter = 30;
+
 }
 
 void format_mempak(uint8_t* mpk_data)

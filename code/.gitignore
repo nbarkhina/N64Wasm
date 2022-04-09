@@ -353,3 +353,4 @@ dist
 *.sln
 *.dll
 mario64.z64
+*.savememory

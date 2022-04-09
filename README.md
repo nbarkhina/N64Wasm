@@ -4,7 +4,7 @@ Thanks for checking out N64 Wasm! An N64 emulator that runs in the browser. It i
 Supports the following features -
 - Gamepad Support (Xbox and PS4 Controller tested)
 - Button and Keyboard Remapping
-- Save States
+- Save States and SRAM
   - They save in your browser so you can close and come back later
 - Import/Export Save Files (see settings.js)
 - Zoom Controls
@@ -25,8 +25,7 @@ I used WSL on Windows but any Linux environment would work as well. First Instal
 - source ./emsdk_env.sh
 - navigate back to the code folder in the N64Wasm repo
 - run `make`
-- then copy these 3 files from the code\ folder into the dist\ folder
-  - n64wasm.data
+- then copy these 2 files from the code\ folder into the dist\ folder
   - n64wasm.js
   - n64wasm.wasm
 

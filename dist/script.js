@@ -52,7 +52,9 @@ class MyClass {
             showFPS: true,
             settings: {
                 CLOUDSAVEURL: "",
-                SHOWADVANCED: false
+                SHOWADVANCED: false,
+                SHOWOPTIONS: false,
+                SHOWFPS: true
             }
         };
 
@@ -63,6 +65,8 @@ class MyClass {
         {
             this.rivetsData.showLogin = true;
         }
+
+        this.rivetsData.showFPS = this.rivetsData.settings.SHOWFPS;
 
         if (window["ROMLIST"].length > 0)
         {
@@ -144,6 +148,13 @@ class MyClass {
             }
             
         }
+
+        //backup sram event
+        if (text.includes('writing game.savememory')){
+            setTimeout(() => {
+                myClass.SaveSram();
+            }, 100);
+        }
     }
 
     detectMobile(){
@@ -162,10 +173,12 @@ class MyClass {
         }
         else
         {
+            await this.writeAssets();
             FS.writeFile('custom.v64',byteArray);
             this.beforeRun();
             this.retrieveSettings();
             this.WriteConfigFile();
+            await this.LoadSram();
             $('#canvasDiv').show();
             Module.callMain(['custom.v64']);
             this.findInDatabase();
@@ -176,6 +189,37 @@ class MyClass {
             this.toggleFPSModule = Module.cwrap('toggleFPS', null, ['number']);
         }
 
+    }
+
+    async writeAssets(){
+
+        let file = 'assets.zip';
+        let responseText = await this.downloadFile(file);
+        console.log(file,responseText.length);
+        FS.writeFile(
+            file, // file name
+            responseText
+        );
+    }
+
+    async downloadFile(url) {
+        return new Promise(function (resolve, reject) {
+            var oReq = new XMLHttpRequest();
+            oReq.open("GET", url, true);
+            oReq.responseType = "arraybuffer";
+            oReq.onload = function (oEvent) {
+                var arrayBuffer = oReq.response;
+                var byteArray = new Uint8Array(arrayBuffer);
+                resolve(byteArray);
+            };
+            oReq.onerror = function(){
+                reject({
+                    status: oReq.status,
+                    statusText: oReq.statusText
+                });
+            }
+            oReq.send();
+        });
     }
 
     async initAudio() {
@@ -699,6 +743,58 @@ class MyClass {
         }
     }
 
+    async LoadSram() {
+
+        return new Promise(function (resolve, reject) {
+            var request = indexedDB.open('N64WASMDB');
+            try
+            {
+                request.onsuccess = function (ev) {
+                    var db = ev.target.result;
+                    var romStore = db.transaction("N64WASMSTATES", "readwrite").objectStore("N64WASMSTATES");
+                    var rom = romStore.get(myClass.rom_name + '.sram');
+                    rom.onsuccess = function (event) {
+                        if (rom.result)
+                        {
+                            let byteArray = rom.result; //Uint8Array
+                            FS.writeFile('/game.savememory', byteArray);
+                        }
+                        resolve();
+                    };
+                    rom.onerror = function (event) {
+                        reject();
+                    }
+                }
+                request.onerror = function (ev) {
+                    reject();
+                }
+            }catch(error){
+                reject();
+            }
+        });
+
+    }
+
+    SaveSram() {
+
+        let data = FS.readFile('/game.savememory'); //this is a Uint8Array
+
+        var request = indexedDB.open('N64WASMDB');
+        request.onsuccess = function (ev) {
+            var db = ev.target.result;
+            var romStore = db.transaction("N64WASMSTATES", "readwrite").objectStore("N64WASMSTATES");
+            var addRequest = romStore.put(data, myClass.rom_name + '.sram');
+            addRequest.onsuccess = function (event) {
+                console.log('sram added');
+            };
+            addRequest.onerror = function (event) {
+                console.log('error adding sram');
+                console.log(event);
+            };
+        }
+
+    }
+
     saveToDatabase(data) {
 
         if (!window["indexedDB"]==undefined){
@@ -716,6 +812,7 @@ class MyClass {
             addRequest.onsuccess = function (event) {
                 console.log('data added');
                 toastr.info('State Saved');
+                window["myApp"].showToast("State Saved");
             };
             addRequest.onerror = function (event) {
                 console.log('error adding data');

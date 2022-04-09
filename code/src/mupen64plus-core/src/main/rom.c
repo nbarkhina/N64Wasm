@@ -390,6 +390,14 @@ m64p_error open_rom(const unsigned char* romimage, unsigned int size)
    DebugMessage(M64MSG_VERBOSE, "PC = %x", sl((unsigned int)ROM_HEADER.PC));
    DebugMessage(M64MSG_VERBOSE, "Save type: %d", ROM_SETTINGS.savetype);
 
+   // Neil - display save type
+   if (ROM_SETTINGS.savetype==EEPROM_4KB) printf("Save type: EEPROM_4KB\n");
+   if (ROM_SETTINGS.savetype==EEPROM_16KB) printf("Save type: EEPROM_16KB\n");
+   if (ROM_SETTINGS.savetype==SRAM) printf("Save type: SRAM\n");
+   if (ROM_SETTINGS.savetype==FLASH_RAM) printf("Save type: FLASH_RAM\n");
+   if (ROM_SETTINGS.savetype==CONTROLLER_PACK) printf("Save type: CONTROLLER_PACK\n");
+   if (ROM_SETTINGS.savetype==NONE) printf("Save type: NONE\n");
+
    if (!strcmp(ROM_PARAMS.headername, "GOLDENEYE"))
       ROM_PARAMS.special_rom = GOLDEN_EYE;
    else if (!strcmp(ROM_PARAMS.headername, "RAT ATTACK"))

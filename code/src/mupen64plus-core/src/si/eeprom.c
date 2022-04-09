@@ -25,6 +25,7 @@
 #include "../api/callbacks.h"
 
 #include <string.h>
+#include <boolean.h>
 
 void init_eeprom(struct eeprom *eeprom,
       void *user_data,
@@ -41,9 +42,17 @@ void init_eeprom(struct eeprom *eeprom,
    eeprom->id        = id;
 }
 
+int counter_eep = 0;
+extern int export_save_memory_counter;
+bool neil_export_save_memory();
+
 void eeprom_save(struct eeprom* eeprom)
 {
    eeprom->save(eeprom->user_data);
+   counter_eep++;
+   //printf("eep save %d\n",counter_eep);
+   export_save_memory_counter = 30;
+
 }
 
 void format_eeprom(uint8_t* eeprom, size_t size)

@@ -29,6 +29,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include <boolean.h>
 
 void init_sram(struct sram* sram, void* user_data, void (*save)(void*), uint8_t* data)
 {
@@ -37,9 +38,16 @@ void init_sram(struct sram* sram, void* user_data, void (*save)(void*), uint8_t*
    sram->data      = data;
 }
 
+int counter_sram = 0;
+extern int export_save_memory_counter;
+bool neil_export_save_memory();
+
 void sram_save(struct sram* sram)
 {
    sram->save(sram->user_data);
+   counter_sram++;
+   // printf("sram save %d\n",counter_sram);
+   export_save_memory_counter = 30;
 }
 
 void format_sram(uint8_t* sram)

@@ -376,8 +376,66 @@ void readConfig()
     }
 }
 
+#include "minizip/unzip.h"
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <sys/stat.h>
+#endif
+
+void extractZipFiles(const char* path)
+{
+    unzFile zip = unzOpen(path);
+    if (unzGoToFirstFile(zip) == UNZ_OK)
+    {
+        do {
+            if (unzOpenCurrentFile(zip) == UNZ_OK) {
+                unz_file_info fileInfo;
+                memset(&fileInfo, 0, sizeof(unz_file_info));
+
+                if (unzGetCurrentFileInfo(zip, &fileInfo, NULL, 0, NULL, 0, NULL, 0) == UNZ_OK) {
+                    char* filename = (char*)malloc(fileInfo.size_filename + 1);
+                    unzGetCurrentFileInfo(zip, &fileInfo, filename, fileInfo.size_filename + 1, NULL, 0, NULL, 0);
+                    filename[fileInfo.size_filename] = '\0';
+
+
+                    if (fileInfo.uncompressed_size == 0) //directory
+                    {
+#ifdef _WIN32
+                        _mkdir(filename);
+#else
+                        mkdir(filename, 0777);
+#endif
+                    }
+                    else //file
+                    {
+                        void* buffer = malloc(fileInfo.uncompressed_size);
+                        int readBytes = unzReadCurrentFile(zip, buffer, fileInfo.uncompressed_size);
+
+                        FILE* file = fopen(filename, "wb");        // w for write, b for binary
+                        fwrite(buffer, fileInfo.uncompressed_size, 1, file); // write 2048 bytes
+                        fclose(file);
+                        free(buffer);
+
+                    }
+                    
+                    printf("File: %s\n", filename);
+                    free(filename);
+                }
+
+                unzCloseCurrentFile(zip);
+            }
+        } while (unzGoToNextFile(zip) == UNZ_OK);
+    }
+}
+
 int main(int argc, char* argv[])
 {
+
+#ifdef __EMSCRIPTEN__
+    extractZipFiles("assets.zip");
+#endif
+
     //use to view arguments
     // printf("arg count %d\n", argc);
     // for (int i = 0; i < argc; i++)
@@ -460,6 +518,9 @@ int main(int argc, char* argv[])
 
     sprintf(rom_name, "%s", "mario64.z64");
     //sprintf(rom_name, "%s", "roms\\fzero.v64");
+    //sprintf(rom_name, "%s", "roms\\diddy.v64");
+    //sprintf(rom_name, "%s", "roms\\mariokart.v64");
+
     if (argc == 2)
     {
         sprintf(rom_name, "%s", argv[1]);
@@ -590,10 +651,22 @@ void mainLoop()
         if (IsPressed(XINPUT_GAMEPAD_DPAD_DOWN)) neilbuttons.downKey = true;
         if (IsPressed(XINPUT_GAMEPAD_DPAD_LEFT)) neilbuttons.leftKey = true;
         if (IsPressed(XINPUT_GAMEPAD_DPAD_RIGHT)) neilbuttons.rightKey = true;
-        neilbuttons.axis0 = state.Gamepad.sThumbLX;
-        neilbuttons.axis1 = state.Gamepad.sThumbLY * -1;
-        neilbuttons.axis2 = state.Gamepad.sThumbRX;
-        neilbuttons.axis3 = state.Gamepad.sThumbRY;
+
+        if (swapSticks == 0)
+        {
+            neilbuttons.axis0 = state.Gamepad.sThumbLX;
+            neilbuttons.axis1 = state.Gamepad.sThumbLY * -1;
+            neilbuttons.axis2 = state.Gamepad.sThumbRX;
+            neilbuttons.axis3 = state.Gamepad.sThumbRY;
+        }
+        else
+        {
+            neilbuttons.axis0 = state.Gamepad.sThumbRX;
+            neilbuttons.axis1 = state.Gamepad.sThumbRY;
+            neilbuttons.axis2 = state.Gamepad.sThumbLX;
+            neilbuttons.axis3 = state.Gamepad.sThumbLY * -1;
+        }
+        
 
         if (neilbuttons.axis2 < -16000) neilbuttons.cbLeft = 1;
         if (neilbuttons.axis2 > 16000) neilbuttons.cbRight = 1;
@@ -690,18 +763,22 @@ void mainLoop()
     if (keyboardState[Mapping_Action_CUP]) neilbuttons.cbUp = true;
 
     //TODO - doesnt work in conjunction with gamepad, only use for debugging while gamepad is off
-    // if (isPressedOnce(keyboardState[SDL_SCANCODE_GRAVE], &lastOverlayKeyPressed))
-    // {
-    //     if (!showOverlay)
-    //     {
-    //         selectedMenuItem = 0;
-    //     }
-    //     showOverlay = !showOverlay;
-    // }
-    // if (isPressedOnce(keyboardState[SDL_SCANCODE_UP], &lastMenuUpPressed)) menuMoveUp = true;
-    // if (isPressedOnce(keyboardState[SDL_SCANCODE_DOWN], &lastMenuDownPressed)) menuMoveDown = true;
-    // if (isReleasedOnce(keyboardState[SDL_SCANCODE_RETURN], &lastMenuOkPressed)) menuOk = true;
+    if (!gamepadConnected)
+    {
+        if (isPressedOnce(keyboardState[SDL_SCANCODE_GRAVE], &lastOverlayKeyPressed))
+        {
+            if (!showOverlay)
+            {
+                selectedMenuItem = 0;
+            }
+            showOverlay = !showOverlay;
+        }
+        if (isPressedOnce(keyboardState[SDL_SCANCODE_UP], &lastMenuUpPressed)) menuMoveUp = true;
+        if (isPressedOnce(keyboardState[SDL_SCANCODE_DOWN], &lastMenuDownPressed)) menuMoveDown = true;
+        if (isReleasedOnce(keyboardState[SDL_SCANCODE_RETURN], &lastMenuOkPressed)) menuOk = true;
 
+    }
+    
     if (showOverlay)
     {
         resetNeilButtons(); //don't process game buttons while overlay is showing

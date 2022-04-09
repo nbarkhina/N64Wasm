@@ -76,12 +76,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\EMSDK\SDL2-2.0.14\include;C:\EMSDK\SDL2_image-2.0.5\include;C:\EMSDK\SDL2_ttf-2.0.15\include;C:\EMSDK\glew-2.2.0\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src\api;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src\plugin\audio_libretro;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\libretro-common\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\libretro;$(IncludePath)</IncludePath>
+    <IncludePath>C:\EMSDK\SDL2-2.0.14\include;C:\EMSDK\SDL2_image-2.0.5\include;C:\EMSDK\SDL2_ttf-2.0.15\include;C:\EMSDK\glew-2.2.0\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src\api;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src\plugin\audio_libretro;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\libretro-common\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\libretro;.\zlib;$(IncludePath)</IncludePath>
     <LibraryPath>C:\EMSDK\SDL2-2.0.14\lib\x86;C:\EMSDK\SDL2_image-2.0.5\lib\x86;C:\EMSDK\SDL2_ttf-2.0.15\lib\x86;C:\EMSDK\glew-2.2.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\EMSDK\SDL2-2.0.14\include;C:\EMSDK\SDL2_image-2.0.5\include;C:\EMSDK\SDL2_ttf-2.0.15\include;C:\EMSDK\glew-2.2.0\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src\api;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src\plugin\audio_libretro;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\libretro-common\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\libretro;$(IncludePath)</IncludePath>
+    <IncludePath>C:\EMSDK\SDL2-2.0.14\include;C:\EMSDK\SDL2_image-2.0.5\include;C:\EMSDK\SDL2_ttf-2.0.15\include;C:\EMSDK\glew-2.2.0\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src\api;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\mupen64plus-core\src\plugin\audio_libretro;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\libretro-common\include;C:\Users\nbark\Desktop\N64_Parallel_Github\code\src\libretro;.\zlib;$(IncludePath)</IncludePath>
     <LibraryPath>C:\EMSDK\SDL2-2.0.14\lib\x86;C:\EMSDK\SDL2_image-2.0.5\lib\x86;C:\EMSDK\SDL2_ttf-2.0.15\lib\x86;C:\EMSDK\glew-2.2.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -100,7 +100,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\EMSDK\SDL2-2.0.14\lib\x86;C:\EMSDK\SDL2_image-2.0.5\lib\x86;C:\EMSDK\SDL2_ttf-2.0.15\lib\x86;C:\EMSDK\glew-2.2.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+            <AdditionalLibraryDirectories>C:\EMSDK\SDL2-2.0.14\lib\x86;C:\EMSDK\SDL2_image-2.0.5\lib\x86;C:\EMSDK\SDL2_ttf-2.0.15\lib\x86;C:\EMSDK\glew-2.2.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_image.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -151,6 +151,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="minizip\ioapi.c" />
+    <ClCompile Include="minizip\iowin32.c" />
+    <ClCompile Include="minizip\miniunz.c" />
+    <ClCompile Include="minizip\minizip.c" />
+    <ClCompile Include="minizip\mztools.c" />
+    <ClCompile Include="minizip\unzip.c" />
+    <ClCompile Include="minizip\zip.c" />
     <ClCompile Include="mymain.cpp" />
     <ClCompile Include="src\glide2gl\src\Glide64\Combine.c" />
     <ClCompile Include="src\glide2gl\src\Glide64\Framebuffer_glide64.c" />
@@ -300,6 +307,12 @@
     <ClCompile Include="zlib\zutil.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="minizip\crypt.h" />
+    <ClInclude Include="minizip\ioapi.h" />
+    <ClInclude Include="minizip\iowin32.h" />
+    <ClInclude Include="minizip\mztools.h" />
+    <ClInclude Include="minizip\unzip.h" />
+    <ClInclude Include="minizip\zip.h" />
     <ClInclude Include="neil_controller.h" />
     <ClInclude Include="src\libretro\neil.h" />
     <ClInclude Include="stb_image.h" />

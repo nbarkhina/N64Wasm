@@ -1063,12 +1063,51 @@ char* loadFile(char* filename, int* size)
     return filecontent;
 }
 
+#ifdef _WIN32
+#include <io.h>
+#define F_OK    0       
+#define access _access
+#else
+#include <unistd.h>
+#endif
+
+bool file_exists(const char* path)
+{
+    if (access(path, F_OK) == 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 static void format_saved_memory(bool loadEep, bool loadSra, bool loadFla)
 {
     format_sram(saved_memory.sram);
     format_eeprom(saved_memory.eeprom, sizeof(saved_memory.eeprom));
     format_flashram(saved_memory.flashram);
+    format_mempak(saved_memory.mempack[0]);
+    format_mempak(saved_memory.mempack[1]);
+    format_mempak(saved_memory.mempack[2]);
+    format_mempak(saved_memory.mempack[3]);
+    format_disk(saved_memory.disk);
 
+    if (file_exists("game.savememory"))
+    {
+        int size = 0;
+        char* savedata = loadFile("game.savememory", &size);
+        int memptr = 0;
+        memcpy(saved_memory.eeprom, savedata + memptr, 0x800); memptr += 0x800;
+        memcpy(saved_memory.sram, savedata + memptr, 0x8000); memptr += 0x8000;
+        memcpy(saved_memory.mempack[0], savedata + memptr, 0x8000); memptr += 0x8000;
+        memcpy(saved_memory.mempack[1], savedata + memptr, 0x8000); memptr += 0x8000;
+        memcpy(saved_memory.mempack[2], savedata + memptr, 0x8000); memptr += 0x8000;
+        memcpy(saved_memory.mempack[3], savedata + memptr, 0x8000); memptr += 0x8000;
+        memcpy(saved_memory.flashram, savedata, 0x20000); memptr += 0x20000;
+        printf("savememory loaded\n");
+    }
+
+    
     if (loadEep)
     {
          int size = 0;
@@ -1092,11 +1131,6 @@ static void format_saved_memory(bool loadEep, bool loadSra, bool loadFla)
     }
 
 
-    format_mempak(saved_memory.mempack[0]);
-    format_mempak(saved_memory.mempack[1]);
-    format_mempak(saved_memory.mempack[2]);
-    format_mempak(saved_memory.mempack[3]);
-    format_disk(saved_memory.disk);
 }
 
 bool retro_load_game_new(uint8_t* romdata, int size, bool loadEep, bool loadSra, bool loadFla)
@@ -1211,8 +1245,14 @@ static void glsm_enter(void)
 }
 #endif
 
+bool neil_export_save_memory();
+
+
 void retro_run(void)
 {
+
+    neil_export_save_memory();
+
     static bool updated = false;
 
     FAKE_SDL_TICKS += 16;
@@ -1314,6 +1354,36 @@ bool neil_serialize()
 
 
     return false;
+}
+
+int export_save_memory_counter = 0;
+void neil_toast_message(char* message);
+
+bool neil_export_save_memory() {
+
+    if (export_save_memory_counter == 1)
+    {
+        FILE* file = fopen("game.savememory", "wb");        // w for write, b for binary
+        fwrite(saved_memory.eeprom, 0x800, 1, file); // write 10 bytes from our buffer
+        fwrite(saved_memory.sram, 0x8000, 1, file); // write 10 bytes from our buffer
+        fwrite(saved_memory.mempack[0], 0x8000, 1, file); // write 10 bytes from our buffer
+        fwrite(saved_memory.mempack[1], 0x8000, 1, file); // write 10 bytes from our buffer
+        fwrite(saved_memory.mempack[2], 0x8000, 1, file); // write 10 bytes from our buffer
+        fwrite(saved_memory.mempack[3], 0x8000, 1, file); // write 10 bytes from our buffer
+        fwrite(saved_memory.flashram, 0x20000, 1, file); // write 10 bytes from our buffer
+        fclose(file);
+
+        printf("writing game.savememory\n");
+
+    }
+
+    if (export_save_memory_counter > 0)
+    {
+        export_save_memory_counter--;
+        neil_toast_message("Saving SRAM...");
+    }
+
+    
 }
 
 bool neil_export_eep()
