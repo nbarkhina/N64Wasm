@@ -1103,7 +1103,7 @@ static void format_saved_memory(bool loadEep, bool loadSra, bool loadFla)
         memcpy(saved_memory.mempack[1], savedata + memptr, 0x8000); memptr += 0x8000;
         memcpy(saved_memory.mempack[2], savedata + memptr, 0x8000); memptr += 0x8000;
         memcpy(saved_memory.mempack[3], savedata + memptr, 0x8000); memptr += 0x8000;
-        memcpy(saved_memory.flashram, savedata, 0x20000); memptr += 0x20000;
+        memcpy(saved_memory.flashram, savedata + memptr, 0x20000); memptr += 0x20000;
         printf("savememory loaded\n");
     }
 
