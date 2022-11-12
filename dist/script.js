@@ -5,6 +5,7 @@ class MyClass {
         this.rom_name = '';
         this.mobileMode = false;
         this.iosMode = false;
+        this.audioInited = false;
         this.allSaveStates = [];
         this.loginModalOpened = false;
         this.loadSavestateAfterBoot = false;
@@ -232,30 +233,34 @@ class MyClass {
 
     async initAudio() {
 
-        this.audioContext = new AudioContext({
-            latencyHint: 'interactive',
-            sampleRate: 44100, //this number has to match what's in gui.cpp
-        });
-        this.gainNode = this.audioContext.createGain();
-        this.gainNode.gain.value = 0.5;
-        this.gainNode.connect(this.audioContext.destination);
-
-        //point at where the emulator is storing the audio buffer
-        this.audioBufferResampled = new Int16Array(Module.HEAP16.buffer,Module._neilGetSoundBufferResampledAddress(),64000);
-
-        this.audioWritePosition = 0;
-        this.audioReadPosition = 0;
-        this.audioBackOffCounter = 0;
-        this.audioThreadLock = false;
-
-
-        //emulator is synced to the OnAudioProcess event because it's way
-        //more accurate than emscripten_set_main_loop or RAF
-        //and the old method was having constant emulator slowdown swings
-        //so the audio suffered as a result
-        this.pcmPlayer = this.audioContext.createScriptProcessor(AUDIOBUFFSIZE, 2, 2);
-        this.pcmPlayer.onaudioprocess = this.AudioProcessRecurring.bind(this);
-        this.pcmPlayer.connect(this.gainNode);
+        if (!this.audioInited)
+        {
+            this.audioInited = true;
+            this.audioContext = new AudioContext({
+                latencyHint: 'interactive',
+                sampleRate: 44100, //this number has to match what's in gui.cpp
+            });
+            this.gainNode = this.audioContext.createGain();
+            this.gainNode.gain.value = 0.5;
+            this.gainNode.connect(this.audioContext.destination);
+    
+            //point at where the emulator is storing the audio buffer
+            this.audioBufferResampled = new Int16Array(Module.HEAP16.buffer,Module._neilGetSoundBufferResampledAddress(),64000);
+    
+            this.audioWritePosition = 0;
+            this.audioReadPosition = 0;
+            this.audioBackOffCounter = 0;
+            this.audioThreadLock = false;
+    
+    
+            //emulator is synced to the OnAudioProcess event because it's way
+            //more accurate than emscripten_set_main_loop or RAF
+            //and the old method was having constant emulator slowdown swings
+            //so the audio suffered as a result
+            this.pcmPlayer = this.audioContext.createScriptProcessor(AUDIOBUFFSIZE, 2, 2);
+            this.pcmPlayer.onaudioprocess = this.AudioProcessRecurring.bind(this);
+            this.pcmPlayer.connect(this.gainNode);
+        }
 
     }
 
@@ -435,6 +440,7 @@ class MyClass {
 
 
     uploadBrowse() {
+        this.initAudio();
         document.getElementById('file-upload').click();
     }
 
