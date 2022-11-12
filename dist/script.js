@@ -189,10 +189,10 @@ class MyClass {
             this.WriteConfigFile();
             this.initAudio(); //need to initAudio before next call for iOS to work
             await this.LoadSram();
-            $('#canvasDiv').show();
             Module.callMain(['custom.v64']);
             this.findInDatabase();
             this.configureEmulator();
+            $('#canvasDiv').show();
             this.rivetsData.beforeEmulatorStarted = false;
             this.showToast = Module.cwrap('neil_toast_message', null, ['string']);
             this.toggleFPSModule = Module.cwrap('toggleFPS', null, ['number']);
@@ -1006,15 +1006,20 @@ class MyClass {
         oReq.send(null);
     }
 
-    fullscreen(){
-        let el = document.getElementById('canvas');
+    fullscreen() {
+        try {
+            let el = document.getElementById('canvas');
 
-        if(el.webkitRequestFullScreen) {
-            el.webkitRequestFullScreen();
+            if (el.webkitRequestFullScreen) {
+                el.webkitRequestFullScreen();
+            }
+            else {
+                el.mozRequestFullScreen();
+            }
+        } catch (error) 
+        { 
+            console.log('full screen failed');
         }
-       else {
-          el.mozRequestFullScreen();
-       }     
     }
 
     newRom(){
@@ -1028,6 +1033,14 @@ class MyClass {
             let sizeNum = parseInt(size);
             this.canvasSize = sizeNum;
         }
+
+        if (this.mobileMode)
+        {
+            document.getElementById('maindiv').classList.remove('container');
+            this.canvasSize = window.innerWidth;
+            console.log('canvas size',this.canvasSize);
+        }
+
         this.resizeCanvas();
 
         if (this.rivetsData.password)
