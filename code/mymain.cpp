@@ -64,6 +64,13 @@ bool loadSra = false;
 bool loadFla = false;
 bool showFPS = true;
 bool swapSticks = false;
+bool disableAudioSync = false;
+
+extern "C" {
+    int triangleCount = 0;
+    int globalTriangleTrigger = 0;
+    bool pilotwingsFix = false;
+}
 
 void connectGamepad()
 {
@@ -161,8 +168,8 @@ TTF_Font* font40;
 SDL_Color fontcolorWhite = { 255, 255, 255 };
 SDL_Color fontcolorRed = { 0, 0, 255 }; //needs to be BGRA becuse of emscripten
 Uint32 frameStart, frameTime;
-const int FPS   = 60;
-const int DELAY = 1000.0f / FPS;
+int FPS   = 60;
+int DELAY = 1000.0f / FPS;
 int current_fps = 0;
 int current_fps_counter = 0;
 Uint32 current_frameStart;
@@ -346,6 +353,15 @@ void readConfig()
                     swapSticks = false;
             }
 
+            //disable audio sync
+            if (counter == 35)
+            {
+                if (mapping == 1)
+                    disableAudioSync = true;
+                else
+                    disableAudioSync = false;
+            }
+
             counter++;
 
 
@@ -516,10 +532,12 @@ int main(int argc, char* argv[])
 
     retro_init();
 
-    sprintf(rom_name, "%s", "mario64.z64");
+    //sprintf(rom_name, "%s", "mario64.z64");
+    //sprintf(rom_name, "%s", "roms\\mario64_europe.n64");
     //sprintf(rom_name, "%s", "roms\\fzero.v64");
     //sprintf(rom_name, "%s", "roms\\diddy.v64");
     //sprintf(rom_name, "%s", "roms\\mariokart.v64");
+    sprintf(rom_name, "%s", "roms\\pilotwings.n64");
 
     if (argc == 2)
     {
@@ -541,8 +559,14 @@ int main(int argc, char* argv[])
     if (!loaded)
         printf("problem loading rom\n");
 
+    FPS = getRegionTiming();
+    DELAY = 1000.0f / FPS;
+    
 #ifdef __EMSCRIPTEN__
-	//emscripten_set_main_loop(mainLoop,60,1);
+    if (disableAudioSync)
+    {
+        emscripten_set_main_loop(mainLoop, FPS, 1);
+    }
 #else
     while (runApp){
 		mainLoop();
@@ -831,6 +855,10 @@ void mainLoop()
         SDL_GL_SwapWindow(WindowOpenGL);
         resetReadyToSwap();
         swapCount++;
+
+        //for debugging pilotwings fix
+        // triangleCount = 0;
+        // globalTriangleTrigger++;
     }
 
 
@@ -961,9 +989,7 @@ void limitFPS()
     frameTime = SDL_GetTicks() - frameStart;
     if (frameTime < DELAY)
     {
-#ifdef __EMSCRIPTEN__
-        //emscripten_sleep(1);
-#else
+#ifndef __EMSCRIPTEN__
         SDL_Delay((int)(DELAY - frameTime));
 #endif
     }

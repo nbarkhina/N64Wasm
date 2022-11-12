@@ -125,6 +125,12 @@ void vbo_buffer_data(void *data, size_t size)
    }
 }
 
+extern int triangleCount;
+extern int globalTriangleTrigger;
+extern bool pilotwingsFix;
+FILE* fp;
+
+
 void vbo_draw(void)
 {
    if (!vbuf_length || vbuf_drawing)
@@ -133,17 +139,54 @@ void vbo_draw(void)
    /* avoid infinite loop in sgl*BindBuffer */
    vbuf_drawing = true;
 
-   if (vbuf_vbo)
+   // if (vbuf_vbo)
+   // {
+   //    glBindBuffer(GL_ARRAY_BUFFER, vbuf_vbo);
+
+   //    glBufferSubData(GL_ARRAY_BUFFER, 0, vbuf_length * sizeof(VBufVertex), vbuf_data);
+
+   //    glDrawArrays(vbuf_primitive, 0, vbuf_length);
+   //    glBindBuffer(GL_ARRAY_BUFFER, 0);
+   // }
+   // else
+   // {
+   // }
+
+
+   if (pilotwingsFix) //pilotwings shadow fix
    {
-      glBindBuffer(GL_ARRAY_BUFFER, vbuf_vbo);
-
-      glBufferSubData(GL_ARRAY_BUFFER, 0, vbuf_length * sizeof(VBufVertex), vbuf_data);
-
-      glDrawArrays(vbuf_primitive, 0, vbuf_length);
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      bool draw = true;
+      if (vbuf_data[0].a > 150 && vbuf_data[0].a < 180 && 
+         vbuf_data[0].b == 0 && vbuf_data[0].g == 0 && vbuf_data[0].r == 0)
+      {
+         draw = false;
+      }
+      if (draw)
+      {
+         glDrawArrays(vbuf_primitive, 0, vbuf_length); //NEIL - this is literally where it draws everything
+      }
    }
    else
+   {
       glDrawArrays(vbuf_primitive, 0, vbuf_length); //NEIL - this is literally where it draws everything
+   }
+      
+       
+   //triangleCount++;
+   //if (globalTriangleTrigger == 299)
+   //{
+   //    fp = fopen("test.txt", "w+");
+   //    globalTriangleTrigger++;
+   //}
+   //if (globalTriangleTrigger == 300)
+   //{
+   //    fprintf(fp, "b %u g %u r %u a %u \n", (int)vbuf_data[0].b, (int)vbuf_data[0].g, (int)vbuf_data[0].r, (int)vbuf_data[0].a);
+   //}
+   //if (globalTriangleTrigger == 301)
+   //{
+   //    fclose(fp);
+   //    globalTriangleTrigger++;
+   //}
 
    vbuf_length = 0;
    vbuf_drawing = false;

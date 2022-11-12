@@ -16,6 +16,8 @@ extern retro_environment_t environ_cb;
 extern void update_variables(bool startup);
 extern void glide_set_filtering(unsigned value);
 
+extern bool pilotwingsFix;
+
 void ReadSettings(void)
 {
    struct retro_variable var = { "parallel-n64-screensize", 0 };
@@ -1367,6 +1369,8 @@ void ReadSpecialSettings (const char * name)
 #endif
    else if (strstr(name, (const char *)"Pilot Wings64"))
    {
+      printf("pilotwings fix\n");
+      pilotwingsFix = true;
       settings.swapmode_retro = true;
       settings.depth_bias = 10;
       //depthmode = 1

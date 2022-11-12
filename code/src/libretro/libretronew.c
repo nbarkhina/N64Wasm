@@ -636,6 +636,12 @@ void retro_get_system_av_info(struct retro_system_av_info* info)
     info->timing.sample_rate = 44100.0;
 }
 
+int getRegionTiming()
+{
+    m64p_system_type region = rom_country_code_to_system_type(ROM_HEADER.destination_code);
+    return (region == SYSTEM_PAL) ? 50 : 60;
+}
+
 static void context_reset(void)
 {
     switch (gfx_plugin)

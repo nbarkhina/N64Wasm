@@ -50,6 +50,7 @@ class MyClass {
             flaName: '',
             swapSticks: false,
             showFPS: true,
+            disableAudioSync: false,
             settings: {
                 CLOUDSAVEURL: "",
                 SHOWADVANCED: false,
@@ -293,17 +294,25 @@ class MyClass {
         let outputData1 = outputBuffer.getChannelData(0);
         let outputData2 = outputBuffer.getChannelData(1);
 
-        Module._runMainLoop();
-
-        this.audioWritePosition = Module._neilGetAudioWritePosition();
-
-
-        if (!this.hasEnoughSamples())
+        if (this.rivetsData.disableAudioSync)
+        {
+            this.audioWritePosition = Module._neilGetAudioWritePosition();
+        }
+        else
         {
             Module._runMainLoop();
+
+            this.audioWritePosition = Module._neilGetAudioWritePosition();
+    
+    
+            if (!this.hasEnoughSamples())
+            {
+                Module._runMainLoop();
+            }
+    
+            this.audioWritePosition = Module._neilGetAudioWritePosition();
         }
 
-        this.audioWritePosition = Module._neilGetAudioWritePosition();
     
 
         // if (!this.hasEnoughSamples())
@@ -405,6 +414,9 @@ class MyClass {
 
         //swap sticks
         if (this.rivetsData.swapSticks) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
+
+        //disable audio sync
+        if (this.rivetsData.disableAudioSync) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
          
         FS.writeFile('config.txt',configString);
     }
