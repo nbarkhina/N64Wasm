@@ -4,6 +4,7 @@ class MyClass {
     constructor() {
         this.rom_name = '';
         this.mobileMode = false;
+        this.iosMode = false;
         this.allSaveStates = [];
         this.loginModalOpened = false;
         this.loadSavestateAfterBoot = false;
@@ -163,8 +164,11 @@ class MyClass {
     }
 
     detectMobile(){
-        if (window.innerWidth < 600 || navigator.userAgent.toLocaleLowerCase().includes('iphone') ||
-        navigator.userAgent.toLocaleLowerCase().includes('ipad') )
+        if (navigator.userAgent.toLocaleLowerCase().includes('iphone') || navigator.userAgent.toLocaleLowerCase().includes('ipad'))
+        {
+            this.iosMode = true;
+        }
+        if (window.innerWidth < 600 || this.iosMode)
             this.mobileMode = true;
         else
             this.mobileMode = false;
@@ -182,12 +186,12 @@ class MyClass {
             FS.writeFile('custom.v64',byteArray);
             this.beforeRun();
             this.WriteConfigFile();
+            this.initAudio(); //need to initAudio before next call for iOS to work
             await this.LoadSram();
             $('#canvasDiv').show();
             Module.callMain(['custom.v64']);
             this.findInDatabase();
             this.configureEmulator();
-            this.initAudio();
             this.rivetsData.beforeEmulatorStarted = false;
             this.showToast = Module.cwrap('neil_toast_message', null, ['string']);
             this.toggleFPSModule = Module.cwrap('toggleFPS', null, ['number']);
@@ -282,7 +286,7 @@ class MyClass {
     AudioProcessRecurring(audioProcessingEvent){
 
         //I think this method is thread safe but just in case
-        if (this.audioThreadLock)
+        if (this.audioThreadLock || this.rivetsData.beforeEmulatorStarted)
         {
             // console.log('audio thread dupe');
             return;

@@ -11,6 +11,7 @@ Supports the following features -
 - Full Screen
 - Audio Support
 - Cloud Save States (Host your own server)
+- Multiple Controller Support
 
 
 You can try it here: https://www.neilb.net/n64wasm/

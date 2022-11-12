@@ -11,7 +11,8 @@ The following instructions will guide you in setting up your own server to host 
     ```javascript
         var N64WASMSETTINGS = {
             CLOUDSAVEURL: "api",
-            SHOWADVANCED: false
+            SHOWADVANCED: false,
+            SHOWOPTIONS: false
         }
     ```
 - Change the password in `app.js`
