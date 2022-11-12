@@ -51,11 +51,12 @@ class MyClass {
             swapSticks: false,
             showFPS: true,
             disableAudioSync: false,
+            remapPlayer1: true,
+            remapOptions: false,
             settings: {
                 CLOUDSAVEURL: "",
                 SHOWADVANCED: false,
-                SHOWOPTIONS: false,
-                SHOWFPS: true
+                SHOWOPTIONS: false
             }
         };
 
@@ -67,7 +68,6 @@ class MyClass {
             this.rivetsData.showLogin = true;
         }
 
-        this.rivetsData.showFPS = this.rivetsData.settings.SHOWFPS;
 
         if (window["ROMLIST"].length > 0)
         {
@@ -97,6 +97,7 @@ class MyClass {
         this.setupLogin();
         this.setupInputController();
         this.createDB();
+        this.retrieveSettings();
 
         $('#topPanel').show();
         $('#lblErrorOuter').show();
@@ -177,7 +178,6 @@ class MyClass {
             await this.writeAssets();
             FS.writeFile('custom.v64',byteArray);
             this.beforeRun();
-            this.retrieveSettings();
             this.WriteConfigFile();
             await this.LoadSram();
             $('#canvasDiv').show();
@@ -1017,15 +1017,47 @@ class MyClass {
     }
 
     retrieveSettings(){
-        let show = localStorage.getItem('n64wasm-showfps');
-        if (show) {
-            if (show=="true") this.rivetsData.showFPS = true;
-            if (show=="false") this.rivetsData.showFPS = false;
+        if (localStorage.getItem('n64wasm-showfps'))
+        {
+            if (localStorage.getItem('n64wasm-showfps')=="true")
+                this.rivetsData.showFPS = true;
+            else
+                this.rivetsData.showFPS = false;
         }
+
+        if (localStorage.getItem('n64wasm-disableaudiosync'))
+        {
+            if (localStorage.getItem('n64wasm-disableaudiosync')=="true")
+                this.rivetsData.disableAudioSync = true;
+            else
+                this.rivetsData.disableAudioSync = false;
+        }
+    }
+
+    saveOptions(){
+
+        this.rivetsData.showFPS = this.rivetsData.showFPSTemp;
+        this.rivetsData.disableAudioSync = this.rivetsData.disableAudioSyncTemp;
+
+        if (this.rivetsData.showFPS)
+            localStorage.setItem('n64wasm-showfps', 'true');
+        else        
+            localStorage.setItem('n64wasm-showfps', 'false');
+
+        if (this.rivetsData.disableAudioSync)
+            localStorage.setItem('n64wasm-disableaudiosync', 'true');
+        else        
+            localStorage.setItem('n64wasm-disableaudiosync', 'false');
     }
 
 
     showRemapModal() {
+
+        this.rivetsData.remapPlayer1 = true;
+        this.rivetsData.remapOptions = false;
+
+        this.rivetsData.showFPSTemp = this.rivetsData.showFPS;
+        this.rivetsData.disableAudioSyncTemp = this.rivetsData.disableAudioSync;
 
         //start input loop
         if (!this.rivetsData.inputLoopStarted)
@@ -1043,6 +1075,19 @@ class MyClass {
         this.rivetsData.remapWait = false;
         $("#buttonsModal").modal();
     }
+
+    swapRemap(){
+        if (this.rivetsData.remapPlayer1)
+        {
+            this.rivetsData.remapPlayer1 = false;
+            this.rivetsData.remapOptions = true;
+        }
+        else
+        {
+            this.rivetsData.remapPlayer1 = true;
+            this.rivetsData.remapOptions = false;
+        }
+    }
     
 
     saveRemap() {
@@ -1053,6 +1098,7 @@ class MyClass {
 
         this.rivetsData.inputController.KeyMappings = JSON.parse(JSON.stringify(this.rivetsData.remappings));
         this.rivetsData.inputController.setGamePadButtons();
+        this.saveOptions();
         localStorage.setItem('n64wasm_mappings_v3', JSON.stringify(this.rivetsData.remappings));
         $("#buttonsModal").modal('hide');
     }
@@ -1080,6 +1126,8 @@ class MyClass {
 
     restoreDefaultKeymappings(){
         this.rivetsData.remappings = this.rivetsData.inputController.defaultKeymappings();
+        this.rivetsData.showFPSTemp = true;
+        this.rivetsData.disableAudioSyncTemp = false;
     }
 
     remapPressed() {
@@ -1236,20 +1284,6 @@ class MyClass {
         Module._neil_reset();
     }
 
-    toggle_fps(){
-        this.rivetsData.showFPS = !this.rivetsData.showFPS;
-        if (this.rivetsData.showFPS)
-        {
-            myClass.toggleFPSModule(1);
-            localStorage.setItem('n64wasm-showfps', 'true');
-        } 
-        if (!this.rivetsData.showFPS)
-        {
-            myClass.toggleFPSModule(0);
-            localStorage.setItem('n64wasm-showfps', 'false');
-        } 
-
-    }
 
     
     
