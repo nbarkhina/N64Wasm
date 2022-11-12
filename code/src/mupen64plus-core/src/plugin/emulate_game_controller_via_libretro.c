@@ -31,7 +31,7 @@
 #include <math.h>
 
 #include "../../../../neil_controller.h"
-struct NeilButtons* getNeilButtons();
+extern struct NeilButtons neilbuttons[4];
 
 #define ROUND(x)    floor((x) + 0.5)
 
@@ -320,8 +320,10 @@ static void inputGetKeys_reuse(int16_t analogX, int16_t analogY, int Control, BU
 
    //analogX = input_cb(Control, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
    //analogY = input_cb(Control, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
-   analogX = getNeilButtons()->axis0;
-   analogY = getNeilButtons()->axis1;
+   
+   analogX = neilbuttons[Control].axis0;
+   analogY = neilbuttons[Control].axis1;
+   
 
    // Convert cartesian coordinate analog stick to polar coordinates
    radius = sqrt(analogX * analogX + analogY * analogY);
@@ -343,13 +345,13 @@ static void inputGetKeys_reuse(int16_t analogX, int16_t analogY, int Control, BU
       Keys->Y_AXIS = 0;
    }
 
-   Keys->R_DPAD = getNeilButtons()->rightKey;
-   Keys->L_DPAD = getNeilButtons()->leftKey;
-   Keys->D_DPAD = getNeilButtons()->downKey;
-   Keys->U_DPAD = getNeilButtons()->upKey;
+   Keys->R_DPAD = neilbuttons[Control].rightKey;
+   Keys->L_DPAD = neilbuttons[Control].leftKey;
+   Keys->D_DPAD = neilbuttons[Control].downKey;
+   Keys->U_DPAD = neilbuttons[Control].upKey;
 
    //Keys->START_BUTTON = input_cb(Control, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START);
-   Keys->START_BUTTON = getNeilButtons()->startKey;
+   Keys->START_BUTTON = neilbuttons[Control].startKey;
 
    if (!alternate_mapping && input_cb(Control, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT) && --timeout <= 0)
       inputInitiateCallback((const char*)ROM_HEADER.Name);
@@ -653,15 +655,15 @@ static void inputGetKeys_default( int Control, BUTTONS *Keys )
 
    if (true)
    {
-      Keys->A_BUTTON = getNeilButtons()->aKey;
-      Keys->B_BUTTON = getNeilButtons()->bKey;
-      Keys->D_CBUTTON = getNeilButtons()->cbDown;
-      Keys->L_CBUTTON = getNeilButtons()->cbLeft;
-      Keys->R_CBUTTON = getNeilButtons()->cbRight;
-      Keys->U_CBUTTON = getNeilButtons()->cbUp;
-      Keys->R_TRIG = getNeilButtons()->rKey;
-      Keys->Z_TRIG = getNeilButtons()->zKey;
-      Keys->L_TRIG = getNeilButtons()->lKey;
+        Keys->A_BUTTON = neilbuttons[Control].aKey;
+        Keys->B_BUTTON = neilbuttons[Control].bKey;
+        Keys->D_CBUTTON = neilbuttons[Control].cbDown;
+        Keys->L_CBUTTON = neilbuttons[Control].cbLeft;
+        Keys->R_CBUTTON = neilbuttons[Control].cbRight;
+        Keys->U_CBUTTON = neilbuttons[Control].cbUp;
+        Keys->R_TRIG = neilbuttons[Control].rKey;
+        Keys->Z_TRIG = neilbuttons[Control].zKey;
+        Keys->L_TRIG = neilbuttons[Control].lKey;
    }
    else
    {
@@ -836,7 +838,7 @@ EXPORT void CALL inputInitiateControllers(CONTROL_INFO ControlInfo)
     for( i = 0; i < 4; i++ )
     {
        controller[i].control = ControlInfo.Controls + i;
-       controller[i].control->Present = pad_present[i];
+       controller[i].control->Present = pad_present[i]; //NEIL - this is how we know the controller is plugged in
        controller[i].control->RawData = 0;
 
        if (pad_pak_types[i] == PLUGIN_MEMPAK)

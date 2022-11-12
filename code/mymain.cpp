@@ -37,20 +37,36 @@ extern "C" {
 #include <Windows.h>
 #include <Xinput.h>
 #pragma comment(lib,"XInput.lib")
-XINPUT_STATE state;
-int xGamepadIndex = -1;
+
+struct XInputController
+{
+	XINPUT_STATE state;
+	int xGamepadIndex = -1;
+	bool connected = false;
+};
+
+struct XInputController xControllers[4];
+
 #endif
 
 #ifdef USE_XINPUT
-bool IsPressed(WORD button)
+bool IsPressed(WORD button, int index)
 {
-    return (state.Gamepad.wButtons & button) != 0;
+    return (xControllers[index].state.Gamepad.wButtons & button) != 0;
 }
 #endif
 
-SDL_Joystick* joyStick = NULL;
-SDL_GameController* gameController = NULL;
-bool gamepadConnected = false;
+struct SdlJoystick
+{
+	SDL_Joystick* joyStick = NULL;
+	SDL_GameController* gameController = NULL;
+	bool gamepadConnected = false;
+};
+
+struct SdlJoystick sdlJoysticks[4];
+int joystickCount = 0;
+int previousControllerCount = 0;
+
 int axis0 = 0;
 int axis1 = 0;
 int axis2 = 0;
@@ -58,13 +74,18 @@ int axis3 = 0;
 int axis4 = 0;
 int axis5 = 0;
 Uint8* keyboardState;
-struct NeilButtons neilbuttons;
+extern "C" {
+    struct NeilButtons neilbuttons[4];
+}
 bool loadEep = false;
 bool loadSra = false;
 bool loadFla = false;
 bool showFPS = true;
 bool swapSticks = false;
 bool disableAudioSync = false;
+bool invert2P = false;
+bool invert3P = false;
+bool invert4P = false;
 
 extern "C" {
     int triangleCount = 0;
@@ -76,85 +97,81 @@ void connectGamepad()
 {
 #ifdef USE_XINPUT
     DWORD dwResult;
+    previousControllerCount = joystickCount;
+	joystickCount = 0;
+	xControllers[0].connected = false;
+	xControllers[1].connected = false;
+	xControllers[2].connected = false;
+	xControllers[3].connected = false;
 
-    if (!gamepadConnected)
-    {
-        for (DWORD i = 0; i < XUSER_MAX_COUNT; i++)
-        {
+    for (DWORD i = 0; i < XUSER_MAX_COUNT; i++)
+	{
+		if (joystickCount < 4)
+		{
+			ZeroMemory(&xControllers[joystickCount].state, sizeof(XINPUT_STATE));
 
-            ZeroMemory(&state, sizeof(XINPUT_STATE));
+			// Simply get the state of the controller from XInput.
+			dwResult = XInputGetState(i, &xControllers[joystickCount].state);
 
-            // Simply get the state of the controller from XInput.
-            dwResult = XInputGetState(i, &state);
+			if (dwResult == ERROR_SUCCESS)
+			{
+				xControllers[joystickCount].connected = true;
+				xControllers[joystickCount].xGamepadIndex = i;
 
-            if (dwResult == ERROR_SUCCESS)
-            {
-                // Controller is connected
-                if (!gamepadConnected)
-                    printf("controller connected %d\n", i);
+				joystickCount++;
+			}
+		}
+	}
 
-                xGamepadIndex = i;
-                gamepadConnected = true;
-            }
-            else
-            {
-                // Controller is not connected
-            }
-        }
-    }
-    else
-    {
-        ZeroMemory(&state, sizeof(XINPUT_STATE));
-        dwResult = XInputGetState(xGamepadIndex, &state);
-
-        if (dwResult != ERROR_SUCCESS)
-        {
-            gamepadConnected = false;
-        }
-    }
+	if (previousControllerCount != joystickCount)
+	{
+		printf("Controllers Connected: %d\n", joystickCount);
+	}
 
     return;
 #endif
-    if (!gamepadConnected)
-    {
-        //Check for joysticks
-        if (SDL_NumJoysticks() < 1)
-        {
-            // printf("Warning: No joysticks connected!\n");
-        }
-        else
-        {
-            for (int i = 0; i < SDL_NumJoysticks(); i++)
-            {
-                //Load joystick
-                SDL_Joystick* tempJoyStick = SDL_JoystickOpen(i);
-                const char* name = SDL_JoystickName(tempJoyStick);
+    
+    if (SDL_NumJoysticks() != previousControllerCount)
+	{
+		joystickCount = 0;
+		sdlJoysticks[0].gamepadConnected = false;
+		sdlJoysticks[1].gamepadConnected = false;
+		sdlJoysticks[2].gamepadConnected = false;
+		sdlJoysticks[3].gamepadConnected = false;
+		for(int i = 0; i < SDL_NumJoysticks(); i++)
+		{
+			//Load joystick
+			SDL_Joystick* tempJoyStick = SDL_JoystickOpen(i);
+			const char* name = SDL_JoystickName(tempJoyStick);
 
-                //skip logitech device
-                int compare = 0;
-                compare = strcmp(name, "Logitech H820e (Vendor: 046d Product: 0a4a)");
-                if (compare == 0)
-                {
-                    printf("skipping logitech device\n");
-                }
-                else
-                {
-                    joyStick = tempJoyStick;
-                    printf("Connected Joystick %s\n", name);
-                    if (SDL_IsGameController(i))
-                    {
-                        gameController = SDL_GameControllerOpen(i);
-                        printf("Connected Connected %s\n", SDL_GameControllerName(gameController));
-                    }
-                    gamepadConnected = true;
-                }
+			//skip logitech device
+			int compare = 0;
+			compare = strcmp(name,"Logitech H820e (Vendor: 046d Product: 0a4a)");
+			if (compare == 0)
+			{
+				printf("skipping logitech device\n");
+			}
+			else
+			{
+				if (tempJoyStick != NULL)
+				{
+					sdlJoysticks[joystickCount].joyStick = tempJoyStick;
+					printf("Connected Joystick %s\n", name);
+					if (SDL_IsGameController(i))
+					{
+						sdlJoysticks[joystickCount].gameController = SDL_GameControllerOpen(i);
+						printf("Connected Connected %s\n", SDL_GameControllerName(sdlJoysticks[joystickCount].gameController));
+					}
+					sdlJoysticks[joystickCount].gamepadConnected = true;
+					joystickCount++;
+				}
+				
+			}
 
-            }
+		}
+	}
 
-
-        }
-
-    }
+	previousControllerCount = SDL_NumJoysticks();
 
 }
 
@@ -362,6 +379,33 @@ void readConfig()
                     disableAudioSync = false;
             }
 
+            //player 2 invert Y axis
+            if (counter == 36)
+            {
+                if (mapping == 1)
+                    invert2P = true;
+                else
+                    invert2P = false;
+            }
+
+            //player 3 invert Y axis
+            if (counter == 37)
+            {
+                if (mapping == 1)
+                    invert3P = true;
+                else
+                    invert3P = false;
+            }
+
+            //player 4 invert Y axis
+            if (counter == 38)
+            {
+                if (mapping == 1)
+                    invert4P = true;
+                else
+                    invert4P = false;
+            }
+
             counter++;
 
 
@@ -535,9 +579,10 @@ int main(int argc, char* argv[])
     //sprintf(rom_name, "%s", "mario64.z64");
     //sprintf(rom_name, "%s", "roms\\mario64_europe.n64");
     //sprintf(rom_name, "%s", "roms\\fzero.v64");
+    sprintf(rom_name, "%s", "roms\\goldeneye.v64");
     //sprintf(rom_name, "%s", "roms\\diddy.v64");
     //sprintf(rom_name, "%s", "roms\\mariokart.v64");
-    sprintf(rom_name, "%s", "roms\\pilotwings.n64");
+    //sprintf(rom_name, "%s", "roms\\pilotwings.n64");
 
     if (argc == 2)
     {
@@ -603,25 +648,29 @@ int selectedMenuItem = 0;
 void resetNeilButtons()
 {
 
-    neilbuttons.upKey = 0;
-    neilbuttons.downKey = 0;
-    neilbuttons.leftKey = 0;
-    neilbuttons.rightKey = 0;
-    neilbuttons.startKey = 0;
-    neilbuttons.selectKey = 0;
-    neilbuttons.lKey = 0;
-    neilbuttons.rKey = 0;
-    neilbuttons.zKey = 0;
-    neilbuttons.aKey = 0;
-    neilbuttons.bKey = 0;
-    neilbuttons.axis0 = 0;
-    neilbuttons.axis1 = 0;
-    neilbuttons.axis2 = 0;
-    neilbuttons.axis3 = 0;
-    neilbuttons.cbLeft = 0;
-    neilbuttons.cbRight = 0;
-    neilbuttons.cbUp = 0;
-    neilbuttons.cbDown = 0;
+    for (int i = 0; i < NEILNUMCONTROLLERS; i++)
+    {
+        neilbuttons[i].upKey = 0;
+        neilbuttons[i].downKey = 0;
+        neilbuttons[i].leftKey = 0;
+        neilbuttons[i].rightKey = 0;
+        neilbuttons[i].startKey = 0;
+        neilbuttons[i].selectKey = 0;
+        neilbuttons[i].lKey = 0;
+        neilbuttons[i].rKey = 0;
+        neilbuttons[i].zKey = 0;
+        neilbuttons[i].aKey = 0;
+        neilbuttons[i].bKey = 0;
+        neilbuttons[i].axis0 = 0;
+        neilbuttons[i].axis1 = 0;
+        neilbuttons[i].axis2 = 0;
+        neilbuttons[i].axis3 = 0;
+        neilbuttons[i].cbLeft = 0;
+        neilbuttons[i].cbRight = 0;
+        neilbuttons[i].cbUp = 0;
+        neilbuttons[i].cbDown = 0;
+    }
+
 }
 
 void mainLoop()
@@ -640,24 +689,72 @@ void mainLoop()
 
     //GAMEPAD
 #ifdef USE_XINPUT
-    if (gamepadConnected)
+    for (int i = 0; i < NEILNUMCONTROLLERS; i++)
     {
-        //TESTING
-        if (IsPressed(XINPUT_GAMEPAD_A)) neilbuttons.aKey = true;
-        //if (IsPressed(XINPUT_GAMEPAD_B)) neilbuttons.bKey = true;
-        if (IsPressed(XINPUT_GAMEPAD_X)) neilbuttons.bKey = true;
-        //if (IsPressed(XINPUT_GAMEPAD_Y)) printf("Y pressed\n");
-        //if (IsPressed(XINPUT_GAMEPAD_DPAD_UP)) printf("UP pressed\n");
-        if (IsPressed(XINPUT_GAMEPAD_START)) neilbuttons.startKey = true;
-        //if (IsPressed(XINPUT_GAMEPAD_BACK)) printf("BACK pressed\n");
-        if (IsPressed(XINPUT_GAMEPAD_RIGHT_SHOULDER)) neilbuttons.rKey = true;
-        if (IsPressed(XINPUT_GAMEPAD_LEFT_SHOULDER)) neilbuttons.zKey = true;
-        //sprintf(axis_text0, "Axis 0 Value %d\n", state.Gamepad.sThumbLX);
-        //sprintf(axis_text1, "Axis 1 Value %d\n", state.Gamepad.sThumbLY);
-        //sprintf(axis_text2, "Axis 2 Value %d\n", state.Gamepad.sThumbRX);
-        //sprintf(axis_text3, "Axis 3 Value %d\n", state.Gamepad.sThumbRY);
-        if (state.Gamepad.bLeftTrigger > 128) neilbuttons.lKey = true; //left trigger button
-        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_RIGHT_THUMB), &lastOverlayKeyPressed))
+        if (xControllers[i].connected)
+        {
+            //TESTING
+            if (IsPressed(XINPUT_GAMEPAD_A, i)) neilbuttons[i].aKey = true;
+            if (IsPressed(XINPUT_GAMEPAD_X, i)) neilbuttons[i].bKey = true;
+            if (IsPressed(XINPUT_GAMEPAD_START, i)) neilbuttons[i].startKey = true;
+            if (IsPressed(XINPUT_GAMEPAD_RIGHT_SHOULDER, i)) neilbuttons[i].rKey = true;
+            if (IsPressed(XINPUT_GAMEPAD_LEFT_SHOULDER, i)) neilbuttons[i].zKey = true;
+            if (xControllers[i].state.Gamepad.bLeftTrigger > 128) neilbuttons[i].lKey = true; //left trigger button
+
+
+            //IMPLEMENT
+            if (IsPressed(XINPUT_GAMEPAD_DPAD_UP, i)) neilbuttons[i].upKey = true;
+            if (IsPressed(XINPUT_GAMEPAD_DPAD_DOWN, i)) neilbuttons[i].downKey = true;
+            if (IsPressed(XINPUT_GAMEPAD_DPAD_LEFT, i)) neilbuttons[i].leftKey = true;
+            if (IsPressed(XINPUT_GAMEPAD_DPAD_RIGHT, i)) neilbuttons[i].rightKey = true;
+
+            if (swapSticks == 0)
+            {
+                neilbuttons[i].axis0 = xControllers[i].state.Gamepad.sThumbLX;
+                neilbuttons[i].axis1 = xControllers[i].state.Gamepad.sThumbLY * -1;
+                neilbuttons[i].axis2 = xControllers[i].state.Gamepad.sThumbRX;
+                neilbuttons[i].axis3 = xControllers[i].state.Gamepad.sThumbRY;
+            }
+            else
+            {
+                neilbuttons[i].axis0 = xControllers[i].state.Gamepad.sThumbRX;
+                neilbuttons[i].axis1 = xControllers[i].state.Gamepad.sThumbRY;
+                neilbuttons[i].axis2 = xControllers[i].state.Gamepad.sThumbLX;
+                neilbuttons[i].axis3 = xControllers[i].state.Gamepad.sThumbLY * -1;
+            }
+
+            if (i == 1 && invert2P)
+            {
+                neilbuttons[i].axis1 *= -1;
+            }
+            if (i == 2 && invert3P)
+            {
+                neilbuttons[i].axis1 *= -1;
+            }
+            if (i == 3 && invert4P)
+            {
+                neilbuttons[i].axis1 *= -1;
+            }
+            
+
+            if (neilbuttons[i].axis2 < -16000) neilbuttons[i].cbLeft = 1;
+            if (neilbuttons[i].axis2 > 16000) neilbuttons[i].cbRight = 1;
+            if (neilbuttons[i].axis3 < -16000) neilbuttons[i].cbDown = 1;
+            if (neilbuttons[i].axis3 > 16000) neilbuttons[i].cbUp = 1;
+
+            //fix weird -1 * float conversion bug
+            if (neilbuttons[i].axis1 == 0x8000)
+            {
+                neilbuttons[i].axis1--;
+            }
+        }
+        
+
+    }
+
+    if (xControllers[0].connected)
+    {
+        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_RIGHT_THUMB,0), &lastOverlayKeyPressed))
         {
             if (!showOverlay)
             {
@@ -665,129 +762,111 @@ void mainLoop()
             }
             showOverlay = !showOverlay;
         }
-        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_DPAD_UP), &lastMenuUpPressed)) menuMoveUp = true;
-        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_DPAD_DOWN), &lastMenuDownPressed)) menuMoveDown = true;
-        if (isReleasedOnce(IsPressed(XINPUT_GAMEPAD_A), &lastMenuOkPressed)) menuOk = true;
-
-
-        //IMPLEMENT
-        if (IsPressed(XINPUT_GAMEPAD_DPAD_UP)) neilbuttons.upKey = true;
-        if (IsPressed(XINPUT_GAMEPAD_DPAD_DOWN)) neilbuttons.downKey = true;
-        if (IsPressed(XINPUT_GAMEPAD_DPAD_LEFT)) neilbuttons.leftKey = true;
-        if (IsPressed(XINPUT_GAMEPAD_DPAD_RIGHT)) neilbuttons.rightKey = true;
-
-        if (swapSticks == 0)
-        {
-            neilbuttons.axis0 = state.Gamepad.sThumbLX;
-            neilbuttons.axis1 = state.Gamepad.sThumbLY * -1;
-            neilbuttons.axis2 = state.Gamepad.sThumbRX;
-            neilbuttons.axis3 = state.Gamepad.sThumbRY;
-        }
-        else
-        {
-            neilbuttons.axis0 = state.Gamepad.sThumbRX;
-            neilbuttons.axis1 = state.Gamepad.sThumbRY;
-            neilbuttons.axis2 = state.Gamepad.sThumbLX;
-            neilbuttons.axis3 = state.Gamepad.sThumbLY * -1;
-        }
-        
-
-        if (neilbuttons.axis2 < -16000) neilbuttons.cbLeft = 1;
-        if (neilbuttons.axis2 > 16000) neilbuttons.cbRight = 1;
-        if (neilbuttons.axis3 < -16000) neilbuttons.cbDown = 1;
-        if (neilbuttons.axis3 > 16000) neilbuttons.cbUp = 1;
-
-        //fix weird -1 * float conversion bug
-        if (neilbuttons.axis1 == 0x8000)
-        {
-            neilbuttons.axis1--;
-        }
-
+        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_DPAD_UP,0), &lastMenuUpPressed)) menuMoveUp = true;
+        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_DPAD_DOWN,0), &lastMenuDownPressed)) menuMoveDown = true;
+        if (isReleasedOnce(IsPressed(XINPUT_GAMEPAD_A,0), &lastMenuOkPressed)) menuOk = true;
     }
 #endif
 
-    if (joyStick != NULL)
+    for (int i = 0; i < NEILNUMCONTROLLERS; i++)
     {
-        if (swapSticks == 0)
+        if (sdlJoysticks[i].gamepadConnected)
         {
-            neilbuttons.axis0 = SDL_JoystickGetAxis(joyStick, 0);
-            neilbuttons.axis1 = SDL_JoystickGetAxis(joyStick, 1);
-            neilbuttons.axis2 = SDL_JoystickGetAxis(joyStick, 2);
-            neilbuttons.axis3 = SDL_JoystickGetAxis(joyStick, 3);
-        }
-        else
-        {
-            neilbuttons.axis0 = SDL_JoystickGetAxis(joyStick, 2);
-            neilbuttons.axis1 = SDL_JoystickGetAxis(joyStick, 3);
-            neilbuttons.axis2 = SDL_JoystickGetAxis(joyStick, 0);
-            neilbuttons.axis3 = SDL_JoystickGetAxis(joyStick, 1);
-        }
-        
+            if (swapSticks == 0)
+            {
+                neilbuttons[i].axis0 = SDL_JoystickGetAxis(sdlJoysticks[i].joyStick, 0);
+                neilbuttons[i].axis1 = SDL_JoystickGetAxis(sdlJoysticks[i].joyStick, 1);
+                neilbuttons[i].axis2 = SDL_JoystickGetAxis(sdlJoysticks[i].joyStick, 2);
+                neilbuttons[i].axis3 = SDL_JoystickGetAxis(sdlJoysticks[i].joyStick, 3);
+            }
+            else
+            {
+                neilbuttons[i].axis0 = SDL_JoystickGetAxis(sdlJoysticks[i].joyStick, 2);
+                neilbuttons[i].axis1 = SDL_JoystickGetAxis(sdlJoysticks[i].joyStick, 3);
+                neilbuttons[i].axis2 = SDL_JoystickGetAxis(sdlJoysticks[i].joyStick, 0);
+                neilbuttons[i].axis3 = SDL_JoystickGetAxis(sdlJoysticks[i].joyStick, 1);
+            }
 
-        if (neilbuttons.axis2 < -16000) neilbuttons.cbLeft = 1;
-        if (neilbuttons.axis2 > 16000) neilbuttons.cbRight = 1;
-        if (neilbuttons.axis3 < -16000) neilbuttons.cbUp = 1;
-        if (neilbuttons.axis3 > 16000) neilbuttons.cbDown = 1;
+            if (i == 1 && invert2P)
+            {
+                neilbuttons[i].axis1 *= -1;
+            }
+            if (i == 2 && invert3P)
+            {
+                neilbuttons[i].axis1 *= -1;
+            }
+            if (i == 3 && invert4P)
+            {
+                neilbuttons[i].axis1 *= -1;
+            }
+            
 
-        //neilbuttons.axis4 = SDL_JoystickGetAxis(joyStick, 4);
-        //neilbuttons.axis5 = SDL_JoystickGetAxis(joyStick, 5);
+            if (neilbuttons[i].axis2 < -16000) neilbuttons[i].cbLeft = 1;
+            if (neilbuttons[i].axis2 > 16000) neilbuttons[i].cbRight = 1;
+            if (neilbuttons[i].axis3 < -16000) neilbuttons[i].cbUp = 1;
+            if (neilbuttons[i].axis3 > 16000) neilbuttons[i].cbDown = 1;
+
+            //neilbuttons.axis4 = SDL_JoystickGetAxis(joyStick, 4);
+            //neilbuttons.axis5 = SDL_JoystickGetAxis(joyStick, 5);
 
 #ifdef __EMSCRIPTEN__
-        if (SDL_JoystickGetButton(joyStick, Joy_Mapping_Up)) neilbuttons.upKey = true;
-        if (SDL_JoystickGetButton(joyStick, Joy_Mapping_Down)) neilbuttons.downKey = true;
-        if (SDL_JoystickGetButton(joyStick, Joy_Mapping_Left)) neilbuttons.leftKey = true;
-        if (SDL_JoystickGetButton(joyStick, Joy_Mapping_Right)) neilbuttons.rightKey = true;
-        if (SDL_JoystickGetButton(joyStick, Joy_Mapping_Action_A)) neilbuttons.aKey = true;
-        if (SDL_JoystickGetButton(joyStick, Joy_Mapping_Action_B)) neilbuttons.bKey = true;
-        if (SDL_JoystickGetButton(joyStick, Joy_Mapping_Action_Start)) neilbuttons.startKey = true;
-        if (SDL_JoystickGetButton(joyStick, Joy_Mapping_Action_Z)) neilbuttons.zKey = true;
-        if (SDL_JoystickGetButton(joyStick, Joy_Mapping_Action_L)) neilbuttons.lKey = true;
-        if (SDL_JoystickGetButton(joyStick, Joy_Mapping_Action_R)) neilbuttons.rKey = true;
-        if (isPressedOnce(SDL_JoystickGetButton(joyStick, Joy_Mapping_Menu), &lastOverlayKeyPressed))
-        {
-            if (!showOverlay)
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Up)) neilbuttons[i].upKey = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Down)) neilbuttons[i].downKey = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Left)) neilbuttons[i].leftKey = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Right)) neilbuttons[i].rightKey = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_A)) neilbuttons[i].aKey = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_B)) neilbuttons[i].bKey = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_Start)) neilbuttons[i].startKey = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_Z)) neilbuttons[i].zKey = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_L)) neilbuttons[i].lKey = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_R)) neilbuttons[i].rKey = true;
+            //only controller 1 controls the menu
+			if (i == 0)
             {
-                selectedMenuItem = 0;
+                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Menu), &lastOverlayKeyPressed))
+                {
+                    if (!showOverlay)
+                    {
+                        selectedMenuItem = 0;
+                    }
+                    showOverlay = !showOverlay;
+                }
+                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Up), &lastMenuUpPressed)) menuMoveUp = true;
+                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Down), &lastMenuDownPressed)) menuMoveDown = true;
+                if (isReleasedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_A), &lastMenuOkPressed)) menuOk = true;
             }
-            showOverlay = !showOverlay;
-        }
-        if (isPressedOnce(SDL_JoystickGetButton(joyStick, Joy_Mapping_Up), &lastMenuUpPressed)) menuMoveUp = true;
-        if (isPressedOnce(SDL_JoystickGetButton(joyStick, Joy_Mapping_Down), &lastMenuDownPressed)) menuMoveDown = true;
-        if (isReleasedOnce(SDL_JoystickGetButton(joyStick, Joy_Mapping_Action_A), &lastMenuOkPressed)) menuOk = true;
 #endif
+        }
     }
 
     //KEYBOARD
     keyboardState = (Uint8*)SDL_GetKeyboardState(NULL);
 
-    if (keyboardState[Mapping_Up]) neilbuttons.upKey = true;
-    if (keyboardState[Mapping_Down]) neilbuttons.downKey = true;
-    if (keyboardState[Mapping_Left]) neilbuttons.leftKey = true;
-    if (keyboardState[Mapping_Right]) neilbuttons.rightKey = true;
+    if (keyboardState[Mapping_Up]) neilbuttons[0].upKey = true;
+    if (keyboardState[Mapping_Down]) neilbuttons[0].downKey = true;
+    if (keyboardState[Mapping_Left]) neilbuttons[0].leftKey = true;
+    if (keyboardState[Mapping_Right]) neilbuttons[0].rightKey = true;
 
-    if (!gamepadConnected)
-    {
-        if (keyboardState[Mapping_Action_Analog_Up]) neilbuttons.axis1 = -32000;
-        if (keyboardState[Mapping_Action_Analog_Down]) neilbuttons.axis1 = 32000;
-        if (keyboardState[Mapping_Action_Analog_Left]) neilbuttons.axis0 = -32000;
-        if (keyboardState[Mapping_Action_Analog_Right]) neilbuttons.axis0 = 32000;
-    }
+    if (keyboardState[Mapping_Action_Analog_Up]) neilbuttons[0].axis1 = -32000;
+    if (keyboardState[Mapping_Action_Analog_Down]) neilbuttons[0].axis1 = 32000;
+    if (keyboardState[Mapping_Action_Analog_Left]) neilbuttons[0].axis0 = -32000;
+    if (keyboardState[Mapping_Action_Analog_Right]) neilbuttons[0].axis0 = 32000;
 
-    if (keyboardState[Mapping_Action_Start]) neilbuttons.startKey = true;
-    if (keyboardState[Mapping_Action_A]) neilbuttons.aKey = true;
-    if (keyboardState[Mapping_Action_B]) neilbuttons.bKey = true;
-    if (keyboardState[Mapping_Action_Z]) neilbuttons.zKey = true;
-    if (keyboardState[Mapping_Action_R]) neilbuttons.rKey = true;
-    if (keyboardState[Mapping_Action_L]) neilbuttons.lKey = true;
+    if (keyboardState[Mapping_Action_Start]) neilbuttons[0].startKey = true;
+    if (keyboardState[Mapping_Action_A]) neilbuttons[0].aKey = true;
+    if (keyboardState[Mapping_Action_B]) neilbuttons[0].bKey = true;
+    if (keyboardState[Mapping_Action_Z]) neilbuttons[0].zKey = true;
+    if (keyboardState[Mapping_Action_R]) neilbuttons[0].rKey = true;
+    if (keyboardState[Mapping_Action_L]) neilbuttons[0].lKey = true;
 
     //TODO C Buttons
-    if (keyboardState[Mapping_Action_CLEFT]) neilbuttons.cbLeft = true;
-    if (keyboardState[Mapping_Action_CDOWN]) neilbuttons.cbDown = true;
-    if (keyboardState[Mapping_Action_CRIGHT]) neilbuttons.cbRight = true;
-    if (keyboardState[Mapping_Action_CUP]) neilbuttons.cbUp = true;
+    if (keyboardState[Mapping_Action_CLEFT]) neilbuttons[0].cbLeft = true;
+    if (keyboardState[Mapping_Action_CDOWN]) neilbuttons[0].cbDown = true;
+    if (keyboardState[Mapping_Action_CRIGHT]) neilbuttons[0].cbRight = true;
+    if (keyboardState[Mapping_Action_CUP]) neilbuttons[0].cbUp = true;
 
     //TODO - doesnt work in conjunction with gamepad, only use for debugging while gamepad is off
-    if (!gamepadConnected)
+    if (!sdlJoysticks[0].gamepadConnected)
     {
         if (isPressedOnce(keyboardState[SDL_SCANCODE_GRAVE], &lastOverlayKeyPressed))
         {
@@ -1031,12 +1110,7 @@ extern "C" {
         if (show==0) showFPS = false;
     }
 
-    struct NeilButtons* getNeilButtons()
-    {
-        return &neilbuttons;
-    }
 }
-
 
 char* loadFile(char* filename)
 {

@@ -170,7 +170,11 @@ extern struct
 /* ...but it won't be at least the first time we're called, in that case set
  * these instead for input_plugin to read. */
 int pad_pak_types[4];
-int pad_present[4] = { 1, 0, 0, 0 };
+
+//NEIL - I think all controllers need to be present from
+//the beginning otherwise some games (F-zero) don't recognize
+//the controllers if they are plugged in after bootup
+int pad_present[4] = { 1, 1, 1, 1 };
 
 void log_cb(int type, char* message)
 {

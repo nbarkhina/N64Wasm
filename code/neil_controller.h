@@ -21,3 +21,5 @@ struct NeilButtons {
     int cbUp;
     int cbDown;
 };
+
+#define NEILNUMCONTROLLERS 4

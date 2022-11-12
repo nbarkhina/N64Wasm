@@ -50,6 +50,9 @@ class MyClass {
             flaName: '',
             swapSticks: false,
             showFPS: true,
+            invert2P: false,
+            invert3P: false,
+            invert4P: false,
             disableAudioSync: false,
             remapPlayer1: true,
             remapOptions: false,
@@ -417,6 +420,11 @@ class MyClass {
 
         //disable audio sync
         if (this.rivetsData.disableAudioSync) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
+
+        //invert player Y axis
+        if (this.rivetsData.invert2P) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
+        if (this.rivetsData.invert3P) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
+        if (this.rivetsData.invert4P) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
          
         FS.writeFile('config.txt',configString);
     }
@@ -1037,6 +1045,9 @@ class MyClass {
     saveOptions(){
 
         this.rivetsData.showFPS = this.rivetsData.showFPSTemp;
+        this.rivetsData.invert2P = this.rivetsData.invert2PTemp;
+        this.rivetsData.invert3P = this.rivetsData.invert3PTemp;
+        this.rivetsData.invert4P = this.rivetsData.invert4PTemp;
         this.rivetsData.disableAudioSync = this.rivetsData.disableAudioSyncTemp;
 
         if (this.rivetsData.showFPS)
@@ -1057,6 +1068,9 @@ class MyClass {
         this.rivetsData.remapOptions = false;
 
         this.rivetsData.showFPSTemp = this.rivetsData.showFPS;
+        this.rivetsData.invert2PTemp = this.rivetsData.invert2P;
+        this.rivetsData.invert3PTemp = this.rivetsData.invert3P;
+        this.rivetsData.invert4PTemp = this.rivetsData.invert4P;
         this.rivetsData.disableAudioSyncTemp = this.rivetsData.disableAudioSync;
 
         //start input loop
@@ -1127,6 +1141,9 @@ class MyClass {
     restoreDefaultKeymappings(){
         this.rivetsData.remappings = this.rivetsData.inputController.defaultKeymappings();
         this.rivetsData.showFPSTemp = true;
+        this.rivetsData.invert2P = false;
+        this.rivetsData.invert3P = false;
+        this.rivetsData.invert4P = false;
         this.rivetsData.disableAudioSyncTemp = false;
     }
 
