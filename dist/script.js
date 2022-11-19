@@ -1113,13 +1113,13 @@ class MyClass {
         $("#buttonsModal").modal();
     }
 
-    swapRemap(){
-        if (this.rivetsData.remapPlayer1)
+    swapRemap(id){
+        if (id=='options')
         {
             this.rivetsData.remapPlayer1 = false;
             this.rivetsData.remapOptions = true;
         }
-        else
+        if (id=='player1')
         {
             this.rivetsData.remapPlayer1 = true;
             this.rivetsData.remapOptions = false;
