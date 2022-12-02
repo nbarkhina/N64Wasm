@@ -189,7 +189,9 @@ n64wasm.js: $(FILES)
     -s EXPORTED_FUNCTIONS="['_main','_runMainLoop','_neilGetSoundBufferResampledAddress', \
     '_neilGetAudioWritePosition','_neil_serialize','_neil_unserialize','_neil_toast_message', \
     '_neil_export_eep','_neil_export_sra','_neil_export_fla','_neil_reset','_toggleFPS']" \
-	-s INVOKE_RUN=0
+	-s INVOKE_RUN=0 \
+    && mv n64wasm.js ../dist/ \
+    && mv n64wasm.wasm ../dist/
 
 %.o : %.cpp
 	emcc -c $< -o $@ \
