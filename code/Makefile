@@ -188,7 +188,7 @@ n64wasm.js: $(FILES)
 	-s EXTRA_EXPORTED_RUNTIME_METHODS="['callMain','cwrap']" \
     -s EXPORTED_FUNCTIONS="['_main','_runMainLoop','_neilGetSoundBufferResampledAddress', \
     '_neilGetAudioWritePosition','_neil_serialize','_neil_unserialize','_neil_toast_message', \
-    '_neil_export_eep','_neil_export_sra','_neil_export_fla','_neil_reset','_toggleFPS']" \
+    '_neil_export_eep','_neil_export_sra','_neil_export_fla','_neil_reset','_toggleFPS', '_neil_send_mobile_controls']" \
 	-s INVOKE_RUN=0
 
 %.o : %.cpp

@@ -86,6 +86,7 @@ bool disableAudioSync = false;
 bool invert2P = false;
 bool invert3P = false;
 bool invert4P = false;
+bool mobileMode = false;
 
 extern "C" {
     int triangleCount = 0;
@@ -406,6 +407,15 @@ void readConfig()
                     invert4P = false;
             }
 
+            //mobile mode
+            if (counter == 39)
+            {
+                if (mapping == 1)
+                    mobileMode = true;
+                else
+                    mobileMode = false;
+            }
+
             counter++;
 
 
@@ -434,6 +444,18 @@ void readConfig()
     {
         printf("No Config File Found\n");
     }
+}
+
+//process mobile controls here
+void processMobileControls()
+{
+
+#ifdef __EMSCRIPTEN__
+	EM_ASM(
+		myApp.rivetsData.inputController.updateMobileControls();
+	);
+#endif
+
 }
 
 #include "minizip/unzip.h"
@@ -576,10 +598,10 @@ int main(int argc, char* argv[])
 
     retro_init();
 
-    //sprintf(rom_name, "%s", "mario64.z64");
+    sprintf(rom_name, "%s", "mario64.z64");
     //sprintf(rom_name, "%s", "roms\\mario64_europe.n64");
     //sprintf(rom_name, "%s", "roms\\fzero.v64");
-    sprintf(rom_name, "%s", "roms\\goldeneye.v64");
+    //sprintf(rom_name, "%s", "roms\\goldeneye.v64");
     //sprintf(rom_name, "%s", "roms\\diddy.v64");
     //sprintf(rom_name, "%s", "roms\\mariokart.v64");
     //sprintf(rom_name, "%s", "roms\\pilotwings.n64");
@@ -881,6 +903,12 @@ void mainLoop()
         if (isReleasedOnce(keyboardState[SDL_SCANCODE_RETURN], &lastMenuOkPressed)) menuOk = true;
 
     }
+
+    //MOBILE
+	if (mobileMode && !sdlJoysticks[0].gamepadConnected)
+	{
+		processMobileControls();
+	}
     
     if (showOverlay)
     {
@@ -1480,4 +1508,26 @@ extern "C" {
         sprintf(toast_message, message);
         toastCounter = 60;
     }
+    	
+    void neil_send_mobile_controls(char* controls, char* axis0, char* axis1) 
+	{
+		// printf("%s\n", controls);
+		if (controls[0]=='1') neilbuttons[0].axis1 = -32000;
+		if (controls[1]=='1') neilbuttons[0].axis1 = 32000;
+		if (controls[2]=='1') neilbuttons[0].axis0 = -32000;
+		if (controls[3]=='1') neilbuttons[0].axis0 = 32000;
+		if (controls[4]=='1') neilbuttons[0].aKey = true;
+		if (controls[5]=='1') neilbuttons[0].bKey = true;
+		if (controls[6]=='1') neilbuttons[0].startKey = true;
+		if (controls[7]=='1') neilbuttons[0].zKey = true;
+
+        std::string axis0String(axis0);
+        float axis0Float = std::stof(axis0String);
+        neilbuttons[0].axis0 = (int)((float)32000*axis0Float);
+
+        std::string axis1String(axis1);
+        float axis1Float = std::stof(axis1String);
+        neilbuttons[0].axis1 = -(int)((float)32000*axis1Float);
+
+	}
 }

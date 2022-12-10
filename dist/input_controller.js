@@ -76,6 +76,8 @@ class InputController {
         this.Key_Action_B = false;
         this.Key_Action_A = false;
         this.Key_Menu = false;
+        this.VectorX = 0;
+        this.VectorY = 0;
 
         //touch
         this.touchX_Start = 0;
@@ -87,6 +89,238 @@ class InputController {
         document.onkeyup = this.keyUp.bind(this);
 
         this.setGamePadButtons();
+    }
+
+    setupMobileControls(touch_element_id)
+    {
+        if (touch_element_id)
+        {
+            // document.getElementById(touch_element_id).addEventListener( 'touchstart', this.touchStart.bind(this), false );
+            // document.getElementById(touch_element_id).addEventListener( 'touchend', this.touchEnd.bind(this), false );
+            // document.getElementById(touch_element_id).addEventListener( 'touchmove', this.touchMove.bind(this), false );
+
+            this.manager = nipplejs.create({
+                zone: document.getElementById(touch_element_id),
+                color: 'darkgray',
+                mode: "dynamic",
+            });
+
+            this.manager.on("move", (evt, data) => {
+                // console.log(evt,data);
+                if (data.force > 1) {
+                    if (data.direction)
+                        this.nippleDirection = data.direction.angle;
+                    
+                    //first reset all touch directions back to false
+                    this.Key_Left = false;
+                    this.Key_Right = false;
+                    this.Key_Up = false;
+                    this.Key_Down = false;
+                    
+                    if (this.nippleDirection=='left')   this.Key_Left=true;
+                    if (this.nippleDirection=='right')   this.Key_Right=true;
+                    if (this.nippleDirection=='up')   this.Key_Up=true;
+                    if (this.nippleDirection=='down')   this.Key_Down=true;
+                    }
+                else {
+                    this.nippleDirection = 'none';
+                    this.Key_Left = false;
+                    this.Key_Right = false;
+                    this.Key_Up = false;
+                    this.Key_Down = false;
+                }
+
+                this.VectorX = data.vector.x;
+                this.VectorY = data.vector.y;
+            })
+    
+            this.manager.on("end", (evt, data) => {
+                this.nippleDirection = 'none';
+                this.Key_Left = false;
+                this.Key_Right = false;
+                this.Key_Up = false;
+                this.Key_Down = false;
+                this.VectorX = 0;
+                this.VectorY = 0;
+            })
+
+            //needed in conjuction with nippleJS otherwise iOS text selection will activate
+            document.getElementById(touch_element_id).addEventListener( 'touchstart', function(e){e.preventDefault();}, false );
+            document.getElementById(touch_element_id).addEventListener( 'touchend', function(e){e.preventDefault();}, false );
+            document.getElementById(touch_element_id).addEventListener( 'touchmove', function(e){e.preventDefault();}, false );
+
+            document.getElementById('mobileA').addEventListener( 'touchstart', this.mobilePressA.bind(this), false );
+            document.getElementById('mobileB').addEventListener( 'touchstart', this.mobilePressB.bind(this), false );
+            document.getElementById('mobileStart').addEventListener( 'touchstart', this.mobilePressStart.bind(this), false );
+            document.getElementById('mobileSelect').addEventListener( 'touchstart', this.mobilePressSelect.bind(this), false );
+            document.getElementById('mobileA').addEventListener( 'touchend', this.mobileReleaseA.bind(this), false );
+            document.getElementById('mobileB').addEventListener( 'touchend', this.mobileReleaseB.bind(this), false );
+            document.getElementById('mobileStart').addEventListener( 'touchend', this.mobileReleaseStart.bind(this), false );
+            document.getElementById('mobileSelect').addEventListener( 'touchend', this.mobileReleaseSelect.bind(this), false );
+            document.getElementById('mobileA').addEventListener( 'touchmove', function(e){e.preventDefault();}, false );
+            document.getElementById('mobileB').addEventListener( 'touchmove', function(e){e.preventDefault();}, false );
+            document.getElementById('mobileStart').addEventListener( 'touchmove', function(e){e.preventDefault();}, false );
+            document.getElementById('mobileSelect').addEventListener( 'touchmove', function(e){e.preventDefault();}, false );
+
+            //to hide and show loading panel
+            document.getElementById('menuDiv').addEventListener( 'touchstart', this.menuTouch.bind(this), false );
+
+        }
+    }
+
+    menuTouch(event){
+        $("#mobileButtons").show();
+        $('#menuDiv').hide();
+    }
+
+    mobilePressA(event){
+        event.preventDefault();
+        this.Key_Action_A = true;
+        this.MobileA = true;
+    }
+    mobilePressB(event){
+        event.preventDefault();
+        this.Key_Action_B = true;
+        this.MobileB = true;
+    }
+    mobilePressStart(event){
+        event.preventDefault();
+        this.Key_Action_Start = true;
+        this.MobileStart = true;
+    }
+    mobilePressSelect(event){
+        event.preventDefault();
+        this.Key_Action_Select = true;
+        this.MobileSelect = true;
+    }
+    mobileReleaseA(event){
+        event.preventDefault();
+        this.MobileA = false;
+        this.Key_Action_A = false;
+        this.MobileA_Counter=0;
+    }
+    mobileReleaseB(event){
+        event.preventDefault();
+        this.MobileB = false;
+        this.Key_Action_B = false;
+        this.MobileB_Counter=0;
+    }
+    mobileReleaseStart(event){
+        event.preventDefault();
+        this.MobileStart = false;
+        this.Key_Action_Start = false;
+        this.MobileStart_Counter=0;
+    }
+    mobileReleaseSelect(event){
+        event.preventDefault();
+        this.MobileSelect = false; 
+        this.Key_Action_Select = false;
+        this.MobileSelect_Counter=0;
+    }
+
+    
+    touchStart(event){
+        event.preventDefault();
+        let input_controller = this;
+
+        //prevent multi-touch from grabbing the wrong touch event
+        //there may be more than 2 touches so just loop until it's found
+        for(let i = 0;i<event.touches.length;i++)
+        {
+            let touch = event.touches[i];
+
+            if (touch.target["id"]=="divTouchSurface" || touch.target["id"]=="startDiv")
+            {
+                input_controller.touchX_Start = touch.clientX;
+                input_controller.touchY_Start = touch.clientY;
+            }
+        }
+    }
+
+
+    touchMove(event){
+        event.preventDefault();
+        let input_controller = this;
+
+
+        //prevent multi-touch from grabbing the wrong touch event
+        for(let i = 0;i<event.touches.length;i++)
+        {
+            let touch = event.touches[i];
+
+            if (touch.target["id"]=="divTouchSurface" || touch.target["id"]=="startDiv")
+            {
+                var amount_horizontal = touch.clientX-input_controller.touchX_Start;
+                var amount_vertical = touch.clientY-input_controller.touchY_Start;
+                
+        
+                if (amount_horizontal>10)
+                {
+                    if (!input_controller.Key_Right)
+                    {
+                        input_controller.sendKeyDownEvent(input_controller.KeyMappings.Mapping_Right);
+                        input_controller.Key_Right=true;
+                    }
+                }
+                if (amount_horizontal<-10)
+                {
+                    if (!input_controller.Key_Left)
+                    {
+                        input_controller.sendKeyDownEvent(input_controller.KeyMappings.Mapping_Left);
+                        input_controller.Key_Left=true;
+                    }
+                }
+                if (amount_vertical>10)
+                {
+                    
+                    if (!input_controller.Key_Down)
+                    {
+                        input_controller.sendKeyDownEvent(input_controller.KeyMappings.Mapping_Down);
+                        input_controller.Key_Down=true;
+                    }
+                }
+                if (amount_vertical<-10)
+                {
+                    if (!input_controller.Key_Up)
+                    {
+                        input_controller.sendKeyDownEvent(input_controller.KeyMappings.Mapping_Up);
+                        input_controller.Key_Up=true;
+                    }
+                }
+            }
+        }
+    }
+
+
+    touchEnd(event){
+        event.preventDefault();
+        event.stopPropagation();
+
+        let input_controller = this;
+
+        if (input_controller.Key_Left==false && input_controller.Key_Right==false 
+            && input_controller.Key_Down==false && input_controller.Key_Up==false)
+            input_controller.Touch_Tap=true;
+        if (input_controller.Key_Right)
+        {
+            input_controller.sendKeyUpEvent(input_controller.KeyMappings.Mapping_Right);
+            input_controller.Key_Right=false;
+        }
+        if (input_controller.Key_Left)
+        {
+            input_controller.sendKeyUpEvent(input_controller.KeyMappings.Mapping_Left);
+            input_controller.Key_Left=false;
+        }
+        if (input_controller.Key_Up)
+        {
+            input_controller.sendKeyUpEvent(input_controller.KeyMappings.Mapping_Up);
+            input_controller.Key_Up=false;
+        }
+        if (input_controller.Key_Down)
+        {
+            input_controller.sendKeyUpEvent(input_controller.KeyMappings.Mapping_Down);
+            input_controller.Key_Down=false;
+        }
     }
 
     defaultKeymappings() {
@@ -394,4 +628,24 @@ class InputController {
             }
         }
     }
+
+    updateMobileControls(){
+        let mobileString = '';
+        if (this.Key_Up) mobileString += '1'; else mobileString += '0';
+        if (this.Key_Down) mobileString += '1'; else mobileString += '0';
+        if (this.Key_Left) mobileString += '1'; else mobileString += '0';
+        if (this.Key_Right) mobileString += '1'; else mobileString += '0';
+        if (this.Key_Action_A) mobileString += '1'; else mobileString += '0';
+        if (this.Key_Action_B) mobileString += '1'; else mobileString += '0';
+        if (this.Key_Action_Start) mobileString += '1'; else mobileString += '0';
+        if (this.Key_Action_Select) mobileString += '1'; else mobileString += '0';
+
+        window["myApp"].sendMobileControls(mobileString, this.VectorX.toString(), this.VectorY.toString());
+    }
 }
+
+window["myApp"].setupInputController();
+
+var script = document.createElement('script');
+script.src = 'n64wasm.js'
+document.getElementsByTagName('head')[0].appendChild(script);

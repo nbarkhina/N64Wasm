@@ -1,5 +1,5 @@
 # N64 Wasm
-Thanks for checking out N64 Wasm! An N64 emulator that runs in the browser. It is a port of the excellent RetroArch ParaLLEl Core to WebAssembly. This project started because I wanted to have a well playing open-source N64 emulator designed for the web. I also wanted to learn OpenGL and this was a good way to dive in. Game compatibility is decent with a good portion of the 3D games playable and at full speed on a mid-range computer - Mario 64, Ocarina of Time etc... There is currently an issue with some 2D games such as Dr Mario 64 and Pokemon Puzzle League which I am still investigating. I also tested on the iPhone 13 Pro and Xbox Series X Browser and it works great.
+Thanks for checking out N64 Wasm! An N64 emulator that runs in the browser. It is a port of the excellent RetroArch ParaLLEl Core to WebAssembly. This project started because I wanted to have a well playing open-source N64 emulator designed for the web. I also wanted to learn OpenGL and this was a good way to dive in. Game compatibility is decent with a good portion of the 3D games playable and at full speed on a mid-range computer - Mario 64, Ocarina of Time etc... There is currently an issue with some 2D games such as Dr Mario 64 and Pokemon Puzzle League which I am still investigating. I also tested on the iPhone 13 and Xbox Series X Browser and it works great.
 
 Supports the following features -
 - Gamepad Support (Xbox and PS4 Controller tested)
@@ -12,6 +12,7 @@ Supports the following features -
 - Audio Support
 - Cloud Save States (Host your own server)
 - Multiple Controller Support
+- Mobile Controls
 
 
 You can try it here: https://www.neilb.net/n64wasm/
@@ -77,7 +78,7 @@ If you want to actually do debugging you will want to get the Windows version wo
 ![screenshot](screenshots/screenshot4.PNG)
 ![screenshot](screenshots/screenshot5.PNG)
 
-# iPhone 13 Pro
+# iPhone 13
 ![screenshot](screenshots/iphone.jpg)
 
 # References

@@ -14,6 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.0/nipplejs.min.js"></script>
     <style>
         input[type="file"] {
             display: none;
@@ -31,8 +32,18 @@
             border-top: 0px;
         }
 
+        .lightpurple {
+            background-color: rgb(189, 174, 173);
+        }
 
+        .darkpurple {
+            background-color: rgb(238, 21, 21);
+            background-color: rgb(199, 199, 230);
+        }
 
+        .buttonhold {
+            background-color: lightsalmon;
+        }
         
         .nav-tabs .nav-item.show .nav-link,
         .nav-tabs .nav-link.active {
@@ -202,6 +213,80 @@
             </a>
         </h6>
 
+    </div>
+
+    <!-- Mobile UX -->
+    <div id="mobileButtons" style="display: none;text-align: center;background: white;
+                   padding-top: 20px;padding-bottom: 20px;">
+        <div style="margin-bottom: 10px;">
+            <button class="btn btn-primary mt-2 mb-2" onclick="myApp.newRom()" >New Rom</button>
+            <button rv-if="data.loggedIn | ev '==true'" class="btn btn-primary mt-2 mb-2" onclick="myApp.saveCloud()" >Save Cloud</button>
+            <button rv-if="data.loggedIn | ev '==true'" class="btn btn-primary mt-2 mb-2" onclick="myApp.loadCloud()" rv-disabled="data.noCloudSave">Load Cloud</button>
+            <button rv-if="data.loggedIn | ev '==false'" class="btn btn-primary mt-2 mb-2" onclick="myApp.saveStateLocal()" >Save State</button>
+            <button rv-if="data.loggedIn | ev '==false'" class="btn btn-primary mt-2 mb-2" onclick="myApp.loadStateLocal()" rv-disabled="data.noLocalSave" >Load State</button>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="myApp.hideMobileMenu()">
+            Hide
+        </button>
+    </div>
+    <div id="mobileDiv" style="display: none;height: 100%;">
+        <div id="mobileCanvas">
+    
+        </div>
+    
+        <div id="mobileBottomPanel" style="font-size: 36px;height:100%;text-align: center!important;background: white;">
+            <table style="width: 100%;" cellpadding=0 cellspacing=0>
+                <tr>
+                    <td style="border-right: 1px solid rgb(72,72,72);width:50%;">
+                        <div id="mobileStart" class="lightpurple" rv-class-buttonhold="data.inputController.MobileStart">
+                            Start
+                        </div>
+                    </td>
+                    <td>
+                        <div id="mobileSelect" class="lightpurple" rv-class-buttonhold="data.inputController.MobileSelect">
+                            Z
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-right: 1px solid rgb(72,72,72);">
+                        <div id="mobileB" class="darkpurple" rv-class-buttonhold="data.inputController.MobileB">
+                            B
+                        </div>
+                    </td>
+                    <td>
+                        <div id="mobileA" class="darkpurple" rv-class-buttonhold="data.inputController.MobileA">
+                            A
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <!-- <div style="color: lightgray;height:100%;" id="divTouchSurface">
+                <div style="padding-top: 20px;height: 800px;" id="startDiv">
+                    << Swipe to Move>>
+                </div>
+            </div> -->
+            <div style="margin-left: auto;margin-right: auto;width: 100%;height: 800px;">
+                <div id="divTouchSurface" style="color: lightgray;position: absolute;width: 100%;height: 800px;">
+                    <div style="padding-top: 20px;" id="startDiv" style="-webkit-touch-callout: none; /* iOS Safari */
+                    -webkit-user-select: none; /* Safari */
+                     -khtml-user-select: none; /* Konqueror HTML */
+                       -moz-user-select: none; /* Old versions of Firefox */
+                        -ms-user-select: none; /* Internet Explorer/Edge */
+                            user-select: none; /* Non-prefixed version, currently
+                                                  supported by Chrome, Edge, Opera and Firefox */">
+                        Virtual Joystick
+                    </div>
+                </div>
+            </div>
+    
+            <div id="menuDiv"
+                style="opacity: 0.5; background-color: rgba(243,244,244,1);width: 70px;position: absolute; top:0px;left:170px;font-size: 14px;">
+                -MENU-
+            </div>
+    
+    
+        </div>
     </div>
 
     <!--  Login Modal -->
@@ -768,7 +853,24 @@
                                     Player 4 Invert Y-Axis
                                 </label>
                             </div>
-                            
+
+                            <div class="mt-2">
+                                <table>
+                                    <tr>
+                                        <td>Mobile</td>
+                                        <td>
+                                            <div>
+                                                <select class="form-control" rv-value="data.settingMobileTemp" id="ddlMobile" style="margin-left: 16px;">
+                                                    <option value="Auto">Auto Detect</option>
+                                                    <option value="ForceMobile">Force Mobile</option>
+                                                    <option value="ForceDesktop">Force Desktop</option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -781,7 +883,6 @@
         </div>
     </div>
 
-    <script src="input_controller.js"></script>
     <script src="settings.js"></script>
     <script src="romlist.js"></script>
     <script type="text/javascript">

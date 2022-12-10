@@ -58,6 +58,7 @@ class MyClass {
             disableAudioSync: false,
             remapPlayer1: true,
             remapOptions: false,
+            settingMobile: 'Auto',
             settings: {
                 CLOUDSAVEURL: "",
                 SHOWADVANCED: false,
@@ -95,12 +96,14 @@ class MyClass {
         rivets.bind(document.getElementById('loginModal'), { data: this.rivetsData });
         rivets.bind(document.getElementById('buttonsModal'), { data: this.rivetsData });
         rivets.bind(document.getElementById('lblError'), { data: this.rivetsData });
+        rivets.bind(document.getElementById('mobileBottomPanel'), { data: this.rivetsData });
+        rivets.bind(document.getElementById('mobileButtons'), { data: this.rivetsData });
+        
         
 
         this.setupDragDropRom();
         this.detectMobile();
         this.setupLogin();
-        this.setupInputController();
         this.createDB();
         this.retrieveSettings();
 
@@ -165,7 +168,7 @@ class MyClass {
     }
 
     detectMobile(){
-        if (navigator.userAgent.toLocaleLowerCase().includes('iphone') || navigator.userAgent.toLocaleLowerCase().includes('ipad'))
+        if (navigator.userAgent.toLocaleLowerCase().includes('iphone'))
         {
             this.iosMode = true;
         }
@@ -196,6 +199,7 @@ class MyClass {
             this.rivetsData.beforeEmulatorStarted = false;
             this.showToast = Module.cwrap('neil_toast_message', null, ['string']);
             this.toggleFPSModule = Module.cwrap('toggleFPS', null, ['number']);
+            this.sendMobileControls = Module.cwrap('neil_send_mobile_controls', null, ['string','string','string']);
         }
 
     }
@@ -434,7 +438,12 @@ class MyClass {
         if (this.rivetsData.invert2P) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
         if (this.rivetsData.invert3P) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
         if (this.rivetsData.invert4P) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
-         
+
+        //mobile mode
+        if (this.rivetsData.settingMobile == 'ForceMobile') this.mobileMode = true;
+        if (this.rivetsData.settingMobile == 'ForceDesktop') this.mobileMode = false;
+        if (this.mobileMode) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
+    
         FS.writeFile('config.txt',configString);
     }
 
@@ -626,6 +635,15 @@ class MyClass {
 
     }
 
+    extractRomName(name){
+        if (name.includes('/'))
+        {
+            name = name.substr(name.lastIndexOf('/')+1);
+        }
+
+        return name;
+    }
+
     loadRomAndSavestate(){
         let selector = document.getElementById('romselect');
         let saveToLoad = document.getElementById('savestateSelect')["value"];
@@ -633,7 +651,7 @@ class MyClass {
         for (let i=0;i<selector.options.length;i++)
         {
             let romurl = selector.options[i].value;
-            let romname = romurl.substr(5);
+            let romname = this.extractRomName(romurl);
 
             if (saveToLoad==romname + '.n64wasm')
             {
@@ -649,7 +667,7 @@ class MyClass {
         //get rom url
         let romurl = document.getElementById('romselect')["value"];
         console.log(romurl);
-        this.rom_name = romurl.substr(5);
+        this.rom_name = this.extractRomName(romurl);
 
         this.load_url(romurl);
     }
@@ -929,6 +947,8 @@ class MyClass {
     //when it returns from emscripten
     SaveStateEvent()
     {
+        myClass.hideMobileMenu();
+
         console.log('js savestate event');
         let compressed = FS.readFile('/savestate.gz'); //this is a Uint8Array
 
@@ -971,6 +991,8 @@ class MyClass {
     }
 
     loadCloud(){
+
+        myClass.hideMobileMenu();
 
         //use local db
         if (!myClass.rivetsData.loggedIn)
@@ -1036,15 +1058,50 @@ class MyClass {
 
         if (this.mobileMode)
         {
-            document.getElementById('maindiv').classList.remove('container');
-            this.canvasSize = window.innerWidth;
-            console.log('canvas size',this.canvasSize);
+            this.setupMobileMode();
         }
 
         this.resizeCanvas();
 
         if (this.rivetsData.password)
             this.loginSilent();
+    }
+
+    setupMobileMode() {
+
+        this.canvasSize = window.innerWidth;
+        console.log('canvas size', this.canvasSize);
+
+        $("#btnHideMenu").show();
+        let halfWidth = (window.innerWidth / 2) - 35;
+        document.getElementById("menuDiv").style.left = halfWidth + "px";
+
+        this.rivetsData.inputController.setupMobileControls('divTouchSurface');
+
+        // document.getElementById('body').style['background-color'] = 'white';
+
+        $("#mobileDiv").show();
+        $("#maindiv").hide();
+        $('#canvas').appendTo("#mobileCanvas");
+
+        document.getElementById('maindiv').classList.remove('container');
+
+        //fixes the small gap between canvas and mobile buttons
+        document.getElementById('canvas').style.display = 'block';
+
+        //scroll back to top
+        try {
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        } catch (error) { }
+    }
+
+    hideMobileMenu() {
+        if (this.mobileMode)
+        {
+            $("#mobileButtons").hide();
+            $('#menuDiv').show();
+        }
     }
 
     retrieveSettings(){
@@ -1072,6 +1129,7 @@ class MyClass {
         this.rivetsData.invert3P = this.rivetsData.invert3PTemp;
         this.rivetsData.invert4P = this.rivetsData.invert4PTemp;
         this.rivetsData.disableAudioSync = this.rivetsData.disableAudioSyncTemp;
+        this.rivetsData.settingMobile = this.rivetsData.settingMobileTemp;
 
         if (this.rivetsData.showFPS)
             localStorage.setItem('n64wasm-showfps', 'true');
@@ -1095,6 +1153,7 @@ class MyClass {
         this.rivetsData.invert3PTemp = this.rivetsData.invert3P;
         this.rivetsData.invert4PTemp = this.rivetsData.invert4P;
         this.rivetsData.disableAudioSyncTemp = this.rivetsData.disableAudioSync;
+        this.rivetsData.settingMobileTemp = this.rivetsData.settingMobile;
 
         //start input loop
         if (!this.rivetsData.inputLoopStarted)
@@ -1168,6 +1227,7 @@ class MyClass {
         this.rivetsData.invert3P = false;
         this.rivetsData.invert4P = false;
         this.rivetsData.disableAudioSyncTemp = false;
+        this.rivetsData.settingMobile = 'Auto';
     }
 
     remapPressed() {
@@ -1344,6 +1404,8 @@ window["Module"] = {
     // printErr: (text) => myClass.print(text)
 }
 
-var script = document.createElement('script');
-script.src = 'n64wasm.js'
-document.getElementsByTagName('head')[0].appendChild(script);
+var rando2 = Math.floor(Math.random() * 100000);
+var script2 = document.createElement('script');
+script2.src = 'input_controller.js?v=' + rando2;
+document.getElementsByTagName('head')[0].appendChild(script2);
+
