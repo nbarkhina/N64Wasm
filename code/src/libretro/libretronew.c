@@ -744,7 +744,27 @@ void retro_init(void)
     main_thread = co_active();
     game_thread = co_create(65536 * sizeof(void*) * 16, EmuThreadFunction);
 #endif
+    
+}
 
+void importCheats()
+{
+    if (neilCheatsLength > 0)
+    {
+        char name[256];
+        m64p_cheat_code mupenCode[256];
+
+        for (int i = 0; i < neilCheatsLength; i++)
+        {
+            mupenCode[i].address = neilCheats[i].address;
+            mupenCode[i].value = neilCheats[i].value;
+        }
+
+        cheat_add_new("cheats", mupenCode, neilCheatsLength);
+        cheat_set_enabled("cheats", true);
+
+        printf("enabled %d cheats\n", neilCheatsLength);
+    }
 }
 
 void retro_deinit(void)
@@ -1145,6 +1165,7 @@ static void format_saved_memory(bool loadEep, bool loadSra, bool loadFla)
 
 bool retro_load_game_new(uint8_t* romdata, int size, bool loadEep, bool loadSra, bool loadFla)
 {
+    importCheats();
     format_saved_memory(loadEep, loadSra, loadFla);
 
     update_variables(true);

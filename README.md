@@ -13,6 +13,7 @@ Supports the following features -
 - Cloud Save States (Host your own server)
 - Multiple Controller Support
 - Mobile Controls
+- Gameshark Codes
 
 
 You can try it here: https://www.neilb.net/n64wasm/

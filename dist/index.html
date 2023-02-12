@@ -340,6 +340,10 @@
                             <a class="nav-link" rv-class-active="data.remapOptions" style="cursor: pointer;"
                                 onclick="myApp.swapRemap('options')">Options</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" rv-class-active="data.remapGameshark" style="cursor: pointer;"
+                                onclick="myApp.swapRemap('gameshark')">GameShark</a>
+                        </li>
                     </ul>
                     <div rv-if="data.remapPlayer1">
                         <table class="table" rv-hide="data.remapWait">
@@ -882,6 +886,59 @@
                                 </table>
                             </div>
 
+                        </div>
+                    </div>
+                    <div rv-if="data.remapGameshark">
+                        <div class="mt-4 mb-4">
+                            <table class="table" rv-hide="data.remapWait">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Active</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Address</th>
+                                        <th scope="col">Value</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr rv-each-cheat="data.cheats">
+                                        <th scope="row">
+                                            <label class="form-check-label" style="margin-left: 26px; margin-top: 5px;">
+                                                <input type="checkbox" class="form-check-input" rv-checked="cheat.active">
+                                                Active
+                                            </label>
+                                        </th>
+                                        <td>
+                                            <input rv-value="cheat.name" type="text" class="form-control" disabled>
+                                        </td>
+                                        <td>
+                                            <input rv-value="cheat.address" type="text" class="form-control" disabled>
+                                        </td>
+                                        <td>
+                                            <input rv-value="cheat.value" type="text" class="form-control" disabled>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <button type="button" class="btn btn-danger" rv-name="cheat.name" onclick="myApp.deleteCheat(this)">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">
+                                        </th>
+                                        <td>
+                                            <input rv-value="data.cheatName" type="text" class="form-control">
+                                        </td>
+                                        <td>
+                                            <input rv-value="data.cheatAddress" type="text" class="form-control">
+                                        </td>
+                                        <td>
+                                            <input rv-value="data.cheatValue" type="text" class="form-control">
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <button type="button" class="btn btn-success" onclick="myApp.addCheat()">Add</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

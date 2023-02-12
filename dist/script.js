@@ -59,8 +59,13 @@ class MyClass {
             disableAudioSync: true,
             remapPlayer1: true,
             remapOptions: false,
+            remapGameshark: false,
             settingMobile: 'Auto',
             iosShowWarning: false,
+            cheatName: '',
+            cheatAddress: '',
+            cheatValue: '',
+            cheats: [],
             settings: {
                 CLOUDSAVEURL: "",
                 SHOWADVANCED: false,
@@ -482,6 +487,18 @@ class MyClass {
         if (this.mobileMode) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
     
         FS.writeFile('config.txt',configString);
+
+        //write cheats
+        let cheatString = '';
+        this.rivetsData.cheats.forEach(cheat => {
+            if (cheat.active)
+            {
+                cheatString += cheat.address + "\r\n" + cheat.value + "\r\n";
+            }
+        });
+        
+        FS.writeFile('cheat.txt',cheatString);
+
     }
 
 
@@ -1170,6 +1187,7 @@ class MyClass {
     }
 
     retrieveSettings(){
+        this.loadCheats();
         this.setFromLocalStorage('n64wasm-showfps','showFPS');
         this.setFromLocalStorage('n64wasm-disableaudiosyncnew','disableAudioSync');
         this.setFromLocalStorage('n64wasm-swapSticks','swapSticks');
@@ -1177,7 +1195,7 @@ class MyClass {
         this.setFromLocalStorage('n64wasm-invert3P','invert3P');
         this.setFromLocalStorage('n64wasm-invert4P','invert4P');
         this.setFromLocalStorage('n64wasm-settingMobile','settingMobile');
-
+        
     }
 
     saveOptions(){
@@ -1205,6 +1223,7 @@ class MyClass {
 
         this.rivetsData.remapPlayer1 = true;
         this.rivetsData.remapOptions = false;
+        this.rivetsData.remapGameshark = false;
 
         this.rivetsData.showFPSTemp = this.rivetsData.showFPS;
         this.rivetsData.swapSticksTemp = this.rivetsData.swapSticks;
@@ -1231,16 +1250,64 @@ class MyClass {
         $("#buttonsModal").modal();
     }
 
+    addCheat(){
+        let cheat = {
+            name: this.rivetsData.cheatName.trim(),
+            address: this.rivetsData.cheatAddress.trim(),
+            value: this.rivetsData.cheatValue.trim(),
+            active: true
+        }
+
+        this.rivetsData.cheats.push(cheat);
+        this.rivetsData.cheatName = '';
+        this.rivetsData.cheatAddress = '';
+        this.rivetsData.cheatValue = '';
+
+        this.saveCheats();
+    }
+
+    loadCheats(){
+        try
+        {
+            let cheats = JSON.parse(localStorage.getItem('n64wasm-cheats'));
+            for(let i = 0; i < cheats.length; i++)
+            {
+                let cheat = cheats[i];
+                if (cheat.name && cheat.address && cheat.value)
+                {
+                    this.rivetsData.cheats.push(cheat);
+                }
+            }
+        }catch(err){}
+    }
+
+    saveCheats(){
+        localStorage.setItem('n64wasm-cheats',JSON.stringify(this.rivetsData.cheats));
+    }
+
+    deleteCheat(cheat){
+        this.rivetsData.cheats = this.rivetsData.cheats.filter((a)=>{ return a.name != cheat.name; });
+        this.saveCheats();
+    }
+
     swapRemap(id){
         if (id=='options')
         {
             this.rivetsData.remapPlayer1 = false;
             this.rivetsData.remapOptions = true;
+            this.rivetsData.remapGameshark = false;
         }
         if (id=='player1')
         {
             this.rivetsData.remapPlayer1 = true;
             this.rivetsData.remapOptions = false;
+            this.rivetsData.remapGameshark = false;
+        }
+        if (id=='gameshark')
+        {
+            this.rivetsData.remapPlayer1 = false;
+            this.rivetsData.remapOptions = false;
+            this.rivetsData.remapGameshark = true;
         }
     }
     
@@ -1286,7 +1353,7 @@ class MyClass {
         this.rivetsData.invert2PTemp = false;
         this.rivetsData.invert3PTemp = false;
         this.rivetsData.invert4PTemp = false;
-        this.rivetsData.disableAudioSyncTemp = false;
+        this.rivetsData.disableAudioSyncTemp = true;
         this.rivetsData.settingMobileTemp = 'Auto';
     }
 

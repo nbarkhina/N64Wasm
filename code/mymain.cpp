@@ -24,11 +24,16 @@
 #include <sstream>
 
 extern "C" {
-#include "neil.h"
+    #include "neil.h"
 }
 
 #include "neil_controller.h"
 
+extern "C" {
+    struct NeilCheats neilCheats[256];
+    int neilCheatsLength = 0;
+}
+ 
 #ifdef _WIN32
 #define USE_XINPUT //COMMENT OUT TO FALL BACK TO SDL JOYSTICK CODE (UNRELIABLE)
 #endif
@@ -455,6 +460,49 @@ void readConfig()
     }
 }
 
+
+void readCheats()
+{
+
+#ifdef _WIN32
+    //for debugging cheats
+    std::string testRom(rom_name);
+    if (testRom != "roms\\fzero.v64")
+        return;
+#endif
+
+    try
+    {
+        std::ifstream infile("cheat.txt");
+        std::string line;
+        std::size_t pos;
+        std::string newstr;
+
+        int counter = 0;
+        while (std::getline(infile, line))
+        {
+            long long cheatAddress = std::stoll(line, nullptr, 16);
+            std::getline(infile, line);
+            int cheatValue = stoi(line, 0, 16);
+
+            neilCheats[counter].address = cheatAddress;
+            neilCheats[counter].value = cheatValue;
+            
+            counter++;
+            neilCheatsLength = counter;
+
+            if (counter == 256)
+                return;
+        }
+
+        printf("Finished Reading Cheats\n");
+    }
+    catch (...)
+    {
+        printf("No Config File Found\n");
+    }
+}
+
 //process mobile controls here
 void processMobileControls()
 {
@@ -607,9 +655,9 @@ int main(int argc, char* argv[])
 
     retro_init();
 
-    sprintf(rom_name, "%s", "mario64.z64");
+    //sprintf(rom_name, "%s", "mario64.z64");
     //sprintf(rom_name, "%s", "roms\\mario64_europe.n64");
-    //sprintf(rom_name, "%s", "roms\\fzero.v64");
+    sprintf(rom_name, "%s", "roms\\fzero.v64");
     //sprintf(rom_name, "%s", "roms\\goldeneye.v64");
     //sprintf(rom_name, "%s", "roms\\diddy.v64");
     //sprintf(rom_name, "%s", "roms\\mariokart.v64");
@@ -621,6 +669,7 @@ int main(int argc, char* argv[])
     }
 
     readConfig();
+    readCheats();
 
     FILE* f = fopen(rom_name, "rb");
     fseek(f, 0, SEEK_END);
