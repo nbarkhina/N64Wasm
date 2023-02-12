@@ -87,6 +87,7 @@ bool invert2P = false;
 bool invert3P = false;
 bool invert4P = false;
 bool mobileMode = false;
+bool endframeCallback = false;
 
 extern "C" {
     int triangleCount = 0;
@@ -632,7 +633,7 @@ int main(int argc, char* argv[])
 #ifdef __EMSCRIPTEN__
     if (disableAudioSync)
     {
-        emscripten_set_main_loop(mainLoop, FPS, 1);
+        emscripten_set_main_loop(mainLoop, 0, 0);
     }
 #else
     while (runApp){
@@ -699,8 +700,44 @@ void resetNeilButtons()
 
 }
 
+double fpsInterval = 1000.0 / 60.0;
+int fpsThen = 0; //time in milliseconds
+int fpsNow = 0; //time in milliseconds
+int fpsFrameCounter = 0;
+int fpsAudioRemaining = 0; //used to keep relieve some audio when emulator is running too fast
+
+bool IsFrameReady() {
+
+	fpsInterval = 1000.0 / (double)FPS; //uncomment this for variable FPS
+	fpsNow = SDL_GetTicks();
+	int elapsed = fpsNow - fpsThen;
+	bool ready = true;
+
+	int shouldBeFrames = (int)((double)elapsed / fpsInterval);
+	if (fpsFrameCounter > shouldBeFrames)
+	{
+		ready = false;
+	}
+
+	if (ready)
+		fpsFrameCounter++;
+
+	//reset
+	if (elapsed > 1000)
+	{
+		fpsThen = fpsNow;
+		fpsFrameCounter = 0;
+	}
+
+	return ready;
+}
+
 void mainLoop()
 {
+	#ifdef __EMSCRIPTEN__
+	if (disableAudioSync && !IsFrameReady())
+		return;
+	#endif
 
     SDL_Event windowEvent;
     frameStart = SDL_GetTicks();
@@ -930,7 +967,7 @@ void mainLoop()
     //allow audio buffer to shrink down
     //if emulator is too far ahead
     audioBufferQueue = SDL_GetQueuedAudioSize(audioDeviceId);
-    if (audioBufferQueue < 20000)
+    if (audioBufferQueue < 20000 && fpsAudioRemaining < 5000)
         retro_run();
     else
     {
@@ -970,6 +1007,16 @@ void mainLoop()
 
 
     limitFPS();
+
+#ifdef __EMSCRIPTEN__
+    if (endframeCallback)
+    {
+        EM_ASM(
+            myApp.localCallback();
+        );
+        endframeCallback = false;  
+    }
+#endif
 
 }
 
@@ -1529,5 +1576,15 @@ extern "C" {
         float axis1Float = std::stof(axis1String);
         neilbuttons[0].axis1 = -(int)((float)32000*axis1Float);
 
+	}
+
+    void neil_set_buffer_remaining(int remaining)
+	{
+		fpsAudioRemaining = remaining;
+	}
+
+    void neil_set_endframe_callback()
+	{
+		endframeCallback = true;
 	}
 }

@@ -56,7 +56,7 @@ class MyClass {
             invert2P: false,
             invert3P: false,
             invert4P: false,
-            disableAudioSync: false,
+            disableAudioSync: true,
             remapPlayer1: true,
             remapOptions: false,
             settingMobile: 'Auto',
@@ -212,6 +212,7 @@ class MyClass {
             this.showToast = Module.cwrap('neil_toast_message', null, ['string']);
             this.toggleFPSModule = Module.cwrap('toggleFPS', null, ['number']);
             this.sendMobileControls = Module.cwrap('neil_send_mobile_controls', null, ['string','string','string']);
+            this.setRemainingAudio = Module.cwrap('neil_set_buffer_remaining', null, ['number']);
         }
 
     }
@@ -386,6 +387,26 @@ class MyClass {
         if (hadSkip)
             this.rivetsData.audioSkipCount++;
 
+        //calculate remaining audio in buffer
+        let audioBufferRemaining = 0;
+        let readPositionTemp = this.audioReadPosition;
+        let writePositionTemp = this.audioWritePosition;
+        for(let i = 0; i < 64000; i++)
+        {
+            if (readPositionTemp != writePositionTemp)
+            {
+                readPositionTemp += 2;
+                audioBufferRemaining += 2;
+
+                if (readPositionTemp == 64000) {
+                    readPositionTemp = 0;
+                }
+            }
+        }
+
+        this.setRemainingAudio(audioBufferRemaining);
+        //myClass.showToast("Buffer: " + audioBufferRemaining);
+        
         this.audioThreadLock = false;
 
     }
@@ -1146,7 +1167,7 @@ class MyClass {
 
     retrieveSettings(){
         this.setFromLocalStorage('n64wasm-showfps','showFPS');
-        this.setFromLocalStorage('n64wasm-disableaudiosync','disableAudioSync');
+        this.setFromLocalStorage('n64wasm-disableaudiosyncnew','disableAudioSync');
         this.setFromLocalStorage('n64wasm-swapSticks','swapSticks');
         this.setFromLocalStorage('n64wasm-invert2P','invert2P');
         this.setFromLocalStorage('n64wasm-invert3P','invert3P');
@@ -1166,7 +1187,7 @@ class MyClass {
         this.rivetsData.settingMobile = this.rivetsData.settingMobileTemp;
 
         this.setToLocalStorage('n64wasm-showfps','showFPS');
-        this.setToLocalStorage('n64wasm-disableaudiosync','disableAudioSync');
+        this.setToLocalStorage('n64wasm-disableaudiosyncnew','disableAudioSync');
         this.setToLocalStorage('n64wasm-swapSticks','swapSticks');
         this.setToLocalStorage('n64wasm-invert2P','invert2P');
         this.setToLocalStorage('n64wasm-invert3P','invert3P');
@@ -1419,7 +1440,8 @@ class MyClass {
         Module._neil_reset();
     }
 
-
+    localCallback(){
+    }
     
     
 }
