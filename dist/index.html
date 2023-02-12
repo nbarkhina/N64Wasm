@@ -175,7 +175,12 @@
 
             </div>
 
-
+            <div rv-if="data.iosShowWarning" class="mt-4">
+                <div class="alert alert-info" role="alert">
+                    <b>NOTE: </b>On iOS 16 and above in order to improve the framerate you should disable the following: Settings -> Safari -> 
+                    Advanced -> Experimental Features -> GPU Process: WebGL. Then restart safari and it should take effect.
+                  </div>
+            </div>
 
             <div style="margin-top:40px;" rv-if="data.beforeEmulatorStarted">
                 <div id="dropArea" style="width: 150px; height: 150px; border: gray 1px solid;margin-left: auto;

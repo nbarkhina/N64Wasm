@@ -5,6 +5,7 @@ class MyClass {
         this.rom_name = '';
         this.mobileMode = false;
         this.iosMode = false;
+        this.iosVersion = 0;
         this.audioInited = false;
         this.allSaveStates = [];
         this.loginModalOpened = false;
@@ -59,6 +60,7 @@ class MyClass {
             remapPlayer1: true,
             remapOptions: false,
             settingMobile: 'Auto',
+            iosShowWarning: false,
             settings: {
                 CLOUDSAVEURL: "",
                 SHOWADVANCED: false,
@@ -171,6 +173,16 @@ class MyClass {
         if (navigator.userAgent.toLocaleLowerCase().includes('iphone'))
         {
             this.iosMode = true;
+            try {
+                let iosVersion = navigator.userAgent.substring(navigator.userAgent.indexOf("iPhone OS ") + 10);
+                iosVersion = iosVersion.substring(0, iosVersion.indexOf(' '));
+                iosVersion = iosVersion.substring(0, iosVersion.indexOf('_'));
+                this.iosVersion = parseInt(iosVersion);
+            } catch (err) { }
+    
+            if (this.iosVersion > 15) {
+                this.rivetsData.iosShowWarning = true;
+            }
         }
         if (window.innerWidth < 600 || this.iosMode)
             this.mobileMode = true;

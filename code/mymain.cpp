@@ -652,9 +652,13 @@ void processMenuItemButtons();
 bool lastSaveStateKeyPressed = false;
 bool lastLoadStateKeyPressed = false;
 bool lastOverlayKeyPressed = false;
-bool lastMenuUpPressed = false;
-bool lastMenuDownPressed = false;
-bool lastMenuOkPressed = false;
+bool lastMenuUpKeyPressed = false;
+bool lastMenuDownKeyPressed = false;
+bool lastMenuOkKeyPressed = false;
+bool lastOverlayButtonPressed = false;
+bool lastMenuUpButtonPressed = false;
+bool lastMenuDownButtonPressed = false;
+bool lastMenuOkButtonPressed = false;
 bool menuMoveUp = false;
 bool menuMoveDown = false;
 bool menuOk = false;
@@ -776,7 +780,7 @@ void mainLoop()
 
     if (xControllers[0].connected)
     {
-        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_RIGHT_THUMB,0), &lastOverlayKeyPressed))
+        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_RIGHT_THUMB, 0), &lastOverlayButtonPressed))
         {
             if (!showOverlay)
             {
@@ -784,9 +788,9 @@ void mainLoop()
             }
             showOverlay = !showOverlay;
         }
-        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_DPAD_UP,0), &lastMenuUpPressed)) menuMoveUp = true;
-        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_DPAD_DOWN,0), &lastMenuDownPressed)) menuMoveDown = true;
-        if (isReleasedOnce(IsPressed(XINPUT_GAMEPAD_A,0), &lastMenuOkPressed)) menuOk = true;
+        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_DPAD_UP, 0), &lastMenuUpButtonPressed)) menuMoveUp = true;
+        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_DPAD_DOWN, 0), &lastMenuDownButtonPressed)) menuMoveDown = true;
+        if (isReleasedOnce(IsPressed(XINPUT_GAMEPAD_A, 0), &lastMenuOkButtonPressed)) menuOk = true;
     }
 #endif
 
@@ -843,9 +847,9 @@ void mainLoop()
             if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_L)) neilbuttons[i].lKey = true;
             if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_R)) neilbuttons[i].rKey = true;
             //only controller 1 controls the menu
-			if (i == 0)
+            if (i == 0)
             {
-                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Menu), &lastOverlayKeyPressed))
+                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Menu), &lastOverlayButtonPressed))
                 {
                     if (!showOverlay)
                     {
@@ -853,9 +857,9 @@ void mainLoop()
                     }
                     showOverlay = !showOverlay;
                 }
-                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Up), &lastMenuUpPressed)) menuMoveUp = true;
-                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Down), &lastMenuDownPressed)) menuMoveDown = true;
-                if (isReleasedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_A), &lastMenuOkPressed)) menuOk = true;
+                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Up), &lastMenuUpButtonPressed)) menuMoveUp = true;
+                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Down), &lastMenuDownButtonPressed)) menuMoveDown = true;
+                if (isReleasedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_A), &lastMenuOkButtonPressed)) menuOk = true;
             }
 #endif
         }
@@ -887,22 +891,18 @@ void mainLoop()
     if (keyboardState[Mapping_Action_CRIGHT]) neilbuttons[0].cbRight = true;
     if (keyboardState[Mapping_Action_CUP]) neilbuttons[0].cbUp = true;
 
-    //TODO - doesnt work in conjunction with gamepad, only use for debugging while gamepad is off
-    if (!sdlJoysticks[0].gamepadConnected)
+    if (isPressedOnce(keyboardState[SDL_SCANCODE_GRAVE], &lastOverlayKeyPressed))
     {
-        if (isPressedOnce(keyboardState[SDL_SCANCODE_GRAVE], &lastOverlayKeyPressed))
+        if (!showOverlay)
         {
-            if (!showOverlay)
-            {
-                selectedMenuItem = 0;
-            }
-            showOverlay = !showOverlay;
+            selectedMenuItem = 0;
         }
-        if (isPressedOnce(keyboardState[SDL_SCANCODE_UP], &lastMenuUpPressed)) menuMoveUp = true;
-        if (isPressedOnce(keyboardState[SDL_SCANCODE_DOWN], &lastMenuDownPressed)) menuMoveDown = true;
-        if (isReleasedOnce(keyboardState[SDL_SCANCODE_RETURN], &lastMenuOkPressed)) menuOk = true;
-
+        showOverlay = !showOverlay;
     }
+    if (isPressedOnce(keyboardState[SDL_SCANCODE_UP], &lastMenuUpKeyPressed)) menuMoveUp = true;
+    if (isPressedOnce(keyboardState[SDL_SCANCODE_DOWN], &lastMenuDownKeyPressed)) menuMoveDown = true;
+    if (isReleasedOnce(keyboardState[SDL_SCANCODE_RETURN], &lastMenuOkKeyPressed)) menuOk = true;
+
 
     //MOBILE
 	if (mobileMode && !sdlJoysticks[0].gamepadConnected)
