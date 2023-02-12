@@ -45,6 +45,10 @@ class KeyMappings {
         this.Joy_Mapping_Action_B = null;
         this.Joy_Mapping_Action_A = null;
         this.Joy_Mapping_Menu = null;
+        this.Joy_Mapping_Action_CLEFT = null;
+        this.Joy_Mapping_Action_CRIGHT = null;
+        this.Joy_Mapping_Action_CUP = null;
+        this.Joy_Mapping_Action_CDOWN = null;
     }
 }
 
@@ -354,7 +358,11 @@ class InputController {
             Joy_Mapping_Action_Z: 4,
             Joy_Mapping_Action_L: 6,
             Joy_Mapping_Action_R: 5,
-            Joy_Mapping_Menu: 11
+            Joy_Mapping_Menu: 11,
+            Joy_Mapping_Action_CLEFT: -1,
+            Joy_Mapping_Action_CRIGHT: -1,
+            Joy_Mapping_Action_CUP: -1,
+            Joy_Mapping_Action_CDOWN: -1,
         };
     }
 
@@ -364,17 +372,6 @@ class InputController {
 
     setGamePadButtons() {
         this.gamepadButtons = [];
-        this.gamepadButtons.push(new GamePadState(this.KeyMappings.Joy_Mapping_Left, this.KeyMappings.Mapping_Left));
-        this.gamepadButtons.push(new GamePadState(this.KeyMappings.Joy_Mapping_Right, this.KeyMappings.Mapping_Right));
-        this.gamepadButtons.push(new GamePadState(this.KeyMappings.Joy_Mapping_Down, this.KeyMappings.Mapping_Down));
-        this.gamepadButtons.push(new GamePadState(this.KeyMappings.Joy_Mapping_Up, this.KeyMappings.Mapping_Up));
-        this.gamepadButtons.push(new GamePadState(this.KeyMappings.Joy_Mapping_Action_Start, this.KeyMappings.Mapping_Action_Start));
-        this.gamepadButtons.push(new GamePadState(this.KeyMappings.Joy_Mapping_Action_B, this.KeyMappings.Mapping_Action_B));
-        this.gamepadButtons.push(new GamePadState(this.KeyMappings.Joy_Mapping_Action_Z, this.KeyMappings.Mapping_Action_Z));
-        this.gamepadButtons.push(new GamePadState(this.KeyMappings.Joy_Mapping_Action_L, this.KeyMappings.Mapping_Action_L));
-        this.gamepadButtons.push(new GamePadState(this.KeyMappings.Joy_Mapping_Action_R, this.KeyMappings.Mapping_Action_R));
-        this.gamepadButtons.push(new GamePadState(this.KeyMappings.Joy_Mapping_Action_A, this.KeyMappings.Mapping_Action_A));
-        this.gamepadButtons.push(new GamePadState(this.KeyMappings.Joy_Mapping_Menu, this.KeyMappings.Mapping_Menu));
     }
 
     initGamePad(e) {
@@ -406,22 +403,6 @@ class InputController {
                     if (gp.buttons[i].pressed)
                         this.Joy_Last = i;
                 }
-                this.gamepadButtons.forEach(button => {
-                    if (gp.buttons[button.buttonNum].pressed) {
-                        if (button.buttonTimer == 0) {
-                            this.sendKeyDownEvent(button.keyName);
-                        }
-                        button.buttonDown = true;
-                        button.buttonTimer++;
-                    }
-                    else if (button.buttonDown) {
-                        if (!gp.buttons[button.buttonNum].pressed) {
-                            button.buttonDown = false;
-                            button.buttonTimer = 0;
-                            this.sendKeyUpEvent(button.keyName);
-                        }
-                    }
-                });
                 //process axes
                 if (this.Gamepad_Process_Axis) {
                     try {

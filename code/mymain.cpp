@@ -254,6 +254,10 @@ int Joy_Mapping_Action_Z = 0;
 int Joy_Mapping_Action_L = 0;
 int Joy_Mapping_Action_R = 0;
 int Joy_Mapping_Menu = 0;
+int Joy_Mapping_Action_CLEFT = 0;
+int Joy_Mapping_Action_CRIGHT = 0;
+int Joy_Mapping_Action_CUP = 0;
+int Joy_Mapping_Action_CDOWN = 0;
 
 //keyboard
 int Mapping_Left = 0;
@@ -306,29 +310,33 @@ void readConfig()
             if (counter==8) Joy_Mapping_Action_L = mapping;
             if (counter==9) Joy_Mapping_Action_R = mapping;
             if (counter==10) Joy_Mapping_Menu = mapping;
+            if (counter==11) Joy_Mapping_Action_CLEFT = mapping;
+            if (counter==12) Joy_Mapping_Action_CRIGHT = mapping;
+            if (counter==13) Joy_Mapping_Action_CUP = mapping;
+            if (counter==14) Joy_Mapping_Action_CDOWN = mapping;
 
-            if (counter==11) Mapping_Left = getKeyMapping(line);
-            if (counter==12) Mapping_Right = getKeyMapping(line);
-            if (counter==13) Mapping_Up = getKeyMapping(line);
-            if (counter==14) Mapping_Down = getKeyMapping(line);
-            if (counter==15) Mapping_Action_Start = getKeyMapping(line);
-            if (counter==16) Mapping_Action_CUP = getKeyMapping(line);
-            if (counter==17) Mapping_Action_CDOWN = getKeyMapping(line);
-            if (counter==18) Mapping_Action_CLEFT = getKeyMapping(line);
-            if (counter==19) Mapping_Action_CRIGHT = getKeyMapping(line);
-            if (counter==20) Mapping_Action_Z = getKeyMapping(line);
-            if (counter==21) Mapping_Action_L = getKeyMapping(line);
-            if (counter==22) Mapping_Action_R = getKeyMapping(line);
-            if (counter==23) Mapping_Action_B = getKeyMapping(line);
-            if (counter==24) Mapping_Action_A = getKeyMapping(line);
-            if (counter==25) Mapping_Menu = getKeyMapping(line);
-            if (counter==26) Mapping_Action_Analog_Up = getKeyMapping(line);
-            if (counter==27) Mapping_Action_Analog_Down = getKeyMapping(line);
-            if (counter==28) Mapping_Action_Analog_Left = getKeyMapping(line);
-            if (counter==29) Mapping_Action_Analog_Right = getKeyMapping(line);
+            if (counter==15) Mapping_Left = getKeyMapping(line);
+            if (counter==16) Mapping_Right = getKeyMapping(line);
+            if (counter==17) Mapping_Up = getKeyMapping(line);
+            if (counter==18) Mapping_Down = getKeyMapping(line);
+            if (counter==19) Mapping_Action_Start = getKeyMapping(line);
+            if (counter==20) Mapping_Action_CUP = getKeyMapping(line);
+            if (counter==21) Mapping_Action_CDOWN = getKeyMapping(line);
+            if (counter==22) Mapping_Action_CLEFT = getKeyMapping(line);
+            if (counter==23) Mapping_Action_CRIGHT = getKeyMapping(line);
+            if (counter==24) Mapping_Action_Z = getKeyMapping(line);
+            if (counter==25) Mapping_Action_L = getKeyMapping(line);
+            if (counter==26) Mapping_Action_R = getKeyMapping(line);
+            if (counter==27) Mapping_Action_B = getKeyMapping(line);
+            if (counter==28) Mapping_Action_A = getKeyMapping(line);
+            if (counter==29) Mapping_Menu = getKeyMapping(line);
+            if (counter==30) Mapping_Action_Analog_Up = getKeyMapping(line);
+            if (counter==31) Mapping_Action_Analog_Down = getKeyMapping(line);
+            if (counter==32) Mapping_Action_Analog_Left = getKeyMapping(line);
+            if (counter==33) Mapping_Action_Analog_Right = getKeyMapping(line);
 
             //load eep file
-            if (counter == 30)
+            if (counter == 34)
             {
                 if (mapping == 0)
                     loadEep = false;
@@ -337,7 +345,7 @@ void readConfig()
             }
 
             //load sra file
-            if (counter == 31)
+            if (counter == 35)
             {
                 if (mapping == 0)
                     loadSra = false;
@@ -346,7 +354,7 @@ void readConfig()
             }
 
             //load fla file
-            if (counter == 32)
+            if (counter == 36)
             {
                 if (mapping == 0)
                     loadFla = false;
@@ -355,7 +363,7 @@ void readConfig()
             }
 
             //show FPS
-            if (counter == 33)
+            if (counter == 37)
             {
                 if (mapping == 1)
                     showFPS = true;
@@ -364,7 +372,7 @@ void readConfig()
             }
 
             //swap sticks
-            if (counter == 34)
+            if (counter == 38)
             {
                 if (mapping == 1)
                     swapSticks = true;
@@ -373,7 +381,7 @@ void readConfig()
             }
 
             //disable audio sync
-            if (counter == 35)
+            if (counter == 39)
             {
                 if (mapping == 1)
                     disableAudioSync = true;
@@ -382,7 +390,7 @@ void readConfig()
             }
 
             //player 2 invert Y axis
-            if (counter == 36)
+            if (counter == 40)
             {
                 if (mapping == 1)
                     invert2P = true;
@@ -391,7 +399,7 @@ void readConfig()
             }
 
             //player 3 invert Y axis
-            if (counter == 37)
+            if (counter == 41)
             {
                 if (mapping == 1)
                     invert3P = true;
@@ -400,7 +408,7 @@ void readConfig()
             }
 
             //player 4 invert Y axis
-            if (counter == 38)
+            if (counter == 42)
             {
                 if (mapping == 1)
                     invert4P = true;
@@ -409,7 +417,7 @@ void readConfig()
             }
 
             //mobile mode
-            if (counter == 39)
+            if (counter == 43)
             {
                 if (mapping == 1)
                     mobileMode = true;
@@ -883,6 +891,10 @@ void mainLoop()
             if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_Z)) neilbuttons[i].zKey = true;
             if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_L)) neilbuttons[i].lKey = true;
             if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_R)) neilbuttons[i].rKey = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_CLEFT)) neilbuttons[i].cbLeft = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_CRIGHT)) neilbuttons[i].cbRight = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_CUP)) neilbuttons[i].cbUp = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_CDOWN)) neilbuttons[i].cbDown = true;
             //only controller 1 controls the menu
             if (i == 0)
             {

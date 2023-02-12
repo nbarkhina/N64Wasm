@@ -431,6 +431,10 @@ class MyClass {
         configString += this.rivetsData.inputController.KeyMappings.Joy_Mapping_Action_L + "\r\n";
         configString += this.rivetsData.inputController.KeyMappings.Joy_Mapping_Action_R + "\r\n";
         configString += this.rivetsData.inputController.KeyMappings.Joy_Mapping_Menu + "\r\n";
+        configString += this.rivetsData.inputController.KeyMappings.Joy_Mapping_Action_CLEFT + "\r\n";
+        configString += this.rivetsData.inputController.KeyMappings.Joy_Mapping_Action_CRIGHT + "\r\n";
+        configString += this.rivetsData.inputController.KeyMappings.Joy_Mapping_Action_CUP + "\r\n";
+        configString += this.rivetsData.inputController.KeyMappings.Joy_Mapping_Action_CDOWN + "\r\n";
 
         //keyboard
         configString += this.rivetsData.inputController.KeyMappings.Mapping_Left + "\r\n";

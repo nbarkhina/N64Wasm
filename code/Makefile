@@ -172,7 +172,7 @@ MYFLAGS   := \
     -s USE_ZLIB=1 \
 	-s USE_SDL_IMAGE=2
 
-all: cleandata n64wasm.js
+all: n64wasm.js
 
 n64wasm.js: $(FILES)
 	emcc -o $@ $(FILES) -s USE_SDL=2 -s USE_SDL_TTF=2 \
@@ -205,6 +205,3 @@ clean:
 	@echo $(FILES)
 	rm -fr *.o */*.o */*/*.o */*/*/*.o */*/*/*/*.o
 	
-cleandata:
-	@echo "Cleaning data"
-	rm -fr *.data
