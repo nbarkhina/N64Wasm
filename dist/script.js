@@ -1116,42 +1116,63 @@ class MyClass {
         }
     }
 
-    retrieveSettings(){
-        if (localStorage.getItem('n64wasm-showfps'))
+    setFromLocalStorage(localStorageName, rivetsName){
+        if (localStorage.getItem(localStorageName))
         {
-            if (localStorage.getItem('n64wasm-showfps')=="true")
-                this.rivetsData.showFPS = true;
+            if (localStorage.getItem(localStorageName)=="true")
+                this.rivetsData[rivetsName] = true;
+            else if (localStorage.getItem(localStorageName)=="false")
+                this.rivetsData[rivetsName] = false;
             else
-                this.rivetsData.showFPS = false;
+                this.rivetsData[rivetsName] = localStorage.getItem(localStorageName);
+        }
+    }
+
+    setToLocalStorage(localStorageName, rivetsName){
+
+        if (typeof(myApp.rivetsData[rivetsName]) == 'boolean')
+        {
+            if (this.rivetsData[rivetsName])
+                localStorage.setItem(localStorageName, 'true');
+            else        
+                localStorage.setItem(localStorageName, 'false');
+        }
+        else
+        {
+            localStorage.setItem(localStorageName, this.rivetsData[rivetsName]);
         }
 
-        if (localStorage.getItem('n64wasm-disableaudiosync'))
-        {
-            if (localStorage.getItem('n64wasm-disableaudiosync')=="true")
-                this.rivetsData.disableAudioSync = true;
-            else
-                this.rivetsData.disableAudioSync = false;
-        }
+    }
+
+    retrieveSettings(){
+        this.setFromLocalStorage('n64wasm-showfps','showFPS');
+        this.setFromLocalStorage('n64wasm-disableaudiosync','disableAudioSync');
+        this.setFromLocalStorage('n64wasm-swapSticks','swapSticks');
+        this.setFromLocalStorage('n64wasm-invert2P','invert2P');
+        this.setFromLocalStorage('n64wasm-invert3P','invert3P');
+        this.setFromLocalStorage('n64wasm-invert4P','invert4P');
+        this.setFromLocalStorage('n64wasm-settingMobile','settingMobile');
+
     }
 
     saveOptions(){
 
         this.rivetsData.showFPS = this.rivetsData.showFPSTemp;
+        this.rivetsData.swapSticks = this.rivetsData.swapSticksTemp;
         this.rivetsData.invert2P = this.rivetsData.invert2PTemp;
         this.rivetsData.invert3P = this.rivetsData.invert3PTemp;
         this.rivetsData.invert4P = this.rivetsData.invert4PTemp;
         this.rivetsData.disableAudioSync = this.rivetsData.disableAudioSyncTemp;
         this.rivetsData.settingMobile = this.rivetsData.settingMobileTemp;
 
-        if (this.rivetsData.showFPS)
-            localStorage.setItem('n64wasm-showfps', 'true');
-        else        
-            localStorage.setItem('n64wasm-showfps', 'false');
-
-        if (this.rivetsData.disableAudioSync)
-            localStorage.setItem('n64wasm-disableaudiosync', 'true');
-        else        
-            localStorage.setItem('n64wasm-disableaudiosync', 'false');
+        this.setToLocalStorage('n64wasm-showfps','showFPS');
+        this.setToLocalStorage('n64wasm-disableaudiosync','disableAudioSync');
+        this.setToLocalStorage('n64wasm-swapSticks','swapSticks');
+        this.setToLocalStorage('n64wasm-invert2P','invert2P');
+        this.setToLocalStorage('n64wasm-invert3P','invert3P');
+        this.setToLocalStorage('n64wasm-invert4P','invert4P');
+        this.setToLocalStorage('n64wasm-settingMobile','settingMobile');
+        
     }
 
 
@@ -1161,6 +1182,7 @@ class MyClass {
         this.rivetsData.remapOptions = false;
 
         this.rivetsData.showFPSTemp = this.rivetsData.showFPS;
+        this.rivetsData.swapSticksTemp = this.rivetsData.swapSticks;
         this.rivetsData.invert2PTemp = this.rivetsData.invert2P;
         this.rivetsData.invert3PTemp = this.rivetsData.invert3P;
         this.rivetsData.invert4PTemp = this.rivetsData.invert4P;
@@ -1235,11 +1257,12 @@ class MyClass {
     restoreDefaultKeymappings(){
         this.rivetsData.remappings = this.rivetsData.inputController.defaultKeymappings();
         this.rivetsData.showFPSTemp = true;
-        this.rivetsData.invert2P = false;
-        this.rivetsData.invert3P = false;
-        this.rivetsData.invert4P = false;
+        this.rivetsData.swapSticksTemp = false;
+        this.rivetsData.invert2PTemp = false;
+        this.rivetsData.invert3PTemp = false;
+        this.rivetsData.invert4PTemp = false;
         this.rivetsData.disableAudioSyncTemp = false;
-        this.rivetsData.settingMobile = 'Auto';
+        this.rivetsData.settingMobileTemp = 'Auto';
     }
 
     remapPressed() {
