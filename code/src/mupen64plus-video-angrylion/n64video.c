@@ -136,12 +136,12 @@ static void cmd_run_buffered(uint32_t worker_id)
 static void cmd_flush(void)
 {
     // only run if there's something buffered
-    if (rdp_cmd_buf_pos) {
-        // let workers run all buffered commands in parallel
-        parallel_run(cmd_run_buffered);
-        // reset buffer by starting from the beginning
-        rdp_cmd_buf_pos = 0;
-    }
+    //if (rdp_cmd_buf_pos) {
+    //    // let workers run all buffered commands in parallel
+    //    parallel_run(cmd_run_buffered);
+    //    // reset buffer by starting from the beginning
+    //    rdp_cmd_buf_pos = 0;
+    //}
 }
 
 static void cmd_init(void)
@@ -156,15 +156,16 @@ void n64video_config_init(struct n64video_config* config)
     memset(config, 0, sizeof(*config));
 
     // config defaults that aren't false or 0
-    config->parallel = true;
+    //does this make it single threaded?
+    config->parallel = false;
     config->vi.vsync = true;
     config->dp.compat = DP_COMPAT_MEDIUM;
 }
 
-void rdp_init_worker(uint32_t worker_id)
-{
-    rdp_init(worker_id, parallel_num_workers());
-}
+// void rdp_init_worker(uint32_t worker_id)
+// {
+//     rdp_init(worker_id, parallel_num_workers());
+// }
 
 #ifdef HAVE_RDP_DUMP
 static bool rdp_dump_in_command_list;
@@ -226,16 +227,16 @@ void n64video_init(struct n64video_config* _config)
 
     if (config.parallel)
     {
-       uint32_t i;
-       // init worker system
-       parallel_alinit(config.num_workers);
+       //uint32_t i;
+       //// init worker system
+       //parallel_alinit(config.num_workers);
 
-       // sync states from main worker
-       for (i = 1; i < parallel_num_workers(); i++)
-          memcpy(&state[i], &state[0], sizeof(struct rdp_state));
+       //// sync states from main worker
+       //for (i = 1; i < parallel_num_workers(); i++)
+       //   memcpy(&state[i], &state[0], sizeof(struct rdp_state));
 
-       // init workers
-       parallel_run(rdp_init_worker);
+       //// init workers
+       //parallel_run(rdp_init_worker);
     }
     else
         rdp_init(0, 1);
@@ -308,22 +309,22 @@ void n64video_process_list(void)
 
             // check if parallel processing is enabled
             if (config.parallel) {
-                // special case: sync_full always needs to be run in main thread
-                if (rdp_cmd_id == CMD_ID_SYNC_FULL) {
-                    // first, run all pending commands
-                    cmd_flush();
+                //// special case: sync_full always needs to be run in main thread
+                //if (rdp_cmd_id == CMD_ID_SYNC_FULL) {
+                //    // first, run all pending commands
+                //    cmd_flush();
 
-                    // parameters are unused, so NULL is fine
-                    rdp_sync_full(0, NULL);
-                } else {
-                    // increment buffer position
-                    rdp_cmd_buf_pos++;
+                //    // parameters are unused, so NULL is fine
+                //    rdp_sync_full(0, NULL);
+                //} else {
+                //    // increment buffer position
+                //    rdp_cmd_buf_pos++;
 
-                    // flush buffer when it is full or when the current command requires a sync
-                    if (rdp_cmd_buf_pos >= CMD_BUFFER_SIZE || rdp_cmd_sync[rdp_cmd_id]) {
-                        cmd_flush();
-                    }
-                }
+                //    // flush buffer when it is full or when the current command requires a sync
+                //    if (rdp_cmd_buf_pos >= CMD_BUFFER_SIZE || rdp_cmd_sync[rdp_cmd_id]) {
+                //        cmd_flush();
+                //    }
+                //}
             } else {
                 // run command directly
                 rdp_cmd(0, cmd_buf);
@@ -352,5 +353,5 @@ void n64video_close(void)
 #endif
 
     vi_close();
-    parallel_close();
+    // parallel_close();
 }

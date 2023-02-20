@@ -52,11 +52,14 @@ class MyClass {
             sraName: '',
             flaName: '',
             swapSticks: false,
+            mouseMode: false,
+            useZasCMobile: false, //used for starcraft mobile
             showFPS: true,
             invert2P: false,
             invert3P: false,
             invert4P: false,
             disableAudioSync: true,
+            forceAngry: false,
             remapPlayer1: true,
             remapOptions: false,
             remapGameshark: false,
@@ -486,6 +489,12 @@ class MyClass {
         if (this.rivetsData.settingMobile == 'ForceDesktop') this.mobileMode = false;
         if (this.mobileMode) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
     
+        //angrylion software renderer
+        if (this.rivetsData.forceAngry) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
+
+        //mouse mode
+        if (this.rivetsData.mouseMode) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
+
         FS.writeFile('config.txt',configString);
 
         //write cheats
@@ -1119,6 +1128,27 @@ class MyClass {
 
         if (this.rivetsData.password)
             this.loginSilent();
+
+        if (this.rivetsData.mouseMode)
+        {
+            document.getElementById('canvasDiv').addEventListener("click", this.canvasClick.bind(this));
+        }
+    }
+
+    canvasClick(){
+        let isPointerCurrentlyLocked = document.pointerLockElement;
+        if (!isPointerCurrentlyLocked)
+            this.captureMouse();
+    }
+
+    captureMouse(){
+        let canvas = document.getElementById('canvas');
+
+        //mouse capture
+        canvas.requestPointerLock = canvas.requestPointerLock ||
+        canvas.mozRequestPointerLock;
+
+        canvas.requestPointerLock()
     }
 
     setupMobileMode() {
@@ -1195,26 +1225,32 @@ class MyClass {
         this.setFromLocalStorage('n64wasm-invert3P','invert3P');
         this.setFromLocalStorage('n64wasm-invert4P','invert4P');
         this.setFromLocalStorage('n64wasm-settingMobile','settingMobile');
-        
+        this.setFromLocalStorage('n64wasm-mouseMode','mouseMode');
+        this.setFromLocalStorage('n64wasm-forceAngry','forceAngry');
+
     }
 
     saveOptions(){
 
         this.rivetsData.showFPS = this.rivetsData.showFPSTemp;
         this.rivetsData.swapSticks = this.rivetsData.swapSticksTemp;
+        this.rivetsData.mouseMode = this.rivetsData.mouseModeTemp;
         this.rivetsData.invert2P = this.rivetsData.invert2PTemp;
         this.rivetsData.invert3P = this.rivetsData.invert3PTemp;
         this.rivetsData.invert4P = this.rivetsData.invert4PTemp;
         this.rivetsData.disableAudioSync = this.rivetsData.disableAudioSyncTemp;
         this.rivetsData.settingMobile = this.rivetsData.settingMobileTemp;
+        this.rivetsData.forceAngry = this.rivetsData.forceAngryTemp;
 
         this.setToLocalStorage('n64wasm-showfps','showFPS');
         this.setToLocalStorage('n64wasm-disableaudiosyncnew','disableAudioSync');
         this.setToLocalStorage('n64wasm-swapSticks','swapSticks');
+        this.setToLocalStorage('n64wasm-mouseMode','mouseMode');
         this.setToLocalStorage('n64wasm-invert2P','invert2P');
         this.setToLocalStorage('n64wasm-invert3P','invert3P');
         this.setToLocalStorage('n64wasm-invert4P','invert4P');
         this.setToLocalStorage('n64wasm-settingMobile','settingMobile');
+        this.setToLocalStorage('n64wasm-forceAngry','forceAngry');
         
     }
 
@@ -1227,11 +1263,13 @@ class MyClass {
 
         this.rivetsData.showFPSTemp = this.rivetsData.showFPS;
         this.rivetsData.swapSticksTemp = this.rivetsData.swapSticks;
+        this.rivetsData.mouseModeTemp = this.rivetsData.mouseMode;
         this.rivetsData.invert2PTemp = this.rivetsData.invert2P;
         this.rivetsData.invert3PTemp = this.rivetsData.invert3P;
         this.rivetsData.invert4PTemp = this.rivetsData.invert4P;
         this.rivetsData.disableAudioSyncTemp = this.rivetsData.disableAudioSync;
         this.rivetsData.settingMobileTemp = this.rivetsData.settingMobile;
+        this.rivetsData.forceAngryTemp = this.rivetsData.forceAngry;
 
         //start input loop
         if (!this.rivetsData.inputLoopStarted)
@@ -1350,11 +1388,13 @@ class MyClass {
         this.rivetsData.remappings = this.rivetsData.inputController.defaultKeymappings();
         this.rivetsData.showFPSTemp = true;
         this.rivetsData.swapSticksTemp = false;
+        this.rivetsData.mouseModeTemp = false;
         this.rivetsData.invert2PTemp = false;
         this.rivetsData.invert3PTemp = false;
         this.rivetsData.invert4PTemp = false;
         this.rivetsData.disableAudioSyncTemp = true;
         this.rivetsData.settingMobileTemp = 'Auto';
+        this.rivetsData.forceAngryTemp = false;
     }
 
     remapPressed() {

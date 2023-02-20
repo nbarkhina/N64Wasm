@@ -248,9 +248,10 @@
                         </div>
                     </td>
                     <td>
-                        <div id="mobileSelect" class="lightpurple" rv-class-buttonhold="data.inputController.MobileSelect">
-                            Z
-                        </div>
+                    <div id="mobileSelect" class="lightpurple" rv-class-buttonhold="data.inputController.MobileSelect">
+                        <span rv-if="data.useZasCMobile | ev '==false'">Z</span>
+                        <span rv-if="data.useZasCMobile | ev '==true'">C (Hold)</span>
+                    </div>
                     </td>
                 </tr>
                 <tr>
@@ -839,6 +840,13 @@
 
                             <div class="mt-2">
                                 <label class="form-check-label" style="margin-left: 26px;">
+                                    <input type="checkbox" class="form-check-input" rv-checked="data.forceAngryTemp">
+                                    Software Renderer (very slow but highly accurate)
+                                </label>
+                            </div>
+
+                            <div class="mt-2">
+                                <label class="form-check-label" style="margin-left: 26px;">
                                     <input type="checkbox" class="form-check-input" rv-checked="data.showFPSTemp">
                                     Show FPS
                                 </label>
@@ -850,6 +858,13 @@
                                     Swap Left and Right Sticks (good for goldeneye)
                                 </label>
                             </div>
+                            <div class="mt-2">
+                                <label class="form-check-label" style="margin-left: 26px;">
+                                    <input type="checkbox" class="form-check-input" rv-checked="data.mouseModeTemp">
+                                    Mouse Controls (good for starcraft)
+                                </label>
+                            </div>
+                            
                             <div class="mt-2">
                                 <label class="form-check-label" style="margin-left: 26px;">
                                     <input type="checkbox" class="form-check-input" rv-checked="data.invert2PTemp">

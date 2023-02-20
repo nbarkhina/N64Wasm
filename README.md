@@ -14,6 +14,8 @@ Supports the following features -
 - Multiple Controller Support
 - Mobile Controls
 - Gameshark Codes
+- Software Renderer Option
+- Mouse Controls (good for starcraft)
 
 
 You can try it here: https://www.neilb.net/n64wasm/
@@ -78,6 +80,15 @@ If you want to actually do debugging you will want to get the Windows version wo
 ![screenshot](screenshots/screenshot3.PNG)
 ![screenshot](screenshots/screenshot4.PNG)
 ![screenshot](screenshots/screenshot5.PNG)
+
+# Mouse Controls
+
+Mouse Control options are available which work really well for Starcraft 64. If you are playing Starcraft it's a good idea to enable the Software Renderer and also use the European version of the game which runs at 50fps. That will be a little easier on the CPU and should perform better.
+
+![screenshot](screenshots/mouse.png)
+![screenshot](screenshots/starcraft2.png)
+![screenshot](screenshots/starcraft.png)
+
 
 # iPhone 13
 ![screenshot](screenshots/iphone.jpg)

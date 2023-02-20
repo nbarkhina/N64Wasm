@@ -86,8 +86,11 @@ static uint32_t zb_address;
 
 // prescale buffer
 struct rgba prescale[PRESCALE_WIDTH * PRESCALE_HEIGHT];
+struct rgba prescale_copy[PRESCALE_WIDTH * PRESCALE_HEIGHT];
 static uint32_t prescale_ptr;
 static int32_t linecount;
+
+extern bool neilInterlacedMode;
 
 // parsed VI registers
 static uint32_t** vi_reg_ptr;
@@ -151,8 +154,8 @@ static void vi_process_full_parallel(uint32_t worker_id)
     int32_t y_inc = 1;
 
     if (config.parallel) {
-        y_begin = worker_id;
-        y_inc = parallel_num_workers();
+        // y_begin = worker_id;
+        // y_inc = parallel_num_workers();
     }
 
     for (y = y_begin; y < y_end; y += y_inc) {
@@ -319,6 +322,11 @@ static bool vi_process_full(void)
     bool validinterlace = !isblank && ctrl.serrate;
 
     if (validinterlace) {
+        if (!neilInterlacedMode)
+        {
+            neilInterlacedMode = true;
+            printf("activating interlaced mode\n");
+        }
         if (prevserrate && emucontrolsvicurrent < 0) {
             emucontrolsvicurrent = v_current_line != prevvicurrent;
         }
@@ -447,7 +455,7 @@ static bool vi_process_full(void)
 
     // run filter update in parallel if enabled
     if (config.parallel) {
-        parallel_run(vi_process_full_parallel);
+        // parallel_run(vi_process_full_parallel);
     } else {
         vi_process_full_parallel(0);
     }
@@ -498,8 +506,8 @@ static void vi_process_fast_parallel(uint32_t worker_id)
     }
 
     if (config.parallel) {
-        y_begin = worker_id;
-        y_inc = parallel_num_workers();
+        // y_begin = worker_id;
+        // y_inc = parallel_num_workers();
     }
 
     for (y = y_begin; y < y_end; y += y_inc) {
@@ -579,7 +587,7 @@ static bool vi_process_fast(void)
 
     // run filter update in parallel if enabled
     if (config.parallel) {
-        parallel_run(vi_process_fast_parallel);
+        // parallel_run(vi_process_fast_parallel);
     } else {
         vi_process_fast_parallel(0);
     }

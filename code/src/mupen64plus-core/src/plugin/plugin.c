@@ -95,7 +95,7 @@ static m64p_error EmptyGetVersionFunc(m64p_plugin_type *PluginType, int *PluginV
         X##FBGetFrameBufferInfo \
     }
 
-//DEFINE_GFX(angrylion);
+DEFINE_GFX(angrylion);
 #ifdef HAVE_RICE
 DEFINE_GFX(rice);
 #endif

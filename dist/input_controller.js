@@ -87,6 +87,7 @@ class InputController {
         this.touchX_Start = 0;
         this.touchY_Start = 0;
         this.touch_tap_counter = 0;
+        this.nippleDirection = 'none';
 
         this.KeyMappings = this.defaultKeymappings();
         document.onkeydown = this.keyDown.bind(this);
@@ -110,32 +111,32 @@ class InputController {
             });
 
             this.manager.on("move", (evt, data) => {
-                // console.log(evt,data);
-                if (data.force > 1) {
-                    if (data.direction)
-                        this.nippleDirection = data.direction.angle;
-                    
-                    //first reset all touch directions back to false
-                    this.Key_Left = false;
-                    this.Key_Right = false;
-                    this.Key_Up = false;
-                    this.Key_Down = false;
-                    
-                    if (this.nippleDirection=='left')   this.Key_Left=true;
-                    if (this.nippleDirection=='right')   this.Key_Right=true;
-                    if (this.nippleDirection=='up')   this.Key_Up=true;
-                    if (this.nippleDirection=='down')   this.Key_Down=true;
-                    }
-                else {
-                    this.nippleDirection = 'none';
-                    this.Key_Left = false;
-                    this.Key_Right = false;
-                    this.Key_Up = false;
-                    this.Key_Down = false;
-                }
 
-                this.VectorX = data.vector.x;
-                this.VectorY = data.vector.y;
+                if (window["myApp"].rivetsData.useZasCMobile && this.Key_Action_Z) {
+                    this.VectorX = 0
+                    this.VectorY = 0;
+                    if (data.force > 1) {
+                        if (data.direction)
+                            this.nippleDirection = data.direction.angle;
+
+                        if (this.nippleDirection == 'left') this.Key_Action_CLEFT = true;
+                        if (this.nippleDirection == 'right') this.Key_Action_CRIGHT = true;
+                        if (this.nippleDirection == 'up') this.Key_Action_CUP = true;
+                        if (this.nippleDirection == 'down') this.Key_Action_CDOWN = true;
+                    }
+                    else {
+                        this.nippleDirection = 'none';
+                        this.Key_Action_CLEFT = false;
+                        this.Key_Action_CRIGHT = false;
+                        this.Key_Action_CUP = false;
+                        this.Key_Action_CDOWN = false;
+                    }
+                }
+                else
+                {
+                    this.VectorX = data.vector.x;
+                    this.VectorY = data.vector.y;
+                }
             })
     
             this.manager.on("end", (evt, data) => {
@@ -194,7 +195,7 @@ class InputController {
     }
     mobilePressSelect(event){
         event.preventDefault();
-        this.Key_Action_Select = true;
+        this.Key_Action_Z = true;
         this.MobileSelect = true;
     }
     mobileReleaseA(event){
@@ -218,7 +219,7 @@ class InputController {
     mobileReleaseSelect(event){
         event.preventDefault();
         this.MobileSelect = false; 
-        this.Key_Action_Select = false;
+        this.Key_Action_Z = false;
         this.MobileSelect_Counter=0;
     }
 
@@ -612,14 +613,20 @@ class InputController {
 
     updateMobileControls(){
         let mobileString = '';
-        if (this.Key_Up) mobileString += '1'; else mobileString += '0';
-        if (this.Key_Down) mobileString += '1'; else mobileString += '0';
-        if (this.Key_Left) mobileString += '1'; else mobileString += '0';
-        if (this.Key_Right) mobileString += '1'; else mobileString += '0';
+        mobileString += '0'; //UP
+        mobileString += '0'; //DOWN
+        mobileString += '0'; //LEFT
+        mobileString += '0'; //RIGHT
         if (this.Key_Action_A) mobileString += '1'; else mobileString += '0';
         if (this.Key_Action_B) mobileString += '1'; else mobileString += '0';
         if (this.Key_Action_Start) mobileString += '1'; else mobileString += '0';
-        if (this.Key_Action_Select) mobileString += '1'; else mobileString += '0';
+        if (this.Key_Action_Z && !window["myApp"].rivetsData.useZasCMobile) mobileString += '1'; else mobileString += '0';
+        mobileString += '0'; //L
+        mobileString += '0'; //R
+        if (this.Key_Action_CUP) mobileString += '1'; else mobileString += '0'; //CUP
+        if (this.Key_Action_CDOWN) mobileString += '1'; else mobileString += '0'; //CDOWN
+        if (this.Key_Action_CLEFT) mobileString += '1'; else mobileString += '0'; //CLEFT
+        if (this.Key_Action_CRIGHT) mobileString += '1'; else mobileString += '0'; //CRIGHT
 
         window["myApp"].sendMobileControls(mobileString, this.VectorX.toString(), this.VectorY.toString());
     }

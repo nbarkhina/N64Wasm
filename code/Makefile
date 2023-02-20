@@ -134,7 +134,9 @@ CFILES := src/glide2gl/src/Glide64/Combine.c \
     minizip/minizip.c \
     minizip/mztools.c \
     minizip/unzip.c \
-    minizip/zip.c
+    minizip/zip.c \
+    src/mupen64plus-video-angrylion/interface.c \
+    src/mupen64plus-video-angrylion/n64video.c
 
 CPPFILES := mymain.cpp \
 	src/Graphics/RDP/gDP_funcs.cpp \
@@ -154,6 +156,7 @@ MYFLAGS   := \
 	-DHAVE_OPENGLES \
 	-DHAVE_OPENGLES2 \
 	-DHAVE_GLIDE64 \
+    -DHAVE_THR_AL \
 	-DNDEBUG \
 	-D__LIBRETRO__ \
 	-DM64P_PLUGIN_API \

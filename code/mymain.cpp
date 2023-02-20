@@ -24,7 +24,14 @@
 #include <sstream>
 
 extern "C" {
-    #include "neil.h"
+#include "neil.h"
+
+int angryVerticalResolution = 240;
+int mouseX = 0;
+int mouseY = 0;
+int mousePressed = 0;
+int mouseRange = 40;
+
 }
 
 #include "neil_controller.h"
@@ -81,12 +88,14 @@ int axis5 = 0;
 Uint8* keyboardState;
 extern "C" {
     struct NeilButtons neilbuttons[4];
+    bool forceAngry = true;
 }
 bool loadEep = false;
 bool loadSra = false;
 bool loadFla = false;
 bool showFPS = true;
 bool swapSticks = false;
+bool mouseMode = false;
 bool disableAudioSync = false;
 bool invert2P = false;
 bool invert3P = false;
@@ -430,6 +439,26 @@ void readConfig()
                     mobileMode = false;
             }
 
+            //software renderer
+            if (counter == 44)
+            {
+                if (mapping == 1)
+                    forceAngry = true;
+                else
+                    forceAngry = false;
+
+                printf("forceAngry: %d\n", forceAngry);
+            }
+
+            //mouse mode
+            if (counter == 45)
+            {
+                if (mapping == 1)
+                    mouseMode = true;
+                else
+                    mouseMode = false;
+            }
+
             counter++;
 
 
@@ -617,40 +646,37 @@ int main(int argc, char* argv[])
     font40 = TTF_OpenFont("res/arial.ttf", 40);
     //TTF_SetFontStyle(font, TTF_STYLE_BOLD);
 
-
-#ifndef __EMSCRIPTEN__
-    GLenum err = glewInit();
-    if (GLEW_OK != err)
-    {
-       /* Problem: glewInit failed, something is seriously wrong. */
-       printf("Error: %s\n", glewGetErrorString(err));
-    }
-    else
-    {
-       printf("GLEW Initialized\n");
-    }
-#endif
-
-    //print OpenGL stats
-    printf("VENDOR: %s\n", glGetString(GL_VENDOR));
-    printf("RENDERER: %s\n", glGetString(GL_RENDERER));
-    printf("VERSION: %s\n", glGetString(GL_VERSION));
-    printf("GLSL: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-
     //give it an initial value so drawText doesn't crash
     sprintf(fps_text, "FPS:");
 
-    SDL_Rect rect;
+#ifndef __EMSCRIPTEN__
+        GLenum err = glewInit();
+        if (GLEW_OK != err)
+        {
+            /* Problem: glewInit failed, something is seriously wrong. */
+            printf("Error: %s\n", glewGetErrorString(err));
+        }
+        else
+        {
+            printf("GLEW Initialized\n");
+        }
+#endif
 
-    setupDrawTextOpenGL();
-    imageOverlay = loadOpenGLTexture("overlay.png");
+        //print OpenGL stats
+        printf("VENDOR: %s\n", glGetString(GL_VENDOR));
+        printf("RENDERER: %s\n", glGetString(GL_RENDERER));
+        printf("VERSION: %s\n", glGetString(GL_VERSION));
+        printf("GLSL: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-    shaderProgram = initShaders();
+        setupDrawTextOpenGL();
+        imageOverlay = loadOpenGLTexture("overlay.png");
 
-    //clear the screen
-    glClearColor(184.0f / 255.0f, 213.0f / 255.0f, 238.0f / 255.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    SDL_GL_SwapWindow(WindowOpenGL);
+        shaderProgram = initShaders();
+
+        //clear the screen
+        glClearColor(184.0f / 255.0f, 213.0f / 255.0f, 238.0f / 255.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        SDL_GL_SwapWindow(WindowOpenGL);
 
 
     retro_init();
@@ -662,6 +688,10 @@ int main(int argc, char* argv[])
     //sprintf(rom_name, "%s", "roms\\diddy.v64");
     //sprintf(rom_name, "%s", "roms\\mariokart.v64");
     //sprintf(rom_name, "%s", "roms\\pilotwings.n64");
+    //sprintf(rom_name, "%s", "roms\\drmario.z64");
+    //sprintf(rom_name, "%s", "roms\\rogue_europe.z64");
+    //sprintf(rom_name, "%s", "roms\\starcraft.z64");
+    
 
     if (argc == 2)
     {
@@ -753,9 +783,13 @@ void resetNeilButtons()
         neilbuttons[i].cbRight = 0;
         neilbuttons[i].cbUp = 0;
         neilbuttons[i].cbDown = 0;
+        neilbuttons[i].mouseX = 0;
+        neilbuttons[i].mouseY = 0;
     }
 
 }
+
+void drawAngryOpenGL();
 
 double fpsInterval = 1000.0 / 60.0;
 int fpsThen = 0; //time in milliseconds
@@ -787,6 +821,53 @@ bool IsFrameReady() {
 	}
 
 	return ready;
+}
+
+void getMouseAccelCurve(int* mouseAxis) {
+
+    int accCurve[] = {
+        1, 10,
+        2, 13,
+        3, 16,
+        4, 18,
+        5, 21,
+        6, 23,
+        7, 25,
+        8, 27,
+        9, 29,
+        10, 30,
+        11, 31,
+        12, 32,
+        13, 33,
+        14, 34,
+        15, 35,
+        16, 36,
+        17, 37,
+        18, 38,
+        19, 39,
+        20, 40,
+    };
+
+    int arrSize = sizeof(accCurve) / sizeof(accCurve[0]);
+
+    int absVal = abs(*mouseAxis);
+    int sign = *mouseAxis > 0 ? 1 : -1;
+
+    if (absVal > accCurve[arrSize-2])
+    {
+        *mouseAxis = mouseRange*sign;
+    }
+
+    for(int i = 0; i < arrSize / 2; i++)
+    {
+        int key = accCurve[i*2];
+        int val = accCurve[(i*2)+1];
+
+        if (absVal == key) *mouseAxis = val*sign;
+    }
+
+    if (*mouseAxis>mouseRange) *mouseAxis = mouseRange;
+    if (*mouseAxis<-mouseRange) *mouseAxis = -mouseRange;
 }
 
 void mainLoop()
@@ -963,6 +1044,28 @@ void mainLoop()
         }
     }
 
+    if (mouseMode)
+    {
+        mousePressed = SDL_GetMouseState(&mouseX, &mouseY);
+        SDL_GetRelativeMouseState(&mouseX, &mouseY);
+
+        // printf("mouseX %d mouseY %d\n", mouseX, mouseY);
+        getMouseAccelCurve(&mouseX);
+        getMouseAccelCurve(&mouseY);
+
+        int axis0Mouse = (int)(32760.0f*((float)mouseX/(float)mouseRange));
+        int axis1Mouse = (int)(32760.0f*((float)mouseY/(float)mouseRange));
+
+        if (mousePressed == 1)
+            neilbuttons[0].aKey = true;
+        if (mousePressed == 4)
+            neilbuttons[0].bKey = true;
+
+        neilbuttons[0].mouseX = mouseX;
+        neilbuttons[0].mouseY = -mouseY;
+    }
+
+
     //KEYBOARD
     keyboardState = (Uint8*)SDL_GetKeyboardState(NULL);
 
@@ -1040,6 +1143,14 @@ void mainLoop()
 
     if(getReadyToSwap()==1)
     {
+        if (forceAngry)
+        {
+            glClearColor(184.0f / 255.0f, 213.0f / 255.0f, 238.0f / 255.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            drawAngryOpenGL();
+        }
+
         if (showOverlay)
         {
             drawOverlay();
@@ -1228,7 +1339,10 @@ void limitFPS()
         currentMaxAudioBufferQueue = maxAudioBufferQueue;
     }
 
-    sprintf(fps_text, "FPS: %d GameFPS: %d", current_fps, currentSwapCount);
+    if (forceAngry)
+        sprintf(fps_text, "FPS: %d", current_fps);
+    else
+        sprintf(fps_text, "FPS: %d GameFPS: %d", current_fps, currentSwapCount);
 
     //SDL_SetWindowTitle(WindowOpenGL, fps_text);
 
@@ -1455,6 +1569,88 @@ void drawTextOpenGL(const char* text, int x, int y, SDL_Color color, MY_FONT_SIZ
     // SDL_DestroyTexture(fontTexture); 
 }
 
+void drawAngryOpenGL()
+{
+    //need this to enable transparency on the texture
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    translateDrawTextScreenCoordinates(0, 0, 640, 480);
+
+    //we are technically using the same shader for 
+    //drawTextOpenGL() and drawOpenglTexture() so this
+    //code is nearly the same in both however 
+    //keeping it in both in case I ever have seperate shaders
+    glUseProgram(shaderProgram);
+
+    //bind it or "select" it
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferDrawText);
+    //fill the buffer with data
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 24, positionsDrawTextFinal, GL_DYNAMIC_DRAW);
+
+    //define the position attribute
+    glVertexAttribPointer(
+        0, //attribute number for shader
+        2, //size or number of components for this attribute, so 2 floats for a position
+        GL_FLOAT, //data type of each component
+        GL_FALSE, //do we want it to auto normalize the data for us (or convert it to a range of 0-1)
+        sizeof(float) * 4, //stride or number of bytes between each vertex
+        (GLvoid*)0 //offset to this attribute - needs to be converted to a pointer (const void*)8 as an example
+    );
+
+    //texture coordinate
+    glVertexAttribPointer(
+        1, //attribute number for shader
+        2, //size or number of components for this attribute, so 2 floats for a position
+        GL_FLOAT, //data type of each component
+        GL_FALSE, //do we want it to auto normalize the data for us (or convert it to a range of 0-1)
+        sizeof(float) * 4, //stride or number of bytes between each vertex
+        (GLvoid*)8 //offset to this attribute - needs to be converted to a pointer (const void*)8 as an example
+    );
+
+
+    //need to enable this attribute in this case 0th attribute (matches first parameter of glVertexAttribPointer above)
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+
+    int texture_format;
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    //Emscripten doesn't support GL_BGRA ??
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 640, angryVerticalResolution, 0,
+        GL_RGBA, GL_UNSIGNED_BYTE, get_video_buffer());
+
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    //render the triangles
+    glDrawArrays(
+        GL_TRIANGLES, //what are we drawing
+        0, //first index to draw
+        6 //how many to draw
+    );
+
+
+    glDisable(GL_BLEND);
+
+
+    glDeleteTextures(1, &texture);
+
+    // //if we don't destroy this you will see in 
+    // //windows task manager the memory will keep growing
+    // SDL_DestroyTexture(fontTexture); 
+}
+
 
 GLuint loadOpenGLTexture(const char* file)
 {
@@ -1611,6 +1807,7 @@ int getKeyMapping(std::string line)
 }
 
 extern "C" {
+
     void neil_toast_message(char* message)
     {
         sprintf(toast_message, message);
@@ -1619,15 +1816,20 @@ extern "C" {
     	
     void neil_send_mobile_controls(char* controls, char* axis0, char* axis1) 
 	{
-		// printf("%s\n", controls);
-		if (controls[0]=='1') neilbuttons[0].axis1 = -32000;
-		if (controls[1]=='1') neilbuttons[0].axis1 = 32000;
-		if (controls[2]=='1') neilbuttons[0].axis0 = -32000;
-		if (controls[3]=='1') neilbuttons[0].axis0 = 32000;
-		if (controls[4]=='1') neilbuttons[0].aKey = true;
-		if (controls[5]=='1') neilbuttons[0].bKey = true;
-		if (controls[6]=='1') neilbuttons[0].startKey = true;
-		if (controls[7]=='1') neilbuttons[0].zKey = true;
+        if (controls[0]=='1') neilbuttons[0].upKey = true;;
+        if (controls[1]=='1') neilbuttons[0].downKey = true;
+        if (controls[2]=='1') neilbuttons[0].leftKey = true;
+        if (controls[3]=='1') neilbuttons[0].rightKey = true;
+        if (controls[4]=='1') neilbuttons[0].aKey = true;
+        if (controls[5]=='1') neilbuttons[0].bKey = true;
+        if (controls[6]=='1') neilbuttons[0].startKey = true;
+        if (controls[7]=='1') neilbuttons[0].zKey = true;
+        if (controls[8]=='1') neilbuttons[0].lKey = true;
+        if (controls[9]=='1') neilbuttons[0].rKey = true;
+        if (controls[10]=='1') neilbuttons[0].cbUp = true;
+        if (controls[11]=='1') neilbuttons[0].cbDown = true;
+        if (controls[12]=='1') neilbuttons[0].cbLeft = true;
+        if (controls[13]=='1') neilbuttons[0].cbRight = true;
 
         std::string axis0String(axis0);
         float axis0Float = std::stof(axis0String);
