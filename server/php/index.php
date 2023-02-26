@@ -1,8 +1,18 @@
 <?php
-# insert base url here, for example /Home/n64wasm
+# insert base url here (without trailing slash), for example /Home/n64wasm
 $baseurl = '';
 
 (!extension_loaded('sqlite3'))?die('sqlite3 extension missing'):'';
+
+function Login() {
+	$pw = filter_input(INPUT_GET, 'password');
+	$passwordhash = 'BCRYPT_PASSWORD_HASH';
+	if (password_verify($pw, $passwordhash)) {
+		return true;
+	}
+	return false;
+}
+
 function PrepareDB() {
 		print 'preparing database'."\n";
 		//create table
@@ -15,21 +25,11 @@ function PrepareDB() {
 		$handle = new SQLite3(__DIR__.'/n64db.sqlite');
 		$query = $handle->query($sql);
 		if($query){
-			print 'database prepared'."\n";
+			print "database prepared\n";
 		} else {
-			print 'error'."\n";
+			print "error\n";
 		}
 		$handle->close();
-}
-
-function Login() {
-	$pw = filter_input(INPUT_GET, 'password');
-	// password is mypassword
-	$passwordhash = '$2a$12$OXO.2YL/7R.abgxehgGVHOOhrsomoFq1H6X8caY1drt3gIShY7F3e';
-	if (password_verify($pw, $passwordhash)) {
-		return true;
-	}
-	return false;
 }
 
 function GetTest() {
