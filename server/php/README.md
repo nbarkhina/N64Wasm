@@ -7,4 +7,4 @@
 - Update the CLOUDSAVEURL setting in your `settings.js` to "api"
 - Place roms in document root/roms/ and update romlist.js
 - Update `$baseurl` in `index.php` (if you serve from a subpath like /Home/n64wasm)
-- Load roms and enjoy!
+- Enjoy!
