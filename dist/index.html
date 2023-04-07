@@ -4,6 +4,8 @@
 <head>
     <title>N64 Wasm</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" type="image/x-icon" href="icons/favicon.png">
     <meta name="keywords" content="N64 Emulator, N64 JavaScript Emulator, WebAssembly, HTML5, Nintendo 64">
     <meta charset="UTF-8">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -968,12 +970,8 @@
 
     <script src="settings.js"></script>
     <script src="romlist.js"></script>
-    <script type="text/javascript">
-        var rando = Math.floor(Math.random() * Math.floor(100000));
-        var script = document.createElement('script');
-        script.src = 'script.js?v=' + rando;
-        document.getElementsByTagName('head')[0].appendChild(script);
-    </script>
+    <script src="register_sw.js"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>
