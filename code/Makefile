@@ -134,7 +134,9 @@ CFILES := src/glide2gl/src/Glide64/Combine.c \
     minizip/minizip.c \
     minizip/mztools.c \
     minizip/unzip.c \
-    minizip/zip.c
+    minizip/zip.c \
+    src/mupen64plus-video-angrylion/interface.c \
+    src/mupen64plus-video-angrylion/n64video.c
 
 CPPFILES := mymain.cpp \
 	src/Graphics/RDP/gDP_funcs.cpp \
@@ -154,6 +156,7 @@ MYFLAGS   := \
 	-DHAVE_OPENGLES \
 	-DHAVE_OPENGLES2 \
 	-DHAVE_GLIDE64 \
+    -DHAVE_THR_AL \
 	-DNDEBUG \
 	-D__LIBRETRO__ \
 	-DM64P_PLUGIN_API \
@@ -167,11 +170,12 @@ MYFLAGS   := \
 	-Wno-c++11-narrowing \
 	-DINLINE="inline" \
 	-O3 \
+    -flto \
 	-s USE_SDL=2 -s USE_SDL_TTF=2 \
     -s USE_ZLIB=1 \
 	-s USE_SDL_IMAGE=2
 
-all: cleandata n64wasm.js
+all: n64wasm.js
 
 n64wasm.js: $(FILES)
 	emcc -o $@ $(FILES) -s USE_SDL=2 -s USE_SDL_TTF=2 \
@@ -188,10 +192,11 @@ n64wasm.js: $(FILES)
 	-s EXTRA_EXPORTED_RUNTIME_METHODS="['callMain','cwrap']" \
     -s EXPORTED_FUNCTIONS="['_main','_runMainLoop','_neilGetSoundBufferResampledAddress', \
     '_neilGetAudioWritePosition','_neil_serialize','_neil_unserialize','_neil_toast_message', \
-    '_neil_export_eep','_neil_export_sra','_neil_export_fla','_neil_reset','_toggleFPS']" \
+    '_neil_export_eep','_neil_export_sra','_neil_export_fla','_neil_reset','_toggleFPS', '_neil_send_mobile_controls','_neil_set_buffer_remaining','_neil_set_endframe_callback']" \
 	-s INVOKE_RUN=0 \
     && mv n64wasm.js ../dist/ \
     && mv n64wasm.wasm ../dist/
+
 
 %.o : %.cpp
 	emcc -c $< -o $@ \
@@ -206,6 +211,3 @@ clean:
 	@echo $(FILES)
 	rm -fr *.o */*.o */*/*.o */*/*/*.o */*/*/*/*.o
 	
-cleandata:
-	@echo "Cleaning data"
-	rm -fr *.data

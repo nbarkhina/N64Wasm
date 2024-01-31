@@ -310,7 +310,7 @@ EXPORT void CALL inputControllerCommand(int Control, unsigned char *Command)
 int timeout = 0;
 
 extern void inputInitiateCallback(const char *headername);
-
+extern mouseRange;
 
 static void inputGetKeys_reuse(int16_t analogX, int16_t analogY, int Control, BUTTONS* Keys)
 {
@@ -343,6 +343,13 @@ static void inputGetKeys_reuse(int16_t analogX, int16_t analogY, int Control, BU
    {
       Keys->X_AXIS = 0;
       Keys->Y_AXIS = 0;
+   }
+
+
+   if (neilbuttons[Control].mouseX != 0 || neilbuttons[Control].mouseY != 0)
+   {
+      Keys->X_AXIS = (int)(80.0f * ((float)neilbuttons[Control].mouseX / (float)mouseRange));
+      Keys->Y_AXIS = (int)(80.0f * ((float)neilbuttons[Control].mouseY / (float)mouseRange));
    }
 
    Keys->R_DPAD = neilbuttons[Control].rightKey;

@@ -20,6 +20,8 @@ struct NeilButtons {
     int cbRight;
     int cbUp;
     int cbDown;
+    int mouseX;
+    int mouseY;
 };
 
 #define NEILNUMCONTROLLERS 4

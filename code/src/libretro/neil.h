@@ -18,3 +18,12 @@ bool neil_export_sra();
 bool neil_export_fla();
 void retro_reset_new();
 int getRegionTiming();
+uint32_t* get_video_buffer();
+
+struct NeilCheats {
+    uint32_t address;
+    int value;
+};
+
+extern struct NeilCheats neilCheats[];
+extern int neilCheatsLength;

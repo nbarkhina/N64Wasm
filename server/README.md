@@ -32,4 +32,6 @@ The following instructions will guide you in setting up your own server to host 
 
 ![screenshot](../screenshots/server2.png)
 
+# PHP Implementation
+There is also a PHP implementation contributed by [@kimboslice99](https://github.com/kimboslice99) which you can view here [README](php/README.md)
 

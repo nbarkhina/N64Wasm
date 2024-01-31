@@ -113,6 +113,8 @@ cothread_t main_thread;
 static cothread_t game_thread;
 #endif
 
+extern int angryVerticalResolution;
+
 float polygonOffsetFactor = 0.0f;
 float polygonOffsetUnits = 0.0f;
 
@@ -209,8 +211,16 @@ static void n64DebugCallback(void* aContext, int aLevel, const char* aMessage)
 
 extern m64p_rom_header ROM_HEADER;
 
+extern bool forceAngry;
+
 static void core_settings_autoselect_gfx_plugin(void)
 {
+    if (forceAngry)
+    {
+        gfx_plugin = GFX_ANGRYLION;
+        return;
+    }
+
     if (gl_inited)
     {
 #if defined(HAVE_OPENGL)
@@ -225,7 +235,14 @@ static void core_settings_autoselect_gfx_plugin(void)
 
 static void core_settings_autoselect_rsp_plugin(void)
 {
-    rsp_plugin = RSP_HLE;
+    if (forceAngry)
+    {
+        rsp_plugin = RSP_CXD4;
+    }
+    else
+    {
+        rsp_plugin = RSP_HLE;
+    }
 }
 
 unsigned libretro_get_gfx_plugin(void)
@@ -237,12 +254,20 @@ static void core_settings_set_defaults(void)
 {
     core_settings_autoselect_gfx_plugin();
 
+    if (forceAngry)
+    {
+        rsp_plugin = RSP_CXD4;
+    }
+    else
+    {
+        rsp_plugin = RSP_HLE;
+    }
+
     /* Load RSP plugin core option */
 
     //if (rsp_var.value && !strcmp(rsp_var.value, "auto"))
     //    core_settings_autoselect_rsp_plugin();
     //if (rsp_var.value && !strcmp(rsp_var.value, "hle") && !vulkan_inited)
-        rsp_plugin = RSP_HLE;
     //if (rsp_var.value && !strcmp(rsp_var.value, "cxd4"))
     //    rsp_plugin = RSP_CXD4;
     //if (rsp_var.value && !strcmp(rsp_var.value, "parallel"))
@@ -453,6 +478,7 @@ int retro_stop_stepping(void)
 
 #ifdef HAVE_THR_AL
 extern struct rgba prescale[PRESCALE_WIDTH * PRESCALE_HEIGHT];
+extern struct rgba prescale_copy[PRESCALE_WIDTH * PRESCALE_HEIGHT];
 #endif
 
 int ready_to_swap = 0;
@@ -465,7 +491,9 @@ bool emu_step_render(void)
         {
         case GFX_ANGRYLION:
 #ifdef HAVE_THR_AL
-            video_cb(prescale, screen_width, screen_height, screen_pitch);
+            ready_to_swap = 1;
+            //video_cb(prescale, screen_width, screen_height, screen_pitch);
+            angryVerticalResolution = screen_height;
 #endif
             break;
 
@@ -744,7 +772,27 @@ void retro_init(void)
     main_thread = co_active();
     game_thread = co_create(65536 * sizeof(void*) * 16, EmuThreadFunction);
 #endif
+    
+}
 
+void importCheats()
+{
+    if (neilCheatsLength > 0)
+    {
+        char name[256];
+        m64p_cheat_code mupenCode[256];
+
+        for (int i = 0; i < neilCheatsLength; i++)
+        {
+            mupenCode[i].address = neilCheats[i].address;
+            mupenCode[i].value = neilCheats[i].value;
+        }
+
+        cheat_add_new("cheats", mupenCode, neilCheatsLength);
+        cheat_set_enabled("cheats", true);
+
+        printf("enabled %d cheats\n", neilCheatsLength);
+    }
 }
 
 void retro_deinit(void)
@@ -768,14 +816,14 @@ void retro_deinit(void)
 #if defined(HAVE_OPENGL) || defined(HAVE_OPENGLES)
 extern void glide_set_filtering(unsigned value);
 #endif
-//extern void angrylion_set_vi(unsigned value);
-//extern void angrylion_set_filtering(unsigned value);
-//extern void angrylion_set_dithering(unsigned value);
-//extern void  angrylion_set_threads(unsigned value);
-//extern void  angrylion_set_overscan(unsigned value);
-//extern void  angrylion_set_vi_dedither(unsigned value);
-//extern void  angrylion_set_vi_blur(unsigned value);
-//extern void angrylion_set_synclevel(unsigned value);
+extern void angrylion_set_vi(unsigned value);
+extern void angrylion_set_filtering(unsigned value);
+extern void angrylion_set_dithering(unsigned value);
+extern void  angrylion_set_threads(unsigned value);
+extern void  angrylion_set_overscan(unsigned value);
+extern void  angrylion_set_vi_dedither(unsigned value);
+extern void  angrylion_set_vi_blur(unsigned value);
+extern void angrylion_set_synclevel(unsigned value);
 
 extern void ChangeSize();
 
@@ -870,103 +918,105 @@ void update_variables(bool startup)
     var.key = "parallel-n64-angrylion-vioverlay";
     var.value = NULL;
 
-    environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var);
 
-    if (var.value)
-    {
-        if (!strcmp(var.value, "Filtered"))
-        {
-            angrylion_set_vi(0);
-            angrylion_set_vi_dedither(1);
-            angrylion_set_vi_blur(1);
-        }
-        else if (!strcmp(var.value, "AA+Blur"))
-        {
-            angrylion_set_vi(0);
-            angrylion_set_vi_dedither(0);
-            angrylion_set_vi_blur(1);
-        }
-        else if (!strcmp(var.value, "AA+Dedither"))
-        {
-            angrylion_set_vi(0);
-            angrylion_set_vi_dedither(1);
-            angrylion_set_vi_blur(0);
-        }
-        else if (!strcmp(var.value, "AA only"))
-        {
-            angrylion_set_vi(0);
-            angrylion_set_vi_dedither(0);
-            angrylion_set_vi_blur(0);
-        }
-        else if (!strcmp(var.value, "Unfiltered"))
-        {
-            angrylion_set_vi(1);
-            angrylion_set_vi_dedither(1);
-            angrylion_set_vi_blur(1);
-        }
-        else if (!strcmp(var.value, "Depth"))
-        {
-            angrylion_set_vi(2);
-            angrylion_set_vi_dedither(1);
-            angrylion_set_vi_blur(1);
-        }
-        else if (!strcmp(var.value, "Coverage"))
-        {
-            angrylion_set_vi(3);
-            angrylion_set_vi_dedither(1);
-            angrylion_set_vi_blur(1);
-        }
-    }
-    else
-    {
+    //environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var);
+
+    //if (var.value)
+    //{
+    //    if (!strcmp(var.value, "Filtered"))
+    //    {
+    //        angrylion_set_vi(0);
+    //        angrylion_set_vi_dedither(1);
+    //        angrylion_set_vi_blur(1);
+    //    }
+    //    else if (!strcmp(var.value, "AA+Blur"))
+    //    {
+    //        angrylion_set_vi(0);
+    //        angrylion_set_vi_dedither(0);
+    //        angrylion_set_vi_blur(1);
+    //    }
+    //    else if (!strcmp(var.value, "AA+Dedither"))
+    //    {
+    //        angrylion_set_vi(0);
+    //        angrylion_set_vi_dedither(1);
+    //        angrylion_set_vi_blur(0);
+    //    }
+    //    else if (!strcmp(var.value, "AA only"))
+    //    {
+    //        angrylion_set_vi(0);
+    //        angrylion_set_vi_dedither(0);
+    //        angrylion_set_vi_blur(0);
+    //    }
+    //    else if (!strcmp(var.value, "Unfiltered"))
+    //    {
+    //        angrylion_set_vi(1);
+    //        angrylion_set_vi_dedither(1);
+    //        angrylion_set_vi_blur(1);
+    //    }
+    //    else if (!strcmp(var.value, "Depth"))
+    //    {
+    //        angrylion_set_vi(2);
+    //        angrylion_set_vi_dedither(1);
+    //        angrylion_set_vi_blur(1);
+    //    }
+    //    else if (!strcmp(var.value, "Coverage"))
+    //    {
+    //        angrylion_set_vi(3);
+    //        angrylion_set_vi_dedither(1);
+    //        angrylion_set_vi_blur(1);
+    //    }
+    //}
+    //else
+    //{
         angrylion_set_vi(0);
-        angrylion_set_vi_dedither(1);
-        angrylion_set_vi_blur(1);
-    }
+        angrylion_set_vi_dedither(0);
+        angrylion_set_vi_blur(0);
+        
+    //}
 
     var.key = "parallel-n64-angrylion-sync";
     var.value = NULL;
 
-    environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var);
+    //environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var);
 
-    if (var.value)
-    {
-        if (!strcmp(var.value, "High"))
-            angrylion_set_synclevel(2);
-        else if (!strcmp(var.value, "Medium"))
-            angrylion_set_synclevel(1);
-        else if (!strcmp(var.value, "Low"))
-            angrylion_set_synclevel(0);
-    }
-    else
+    //if (var.value)
+    //{
+    //    if (!strcmp(var.value, "High"))
+    //        angrylion_set_synclevel(2);
+    //    else if (!strcmp(var.value, "Medium"))
+    //        angrylion_set_synclevel(1);
+    //    else if (!strcmp(var.value, "Low"))
+    //        angrylion_set_synclevel(0);
+    //}
+    //else
         angrylion_set_synclevel(0);
 
     var.key = "parallel-n64-angrylion-multithread";
     var.value = NULL;
 
-    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
-    {
-        if (!strcmp(var.value, "all threads"))
-            angrylion_set_threads(0);
-        else
-            angrylion_set_threads(atoi(var.value));
-    }
-    else
+    //if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
+    //{
+    //    if (!strcmp(var.value, "all threads"))
+    //        angrylion_set_threads(0);
+    //    else
+    //        angrylion_set_threads(atoi(var.value));
+    //}
+    //else
         angrylion_set_threads(0);
 
     var.key = "parallel-n64-angrylion-overscan";
     var.value = NULL;
 
-    environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var);
+    //environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var);
 
-    if (var.value)
-    {
-        if (!strcmp(var.value, "enabled"))
-            angrylion_set_overscan(1);
-        else if (!strcmp(var.value, "disabled"))
-            angrylion_set_overscan(0);
-    }
-    else
+    //if (var.value)
+    //{
+    //    if (!strcmp(var.value, "enabled"))
+    //        angrylion_set_overscan(1);
+    //    else if (!strcmp(var.value, "disabled"))
+    //        angrylion_set_overscan(0);
+    //}
+    //else
         angrylion_set_overscan(0);
 #endif
 
@@ -1145,6 +1195,7 @@ static void format_saved_memory(bool loadEep, bool loadSra, bool loadFla)
 
 bool retro_load_game_new(uint8_t* romdata, int size, bool loadEep, bool loadSra, bool loadFla)
 {
+    importCheats();
     format_saved_memory(loadEep, loadSra, loadFla);
 
     update_variables(true);
@@ -1458,4 +1509,34 @@ bool neil_unserialize()
 void neil_reset()
 {
     retro_reset_new();
+}
+
+bool neilInterlacedMode = false;
+
+uint32_t* get_video_buffer()
+{
+
+    struct rgba* buffer = prescale;
+
+    //in interlaced mode it touches only half the pixels each frame
+    //so that's why we work with a copy otherwise we avoid the overhead
+    if (neilInterlacedMode)
+    {
+        memcpy(prescale_copy, prescale, angryVerticalResolution * 640 * 4);
+        buffer = prescale_copy;
+    }
+
+    char temp = 0;
+    
+    //swap b and r
+    for (int i = 0; i < angryVerticalResolution; i++)
+    {
+        for (int j = 0; j < 640; j++)
+        {
+            temp = buffer[(i * 640) + j].b;
+            buffer[(i * 640) + j].b = buffer[(i * 640) + j].r;
+            buffer[(i * 640) + j].r = temp;
+        }
+    }
+    return buffer;
 }

@@ -25,10 +25,22 @@
 
 extern "C" {
 #include "neil.h"
+
+int angryVerticalResolution = 240;
+int mouseX = 0;
+int mouseY = 0;
+int mousePressed = 0;
+int mouseRange = 40;
+
 }
 
 #include "neil_controller.h"
 
+extern "C" {
+    struct NeilCheats neilCheats[256];
+    int neilCheatsLength = 0;
+}
+ 
 #ifdef _WIN32
 #define USE_XINPUT //COMMENT OUT TO FALL BACK TO SDL JOYSTICK CODE (UNRELIABLE)
 #endif
@@ -76,16 +88,20 @@ int axis5 = 0;
 Uint8* keyboardState;
 extern "C" {
     struct NeilButtons neilbuttons[4];
+    bool forceAngry = true;
 }
 bool loadEep = false;
 bool loadSra = false;
 bool loadFla = false;
 bool showFPS = true;
 bool swapSticks = false;
+bool mouseMode = false;
 bool disableAudioSync = false;
 bool invert2P = false;
 bool invert3P = false;
 bool invert4P = false;
+bool mobileMode = false;
+bool endframeCallback = false;
 
 extern "C" {
     int triangleCount = 0;
@@ -252,6 +268,10 @@ int Joy_Mapping_Action_Z = 0;
 int Joy_Mapping_Action_L = 0;
 int Joy_Mapping_Action_R = 0;
 int Joy_Mapping_Menu = 0;
+int Joy_Mapping_Action_CLEFT = 0;
+int Joy_Mapping_Action_CRIGHT = 0;
+int Joy_Mapping_Action_CUP = 0;
+int Joy_Mapping_Action_CDOWN = 0;
 
 //keyboard
 int Mapping_Left = 0;
@@ -304,29 +324,33 @@ void readConfig()
             if (counter==8) Joy_Mapping_Action_L = mapping;
             if (counter==9) Joy_Mapping_Action_R = mapping;
             if (counter==10) Joy_Mapping_Menu = mapping;
+            if (counter==11) Joy_Mapping_Action_CLEFT = mapping;
+            if (counter==12) Joy_Mapping_Action_CRIGHT = mapping;
+            if (counter==13) Joy_Mapping_Action_CUP = mapping;
+            if (counter==14) Joy_Mapping_Action_CDOWN = mapping;
 
-            if (counter==11) Mapping_Left = getKeyMapping(line);
-            if (counter==12) Mapping_Right = getKeyMapping(line);
-            if (counter==13) Mapping_Up = getKeyMapping(line);
-            if (counter==14) Mapping_Down = getKeyMapping(line);
-            if (counter==15) Mapping_Action_Start = getKeyMapping(line);
-            if (counter==16) Mapping_Action_CUP = getKeyMapping(line);
-            if (counter==17) Mapping_Action_CDOWN = getKeyMapping(line);
-            if (counter==18) Mapping_Action_CLEFT = getKeyMapping(line);
-            if (counter==19) Mapping_Action_CRIGHT = getKeyMapping(line);
-            if (counter==20) Mapping_Action_Z = getKeyMapping(line);
-            if (counter==21) Mapping_Action_L = getKeyMapping(line);
-            if (counter==22) Mapping_Action_R = getKeyMapping(line);
-            if (counter==23) Mapping_Action_B = getKeyMapping(line);
-            if (counter==24) Mapping_Action_A = getKeyMapping(line);
-            if (counter==25) Mapping_Menu = getKeyMapping(line);
-            if (counter==26) Mapping_Action_Analog_Up = getKeyMapping(line);
-            if (counter==27) Mapping_Action_Analog_Down = getKeyMapping(line);
-            if (counter==28) Mapping_Action_Analog_Left = getKeyMapping(line);
-            if (counter==29) Mapping_Action_Analog_Right = getKeyMapping(line);
+            if (counter==15) Mapping_Left = getKeyMapping(line);
+            if (counter==16) Mapping_Right = getKeyMapping(line);
+            if (counter==17) Mapping_Up = getKeyMapping(line);
+            if (counter==18) Mapping_Down = getKeyMapping(line);
+            if (counter==19) Mapping_Action_Start = getKeyMapping(line);
+            if (counter==20) Mapping_Action_CUP = getKeyMapping(line);
+            if (counter==21) Mapping_Action_CDOWN = getKeyMapping(line);
+            if (counter==22) Mapping_Action_CLEFT = getKeyMapping(line);
+            if (counter==23) Mapping_Action_CRIGHT = getKeyMapping(line);
+            if (counter==24) Mapping_Action_Z = getKeyMapping(line);
+            if (counter==25) Mapping_Action_L = getKeyMapping(line);
+            if (counter==26) Mapping_Action_R = getKeyMapping(line);
+            if (counter==27) Mapping_Action_B = getKeyMapping(line);
+            if (counter==28) Mapping_Action_A = getKeyMapping(line);
+            if (counter==29) Mapping_Menu = getKeyMapping(line);
+            if (counter==30) Mapping_Action_Analog_Up = getKeyMapping(line);
+            if (counter==31) Mapping_Action_Analog_Down = getKeyMapping(line);
+            if (counter==32) Mapping_Action_Analog_Left = getKeyMapping(line);
+            if (counter==33) Mapping_Action_Analog_Right = getKeyMapping(line);
 
             //load eep file
-            if (counter == 30)
+            if (counter == 34)
             {
                 if (mapping == 0)
                     loadEep = false;
@@ -335,7 +359,7 @@ void readConfig()
             }
 
             //load sra file
-            if (counter == 31)
+            if (counter == 35)
             {
                 if (mapping == 0)
                     loadSra = false;
@@ -344,7 +368,7 @@ void readConfig()
             }
 
             //load fla file
-            if (counter == 32)
+            if (counter == 36)
             {
                 if (mapping == 0)
                     loadFla = false;
@@ -353,7 +377,7 @@ void readConfig()
             }
 
             //show FPS
-            if (counter == 33)
+            if (counter == 37)
             {
                 if (mapping == 1)
                     showFPS = true;
@@ -362,7 +386,7 @@ void readConfig()
             }
 
             //swap sticks
-            if (counter == 34)
+            if (counter == 38)
             {
                 if (mapping == 1)
                     swapSticks = true;
@@ -371,7 +395,7 @@ void readConfig()
             }
 
             //disable audio sync
-            if (counter == 35)
+            if (counter == 39)
             {
                 if (mapping == 1)
                     disableAudioSync = true;
@@ -380,7 +404,7 @@ void readConfig()
             }
 
             //player 2 invert Y axis
-            if (counter == 36)
+            if (counter == 40)
             {
                 if (mapping == 1)
                     invert2P = true;
@@ -389,7 +413,7 @@ void readConfig()
             }
 
             //player 3 invert Y axis
-            if (counter == 37)
+            if (counter == 41)
             {
                 if (mapping == 1)
                     invert3P = true;
@@ -398,12 +422,41 @@ void readConfig()
             }
 
             //player 4 invert Y axis
-            if (counter == 38)
+            if (counter == 42)
             {
                 if (mapping == 1)
                     invert4P = true;
                 else
                     invert4P = false;
+            }
+
+            //mobile mode
+            if (counter == 43)
+            {
+                if (mapping == 1)
+                    mobileMode = true;
+                else
+                    mobileMode = false;
+            }
+
+            //software renderer
+            if (counter == 44)
+            {
+                if (mapping == 1)
+                    forceAngry = true;
+                else
+                    forceAngry = false;
+
+                printf("forceAngry: %d\n", forceAngry);
+            }
+
+            //mouse mode
+            if (counter == 45)
+            {
+                if (mapping == 1)
+                    mouseMode = true;
+                else
+                    mouseMode = false;
             }
 
             counter++;
@@ -434,6 +487,61 @@ void readConfig()
     {
         printf("No Config File Found\n");
     }
+}
+
+
+void readCheats()
+{
+
+#ifdef _WIN32
+    //for debugging cheats
+    std::string testRom(rom_name);
+    if (testRom != "roms\\fzero.v64")
+        return;
+#endif
+
+    try
+    {
+        std::ifstream infile("cheat.txt");
+        std::string line;
+        std::size_t pos;
+        std::string newstr;
+
+        int counter = 0;
+        while (std::getline(infile, line))
+        {
+            long long cheatAddress = std::stoll(line, nullptr, 16);
+            std::getline(infile, line);
+            int cheatValue = stoi(line, 0, 16);
+
+            neilCheats[counter].address = cheatAddress;
+            neilCheats[counter].value = cheatValue;
+            
+            counter++;
+            neilCheatsLength = counter;
+
+            if (counter == 256)
+                return;
+        }
+
+        printf("Finished Reading Cheats\n");
+    }
+    catch (...)
+    {
+        printf("No Config File Found\n");
+    }
+}
+
+//process mobile controls here
+void processMobileControls()
+{
+
+#ifdef __EMSCRIPTEN__
+	EM_ASM(
+		myApp.rivetsData.inputController.updateMobileControls();
+	);
+#endif
+
 }
 
 #include "minizip/unzip.h"
@@ -538,51 +646,52 @@ int main(int argc, char* argv[])
     font40 = TTF_OpenFont("res/arial.ttf", 40);
     //TTF_SetFontStyle(font, TTF_STYLE_BOLD);
 
-
-#ifndef __EMSCRIPTEN__
-    GLenum err = glewInit();
-    if (GLEW_OK != err)
-    {
-       /* Problem: glewInit failed, something is seriously wrong. */
-       printf("Error: %s\n", glewGetErrorString(err));
-    }
-    else
-    {
-       printf("GLEW Initialized\n");
-    }
-#endif
-
-    //print OpenGL stats
-    printf("VENDOR: %s\n", glGetString(GL_VENDOR));
-    printf("RENDERER: %s\n", glGetString(GL_RENDERER));
-    printf("VERSION: %s\n", glGetString(GL_VERSION));
-    printf("GLSL: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-
     //give it an initial value so drawText doesn't crash
     sprintf(fps_text, "FPS:");
 
-    SDL_Rect rect;
+#ifndef __EMSCRIPTEN__
+        GLenum err = glewInit();
+        if (GLEW_OK != err)
+        {
+            /* Problem: glewInit failed, something is seriously wrong. */
+            printf("Error: %s\n", glewGetErrorString(err));
+        }
+        else
+        {
+            printf("GLEW Initialized\n");
+        }
+#endif
 
-    setupDrawTextOpenGL();
-    imageOverlay = loadOpenGLTexture("overlay.png");
+        //print OpenGL stats
+        printf("VENDOR: %s\n", glGetString(GL_VENDOR));
+        printf("RENDERER: %s\n", glGetString(GL_RENDERER));
+        printf("VERSION: %s\n", glGetString(GL_VERSION));
+        printf("GLSL: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-    shaderProgram = initShaders();
+        setupDrawTextOpenGL();
+        imageOverlay = loadOpenGLTexture("overlay.png");
 
-    //clear the screen
-    glClearColor(184.0f / 255.0f, 213.0f / 255.0f, 238.0f / 255.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    SDL_GL_SwapWindow(WindowOpenGL);
+        shaderProgram = initShaders();
+
+        //clear the screen
+        glClearColor(184.0f / 255.0f, 213.0f / 255.0f, 238.0f / 255.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        SDL_GL_SwapWindow(WindowOpenGL);
 
 
     retro_init();
 
     //sprintf(rom_name, "%s", "mario64.z64");
     //sprintf(rom_name, "%s", "roms\\mario64_europe.n64");
-    //sprintf(rom_name, "%s", "roms\\fzero.v64");
-    sprintf(rom_name, "%s", "roms\\goldeneye.v64");
+    sprintf(rom_name, "%s", "roms\\fzero.v64");
+    //sprintf(rom_name, "%s", "roms\\goldeneye.v64");
     //sprintf(rom_name, "%s", "roms\\diddy.v64");
     //sprintf(rom_name, "%s", "roms\\mariokart.v64");
     //sprintf(rom_name, "%s", "roms\\pilotwings.n64");
+    //sprintf(rom_name, "%s", "roms\\drmario.z64");
+    //sprintf(rom_name, "%s", "roms\\rogue_europe.z64");
+    //sprintf(rom_name, "%s", "roms\\starcraft.z64");
+    
 
     if (argc == 2)
     {
@@ -590,6 +699,7 @@ int main(int argc, char* argv[])
     }
 
     readConfig();
+    readCheats();
 
     FILE* f = fopen(rom_name, "rb");
     fseek(f, 0, SEEK_END);
@@ -610,7 +720,7 @@ int main(int argc, char* argv[])
 #ifdef __EMSCRIPTEN__
     if (disableAudioSync)
     {
-        emscripten_set_main_loop(mainLoop, FPS, 1);
+        emscripten_set_main_loop(mainLoop, 0, 0);
     }
 #else
     while (runApp){
@@ -630,9 +740,13 @@ void processMenuItemButtons();
 bool lastSaveStateKeyPressed = false;
 bool lastLoadStateKeyPressed = false;
 bool lastOverlayKeyPressed = false;
-bool lastMenuUpPressed = false;
-bool lastMenuDownPressed = false;
-bool lastMenuOkPressed = false;
+bool lastMenuUpKeyPressed = false;
+bool lastMenuDownKeyPressed = false;
+bool lastMenuOkKeyPressed = false;
+bool lastOverlayButtonPressed = false;
+bool lastMenuUpButtonPressed = false;
+bool lastMenuDownButtonPressed = false;
+bool lastMenuOkButtonPressed = false;
 bool menuMoveUp = false;
 bool menuMoveDown = false;
 bool menuOk = false;
@@ -669,12 +783,99 @@ void resetNeilButtons()
         neilbuttons[i].cbRight = 0;
         neilbuttons[i].cbUp = 0;
         neilbuttons[i].cbDown = 0;
+        neilbuttons[i].mouseX = 0;
+        neilbuttons[i].mouseY = 0;
     }
 
 }
 
+void drawAngryOpenGL();
+
+double fpsInterval = 1000.0 / 60.0;
+int fpsThen = 0; //time in milliseconds
+int fpsNow = 0; //time in milliseconds
+int fpsFrameCounter = 0;
+int fpsAudioRemaining = 0; //used to keep relieve some audio when emulator is running too fast
+
+bool IsFrameReady() {
+
+	fpsInterval = 1000.0 / (double)FPS; //uncomment this for variable FPS
+	fpsNow = SDL_GetTicks();
+	int elapsed = fpsNow - fpsThen;
+	bool ready = true;
+
+	int shouldBeFrames = (int)((double)elapsed / fpsInterval);
+	if (fpsFrameCounter > shouldBeFrames)
+	{
+		ready = false;
+	}
+
+	if (ready)
+		fpsFrameCounter++;
+
+	//reset
+	if (elapsed > 1000)
+	{
+		fpsThen = fpsNow;
+		fpsFrameCounter = 0;
+	}
+
+	return ready;
+}
+
+void getMouseAccelCurve(int* mouseAxis) {
+
+    int accCurve[] = {
+        1, 10,
+        2, 13,
+        3, 16,
+        4, 18,
+        5, 21,
+        6, 23,
+        7, 25,
+        8, 27,
+        9, 29,
+        10, 30,
+        11, 31,
+        12, 32,
+        13, 33,
+        14, 34,
+        15, 35,
+        16, 36,
+        17, 37,
+        18, 38,
+        19, 39,
+        20, 40,
+    };
+
+    int arrSize = sizeof(accCurve) / sizeof(accCurve[0]);
+
+    int absVal = abs(*mouseAxis);
+    int sign = *mouseAxis > 0 ? 1 : -1;
+
+    if (absVal > accCurve[arrSize-2])
+    {
+        *mouseAxis = mouseRange*sign;
+    }
+
+    for(int i = 0; i < arrSize / 2; i++)
+    {
+        int key = accCurve[i*2];
+        int val = accCurve[(i*2)+1];
+
+        if (absVal == key) *mouseAxis = val*sign;
+    }
+
+    if (*mouseAxis>mouseRange) *mouseAxis = mouseRange;
+    if (*mouseAxis<-mouseRange) *mouseAxis = -mouseRange;
+}
+
 void mainLoop()
 {
+	#ifdef __EMSCRIPTEN__
+	if (disableAudioSync && !IsFrameReady())
+		return;
+	#endif
 
     SDL_Event windowEvent;
     frameStart = SDL_GetTicks();
@@ -754,7 +955,7 @@ void mainLoop()
 
     if (xControllers[0].connected)
     {
-        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_RIGHT_THUMB,0), &lastOverlayKeyPressed))
+        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_RIGHT_THUMB, 0), &lastOverlayButtonPressed))
         {
             if (!showOverlay)
             {
@@ -762,9 +963,9 @@ void mainLoop()
             }
             showOverlay = !showOverlay;
         }
-        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_DPAD_UP,0), &lastMenuUpPressed)) menuMoveUp = true;
-        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_DPAD_DOWN,0), &lastMenuDownPressed)) menuMoveDown = true;
-        if (isReleasedOnce(IsPressed(XINPUT_GAMEPAD_A,0), &lastMenuOkPressed)) menuOk = true;
+        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_DPAD_UP, 0), &lastMenuUpButtonPressed)) menuMoveUp = true;
+        if (isPressedOnce(IsPressed(XINPUT_GAMEPAD_DPAD_DOWN, 0), &lastMenuDownButtonPressed)) menuMoveDown = true;
+        if (isReleasedOnce(IsPressed(XINPUT_GAMEPAD_A, 0), &lastMenuOkButtonPressed)) menuOk = true;
     }
 #endif
 
@@ -820,10 +1021,14 @@ void mainLoop()
             if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_Z)) neilbuttons[i].zKey = true;
             if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_L)) neilbuttons[i].lKey = true;
             if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_R)) neilbuttons[i].rKey = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_CLEFT)) neilbuttons[i].cbLeft = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_CRIGHT)) neilbuttons[i].cbRight = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_CUP)) neilbuttons[i].cbUp = true;
+            if (SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_CDOWN)) neilbuttons[i].cbDown = true;
             //only controller 1 controls the menu
-			if (i == 0)
+            if (i == 0)
             {
-                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Menu), &lastOverlayKeyPressed))
+                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Menu), &lastOverlayButtonPressed))
                 {
                     if (!showOverlay)
                     {
@@ -831,13 +1036,35 @@ void mainLoop()
                     }
                     showOverlay = !showOverlay;
                 }
-                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Up), &lastMenuUpPressed)) menuMoveUp = true;
-                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Down), &lastMenuDownPressed)) menuMoveDown = true;
-                if (isReleasedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_A), &lastMenuOkPressed)) menuOk = true;
+                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Up), &lastMenuUpButtonPressed)) menuMoveUp = true;
+                if (isPressedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Down), &lastMenuDownButtonPressed)) menuMoveDown = true;
+                if (isReleasedOnce(SDL_JoystickGetButton(sdlJoysticks[i].joyStick, Joy_Mapping_Action_A), &lastMenuOkButtonPressed)) menuOk = true;
             }
 #endif
         }
     }
+
+    if (mouseMode)
+    {
+        mousePressed = SDL_GetMouseState(&mouseX, &mouseY);
+        SDL_GetRelativeMouseState(&mouseX, &mouseY);
+
+        // printf("mouseX %d mouseY %d\n", mouseX, mouseY);
+        getMouseAccelCurve(&mouseX);
+        getMouseAccelCurve(&mouseY);
+
+        int axis0Mouse = (int)(32760.0f*((float)mouseX/(float)mouseRange));
+        int axis1Mouse = (int)(32760.0f*((float)mouseY/(float)mouseRange));
+
+        if (mousePressed == 1)
+            neilbuttons[0].aKey = true;
+        if (mousePressed == 4)
+            neilbuttons[0].bKey = true;
+
+        neilbuttons[0].mouseX = mouseX;
+        neilbuttons[0].mouseY = -mouseY;
+    }
+
 
     //KEYBOARD
     keyboardState = (Uint8*)SDL_GetKeyboardState(NULL);
@@ -865,22 +1092,24 @@ void mainLoop()
     if (keyboardState[Mapping_Action_CRIGHT]) neilbuttons[0].cbRight = true;
     if (keyboardState[Mapping_Action_CUP]) neilbuttons[0].cbUp = true;
 
-    //TODO - doesnt work in conjunction with gamepad, only use for debugging while gamepad is off
-    if (!sdlJoysticks[0].gamepadConnected)
+    if (isPressedOnce(keyboardState[SDL_SCANCODE_GRAVE], &lastOverlayKeyPressed))
     {
-        if (isPressedOnce(keyboardState[SDL_SCANCODE_GRAVE], &lastOverlayKeyPressed))
+        if (!showOverlay)
         {
-            if (!showOverlay)
-            {
-                selectedMenuItem = 0;
-            }
-            showOverlay = !showOverlay;
+            selectedMenuItem = 0;
         }
-        if (isPressedOnce(keyboardState[SDL_SCANCODE_UP], &lastMenuUpPressed)) menuMoveUp = true;
-        if (isPressedOnce(keyboardState[SDL_SCANCODE_DOWN], &lastMenuDownPressed)) menuMoveDown = true;
-        if (isReleasedOnce(keyboardState[SDL_SCANCODE_RETURN], &lastMenuOkPressed)) menuOk = true;
-
+        showOverlay = !showOverlay;
     }
+    if (isPressedOnce(keyboardState[SDL_SCANCODE_UP], &lastMenuUpKeyPressed)) menuMoveUp = true;
+    if (isPressedOnce(keyboardState[SDL_SCANCODE_DOWN], &lastMenuDownKeyPressed)) menuMoveDown = true;
+    if (isReleasedOnce(keyboardState[SDL_SCANCODE_RETURN], &lastMenuOkKeyPressed)) menuOk = true;
+
+
+    //MOBILE
+	if (mobileMode && !sdlJoysticks[0].gamepadConnected)
+	{
+		processMobileControls();
+	}
     
     if (showOverlay)
     {
@@ -902,7 +1131,7 @@ void mainLoop()
     //allow audio buffer to shrink down
     //if emulator is too far ahead
     audioBufferQueue = SDL_GetQueuedAudioSize(audioDeviceId);
-    if (audioBufferQueue < 20000)
+    if (audioBufferQueue < 20000 && fpsAudioRemaining < 5000)
         retro_run();
     else
     {
@@ -914,6 +1143,14 @@ void mainLoop()
 
     if(getReadyToSwap()==1)
     {
+        if (forceAngry)
+        {
+            glClearColor(184.0f / 255.0f, 213.0f / 255.0f, 238.0f / 255.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            drawAngryOpenGL();
+        }
+
         if (showOverlay)
         {
             drawOverlay();
@@ -942,6 +1179,16 @@ void mainLoop()
 
 
     limitFPS();
+
+#ifdef __EMSCRIPTEN__
+    if (endframeCallback)
+    {
+        EM_ASM(
+            myApp.localCallback();
+        );
+        endframeCallback = false;  
+    }
+#endif
 
 }
 
@@ -1092,7 +1339,10 @@ void limitFPS()
         currentMaxAudioBufferQueue = maxAudioBufferQueue;
     }
 
-    sprintf(fps_text, "FPS: %d GameFPS: %d", current_fps, currentSwapCount);
+    if (forceAngry)
+        sprintf(fps_text, "FPS: %d", current_fps);
+    else
+        sprintf(fps_text, "FPS: %d GameFPS: %d", current_fps, currentSwapCount);
 
     //SDL_SetWindowTitle(WindowOpenGL, fps_text);
 
@@ -1319,6 +1569,88 @@ void drawTextOpenGL(const char* text, int x, int y, SDL_Color color, MY_FONT_SIZ
     // SDL_DestroyTexture(fontTexture); 
 }
 
+void drawAngryOpenGL()
+{
+    //need this to enable transparency on the texture
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    translateDrawTextScreenCoordinates(0, 0, 640, 480);
+
+    //we are technically using the same shader for 
+    //drawTextOpenGL() and drawOpenglTexture() so this
+    //code is nearly the same in both however 
+    //keeping it in both in case I ever have seperate shaders
+    glUseProgram(shaderProgram);
+
+    //bind it or "select" it
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferDrawText);
+    //fill the buffer with data
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 24, positionsDrawTextFinal, GL_DYNAMIC_DRAW);
+
+    //define the position attribute
+    glVertexAttribPointer(
+        0, //attribute number for shader
+        2, //size or number of components for this attribute, so 2 floats for a position
+        GL_FLOAT, //data type of each component
+        GL_FALSE, //do we want it to auto normalize the data for us (or convert it to a range of 0-1)
+        sizeof(float) * 4, //stride or number of bytes between each vertex
+        (GLvoid*)0 //offset to this attribute - needs to be converted to a pointer (const void*)8 as an example
+    );
+
+    //texture coordinate
+    glVertexAttribPointer(
+        1, //attribute number for shader
+        2, //size or number of components for this attribute, so 2 floats for a position
+        GL_FLOAT, //data type of each component
+        GL_FALSE, //do we want it to auto normalize the data for us (or convert it to a range of 0-1)
+        sizeof(float) * 4, //stride or number of bytes between each vertex
+        (GLvoid*)8 //offset to this attribute - needs to be converted to a pointer (const void*)8 as an example
+    );
+
+
+    //need to enable this attribute in this case 0th attribute (matches first parameter of glVertexAttribPointer above)
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+
+    int texture_format;
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    //Emscripten doesn't support GL_BGRA ??
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 640, angryVerticalResolution, 0,
+        GL_RGBA, GL_UNSIGNED_BYTE, get_video_buffer());
+
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    //render the triangles
+    glDrawArrays(
+        GL_TRIANGLES, //what are we drawing
+        0, //first index to draw
+        6 //how many to draw
+    );
+
+
+    glDisable(GL_BLEND);
+
+
+    glDeleteTextures(1, &texture);
+
+    // //if we don't destroy this you will see in 
+    // //windows task manager the memory will keep growing
+    // SDL_DestroyTexture(fontTexture); 
+}
+
 
 GLuint loadOpenGLTexture(const char* file)
 {
@@ -1475,9 +1807,47 @@ int getKeyMapping(std::string line)
 }
 
 extern "C" {
+
     void neil_toast_message(char* message)
     {
         sprintf(toast_message, message);
         toastCounter = 60;
     }
+    	
+    void neil_send_mobile_controls(char* controls, char* axis0, char* axis1) 
+	{
+        if (controls[0]=='1') neilbuttons[0].upKey = true;;
+        if (controls[1]=='1') neilbuttons[0].downKey = true;
+        if (controls[2]=='1') neilbuttons[0].leftKey = true;
+        if (controls[3]=='1') neilbuttons[0].rightKey = true;
+        if (controls[4]=='1') neilbuttons[0].aKey = true;
+        if (controls[5]=='1') neilbuttons[0].bKey = true;
+        if (controls[6]=='1') neilbuttons[0].startKey = true;
+        if (controls[7]=='1') neilbuttons[0].zKey = true;
+        if (controls[8]=='1') neilbuttons[0].lKey = true;
+        if (controls[9]=='1') neilbuttons[0].rKey = true;
+        if (controls[10]=='1') neilbuttons[0].cbUp = true;
+        if (controls[11]=='1') neilbuttons[0].cbDown = true;
+        if (controls[12]=='1') neilbuttons[0].cbLeft = true;
+        if (controls[13]=='1') neilbuttons[0].cbRight = true;
+
+        std::string axis0String(axis0);
+        float axis0Float = std::stof(axis0String);
+        neilbuttons[0].axis0 = (int)((float)32000*axis0Float);
+
+        std::string axis1String(axis1);
+        float axis1Float = std::stof(axis1String);
+        neilbuttons[0].axis1 = -(int)((float)32000*axis1Float);
+
+	}
+
+    void neil_set_buffer_remaining(int remaining)
+	{
+		fpsAudioRemaining = remaining;
+	}
+
+    void neil_set_endframe_callback()
+	{
+		endframeCallback = true;
+	}
 }
