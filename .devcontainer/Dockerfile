@@ -1,5 +1,5 @@
 
-FROM mcr.microsoft.com/devcontainers/universal:linux
+FROM mcr.microsoft.com/devcontainers/base:alpine
 
 RUN git clone https://github.com/emscripten-core/emsdk.git \
     && cd emsdk \
