@@ -107,6 +107,10 @@ extern "C" {
     int triangleCount = 0;
     int globalTriangleTrigger = 0;
     bool pilotwingsFix = false;
+
+    //set resolution here (must be 4:3 ratio)
+    int globalWidth = 1200;
+    int globalHeight = 900;
 }
 
 void connectGamepad()
@@ -620,7 +624,7 @@ int main(int argc, char* argv[])
 
     int WindowFlags = SDL_WINDOW_OPENGL;
     WindowOpenGL = SDL_CreateWindow(NULL,
-        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, WindowFlags);
+        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, globalWidth, globalHeight, WindowFlags);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GLContext Context = SDL_GL_CreateContext(WindowOpenGL);
@@ -1292,10 +1296,10 @@ void processMenuItemButtons()
 
 void drawOverlay()
 {
-    drawOpenglTexture(50, 50, 640 - 100, 480 - 100, imageOverlay);
+    drawOpenglTexture(50, 50, globalWidth - 100, globalHeight - 100, imageOverlay);
     int menuItemsCount = sizeof(menuItems) / 30;
     int startX = 200;
-    int startY = 480 - 120;
+    int startY = globalHeight - 120;
 
     for (int i = 0; i < menuItemsCount; i++)
     {
@@ -1432,8 +1436,8 @@ void setupDrawTextOpenGL()
 
 void translateDrawTextScreenCoordinates(int x, int y, int w, int h)
 {
-    float screenwidth = 640;
-    float screenheight = 480;
+    float screenwidth = globalWidth;
+    float screenheight = globalHeight;
 
     //openGL coordinates go from (-1,-1) to (1,1) as a square
     float newx = ((2.0f / (float)screenwidth) * (float)x) - 1.0f;

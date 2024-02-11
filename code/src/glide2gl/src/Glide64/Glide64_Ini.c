@@ -18,11 +18,14 @@ extern void glide_set_filtering(unsigned value);
 
 extern bool pilotwingsFix;
 
+extern int globalWidth;
+extern int globalHeight;
+
 void ReadSettings(void)
 {
    struct retro_variable var = { "parallel-n64-screensize", 0 };
-   unsigned screen_width = 640;
-   unsigned screen_height = 480;
+   unsigned screen_width = globalWidth;
+   unsigned screen_height = globalHeight;
 
    // if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
    // {

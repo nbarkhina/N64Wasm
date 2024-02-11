@@ -899,14 +899,17 @@ static void gfx_set_dithering(void)
     }
 }
 
+extern int globalWidth;
+extern int globalHeight;
+
 void update_variables(bool startup)
 {
     struct retro_variable var;
 
     send_allist_to_hle_rsp = false;
 
-    screen_width = 640;
-    screen_height = 480;
+    screen_width = (uint32_t)globalWidth;
+    screen_height = (uint32_t)globalHeight;
 
     if (startup)
     {

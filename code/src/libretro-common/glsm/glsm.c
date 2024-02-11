@@ -2559,6 +2559,9 @@ void rglDrawElementsBaseVertex(GLenum mode, GLsizei count, GLenum type,
 #endif
 }
 
+extern int globalWidth;
+extern int globalHeight;
+
 /* GLSM-side */
 
 static void glsm_state_setup(void)
@@ -2721,8 +2724,8 @@ static void glsm_state_bind(void)
    glViewport(
          gl_state.viewport.x,
          gl_state.viewport.y,
-         640,
-         480);
+         globalWidth,
+         globalHeight);
 
    for(i = 0; i < SGL_CAP_MAX; i ++)
    {
@@ -2794,8 +2797,8 @@ static void glsm_state_unbind(void)
    glScissor(
        0,
        0,
-       640,
-       480);
+       globalWidth,
+       globalHeight);
 
    glStencilMask(1);
    glFrontFace(GL_CCW);

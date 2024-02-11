@@ -52,6 +52,9 @@ static int isExtensionSupported(const char *extension)
    return 0;
 }
 
+extern int globalWidth;
+extern int globalHeight;
+
 uint32_t grSstWinOpen(void)
 {
    bool ret;
@@ -72,8 +75,8 @@ uint32_t grSstWinOpen(void)
    // }
    // else
    {
-      width = 640;
-      height =480;
+      width = globalWidth;
+      height = globalHeight;
    }
 
    // ZIGGY
