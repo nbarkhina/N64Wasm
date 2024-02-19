@@ -354,14 +354,18 @@ int angrylionRomOpen(void)
    return 1;
 }
 
+extern bool doubleSpeed;
+
 void angrylionUpdateScreen(void)
 {
-#ifdef HAVE_FRAMESKIP
-    static int counter;
-    if (counter++ < skip)
+    static int frameskipCounter;
+    if (doubleSpeed)
+    {
+      if (frameskipCounter++ < 3)
         return;
-    counter = 0;
-#endif
+      frameskipCounter = 0;
+    }
+    
     n64video_update_screen();
     
 }

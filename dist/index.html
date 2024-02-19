@@ -160,6 +160,12 @@
                         <a class="dropdown-item" onclick="myApp.reset()" style="cursor: pointer;">Reset</a>
                     </div>
                 </div>
+                <span rv-if="data.showDoubleSpeed">
+                    <button class="btn btn-success mt-2 mb-2" rv-if="data.doubleSpeed | ev '==true'"
+                        onclick="myApp.toggleDoubleSpeed()">2x Speed</button>
+                    <button class="btn btn-primary mt-2 mb-2" rv-if="data.doubleSpeed | ev '==false'"
+                        onclick="myApp.toggleDoubleSpeed()">2x Speed</button>
+                </span>
                 <button rv-if="data.loggedIn | ev '==true'" class="btn btn-primary mt-2 mb-2" 
                     onclick="myApp.saveCloud()" >Save Cloud</button>
                 <button rv-if="data.loggedIn | ev '==true'" class="btn btn-primary mt-2 mb-2" 
@@ -202,6 +208,10 @@
         </div>
 
         <div id="mydiv" class="mt-4"></div>
+
+    </div>
+
+    <div id="middleDiv" class="text-center">
         <!-- ID has to be canvas it's hardcoded in the EM generated .js -->
         <div id="canvasDiv" style="display: none;">
             <canvas id="canvas" style="width: 640px;"></canvas>
@@ -217,7 +227,7 @@
                 <img src="github_logo.png" style="height: 25px; padding-bottom: 5px; padding-left: 10px;">
             </a>
         </h6>
-
+        
     </div>
 
     <!-- Mobile UX -->
@@ -230,6 +240,12 @@
             <button rv-if="data.loggedIn | ev '==false'" class="btn btn-primary mt-2 mb-2" onclick="myApp.saveStateLocal()" >Save State</button>
             <button rv-if="data.loggedIn | ev '==false'" class="btn btn-primary mt-2 mb-2" onclick="myApp.loadStateLocal()" rv-disabled="data.noLocalSave" >Load State</button>
         </div>
+        <span rv-if="data.showDoubleSpeed">
+            <button class="btn btn-success mt-2 mb-2" rv-if="data.doubleSpeed | ev '==true'"
+                onclick="myApp.toggleDoubleSpeed()">2x Speed</button>
+            <button class="btn btn-primary mt-2 mb-2" rv-if="data.doubleSpeed | ev '==false'"
+                onclick="myApp.toggleDoubleSpeed()">2x Speed</button>
+        </span>
         <button type="button" class="btn btn-primary" onclick="myApp.hideMobileMenu()">
             Hide
         </button>

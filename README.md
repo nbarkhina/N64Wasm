@@ -30,9 +30,8 @@ I used WSL on Windows but any Linux environment would work as well. First Instal
 - source ./emsdk_env.sh
 - navigate back to the code folder in the N64Wasm repo
 - run `make`
-- then copy these 2 files from the code\ folder into the dist\ folder
-  - n64wasm.js
-  - n64wasm.wasm
+- the updated `n64wasm.js` and `n64wasm.wasm` files will now be inside the `dist\` folder
+- now serve the contents of the `dist\` folder from your webserver
 
 # Hosting
 This emulator supports hosting the app yourself with your own rom list. Create a folder called `roms` in the dist\ folder and copy them there. Then go into `romlist.js` and uncomment the code and populate the paths and names of your roms.

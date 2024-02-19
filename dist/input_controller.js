@@ -112,6 +112,8 @@ class InputController {
 
             this.manager.on("move", (evt, data) => {
 
+                window["myApp"].rivetsData.hadNipple = true;
+
                 if (window["myApp"].rivetsData.useZasCMobile && this.Key_Action_Z) {
                     this.VectorX = 0
                     this.VectorY = 0;

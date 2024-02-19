@@ -48,6 +48,8 @@ class MyClass {
             noLocalSave: true,
             lblError: '',
             chkAdvanced: false,
+            doubleSpeed: false,
+            showDoubleSpeed: false,
             eepName: '',
             sraName: '',
             flaName: '',
@@ -59,6 +61,8 @@ class MyClass {
             invert3P: false,
             invert4P: false,
             disableAudioSync: true,
+            hadNipple: false,
+            hadFullscreen: false,
             forceAngry: false,
             remapPlayer1: true,
             remapOptions: false,
@@ -198,6 +202,19 @@ class MyClass {
             this.mobileMode = false;
     }
 
+    toggleDoubleSpeed(){
+        if (this.rivetsData.doubleSpeed)
+        {
+            this.rivetsData.doubleSpeed = false;
+            this.setDoubleSpeed(0)
+        }
+        else
+        {
+            this.rivetsData.doubleSpeed = true;
+            this.setDoubleSpeed(1)
+        }
+    }
+
     async LoadEmulator(byteArray){
         if (this.rom_name.toLocaleLowerCase().endsWith('.zip'))
         {
@@ -221,6 +238,7 @@ class MyClass {
             this.toggleFPSModule = Module.cwrap('toggleFPS', null, ['number']);
             this.sendMobileControls = Module.cwrap('neil_send_mobile_controls', null, ['string','string','string']);
             this.setRemainingAudio = Module.cwrap('neil_set_buffer_remaining', null, ['number']);
+            this.setDoubleSpeed = Module.cwrap('neil_set_double_speed', null, ['number']);
         }
 
     }
@@ -507,6 +525,12 @@ class MyClass {
         });
         
         FS.writeFile('cheat.txt',cheatString);
+
+        //we don't allow double speed when doing audio sync
+        if (!this.rivetsData.disableAudioSync)
+        {
+            this.rivetsData.showDoubleSpeed = false;
+        }
 
     }
 
@@ -1095,6 +1119,8 @@ class MyClass {
         try {
             let el = document.getElementById('canvas');
 
+            window["myApp"].rivetsData.hadFullscreen = true;
+
             if (el.webkitRequestFullScreen) {
                 el.webkitRequestFullScreen();
             }
@@ -1166,6 +1192,7 @@ class MyClass {
 
         $("#mobileDiv").show();
         $("#maindiv").hide();
+        $("#middleDiv").hide();
         $('#canvas').appendTo("#mobileCanvas");
 
         document.getElementById('maindiv').classList.remove('container');

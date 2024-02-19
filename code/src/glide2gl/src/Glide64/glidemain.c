@@ -698,15 +698,16 @@ void newSwapBuffers(void)
       grBufferSwap (settings.vsync);
 
       if  (settings.buff_clear || (settings.hacks & hack_PPL && settings.ucode == 6))
-      {
-         grDepthMask (FXTRUE);
-         grBufferClear (0, 0, 0xFFFF);
+      {  
+//commenting this fixed blast corps
+//          grDepthMask (FXTRUE);       
+//          grBufferClear (0, 0, 0xFFFF);
       }
    }
 
    // if (true)
-   if (settings.frame_buffer & fb_read_back_to_screen2)
-      DrawWholeFrameBufferToScreen();
+  if (settings.frame_buffer & fb_read_back_to_screen2)
+     DrawWholeFrameBufferToScreen();
 
    frame_count ++;
 }

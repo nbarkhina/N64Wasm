@@ -39,6 +39,7 @@ int mouseRange = 40;
 extern "C" {
     struct NeilCheats neilCheats[256];
     int neilCheatsLength = 0;
+    bool doubleSpeed = false;
 }
  
 #ifdef _WIN32
@@ -870,10 +871,22 @@ void getMouseAccelCurve(int* mouseAxis) {
     if (*mouseAxis<-mouseRange) *mouseAxis = -mouseRange;
 }
 
+
+void mainLoopInner();
+
 void mainLoop()
 {
+    mainLoopInner();
+    if (doubleSpeed)
+    {
+        mainLoopInner();
+    }
+}
+
+void mainLoopInner()
+{
 	#ifdef __EMSCRIPTEN__
-	if (disableAudioSync && !IsFrameReady())
+	if (disableAudioSync && !doubleSpeed && !IsFrameReady())
 		return;
 	#endif
 
@@ -1128,15 +1141,22 @@ void mainLoop()
     }
 
 
-    //allow audio buffer to shrink down
-    //if emulator is too far ahead
-    audioBufferQueue = SDL_GetQueuedAudioSize(audioDeviceId);
-    if (audioBufferQueue < 20000 && fpsAudioRemaining < 5000)
+    if (doubleSpeed)
+    {
         retro_run();
+    }
     else
     {
-        hadSkip = 1;
-        maxAudioBufferQueue = audioBufferQueue;
+        //allow audio buffer to shrink down
+        //if emulator is too far ahead
+        audioBufferQueue = SDL_GetQueuedAudioSize(audioDeviceId);
+        if (audioBufferQueue < 20000 && fpsAudioRemaining < 5000)
+            retro_run();
+        else
+        {
+            hadSkip = 1;
+            maxAudioBufferQueue = audioBufferQueue;
+        }
     }
 
 
@@ -1850,4 +1870,12 @@ extern "C" {
 	{
 		endframeCallback = true;
 	}
+
+    void neil_set_double_speed(int set)
+    {
+        if (set)
+            doubleSpeed = true;
+        else
+            doubleSpeed = false;
+    }
 }
