@@ -33,6 +33,11 @@ I used WSL on Windows but any Linux environment would work as well. First Instal
 - the updated `n64wasm.js` and `n64wasm.wasm` files will now be inside the `dist\` folder
 - now serve the contents of the `dist\` folder from your webserver
 
+Another way you can easily build the app is by using a preconfigured environment via  GitHub Codespaces. This repo has a dev container configuration which will already have all the required build tools installed.
+- click the green "Code" button in this repo 
+- then click the "Create codespace on master" button
+- after it finishes provisioning type `cd code` followed by `make`
+
 # Hosting
 This emulator supports hosting the app yourself with your own rom list. Create a folder called `roms` in the dist\ folder and copy them there. Then go into `romlist.js` and uncomment the code and populate the paths and names of your roms.
 

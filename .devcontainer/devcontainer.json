@@ -1,0 +1,32 @@
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json or this file's README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.195.0/containers/cpp
+{
+	"name": "N64Wasm",
+	"build": {
+		"dockerfile": "Dockerfile"
+	}
+	// "runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"],
+		
+	// Configure tool-specific properties.
+	// "customizations": {
+	// 	// Configure properties specific to VS Code.
+	// 	"vscode": {
+	// 		// Set *default* container specific settings.json values on container create.
+	// 		"settings": {},
+	// 		// Add the IDs of extensions you want installed when the container is created.
+	// 		"extensions": [
+	// 			"ms-vscode.cpptools"
+	// 		]
+	// 	}
+	// },
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "echo 'run make to build N64Wasm'"
+
+	// Comment out this line to run as root instead.
+	// "remoteUser": "vscode"
+
+}
