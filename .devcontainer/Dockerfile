@@ -7,4 +7,4 @@ RUN git clone https://github.com/emscripten-core/emsdk.git \
     && ./emsdk activate 2.0.7 \
     && echo 'source "/emsdk/emsdk_env.sh"\n' >> /home/vscode/.bashrc \
     && echo 'cd code\n' >> /home/vscode/.bashrc \
-    && echo 'echo "" && echo "type 'make' to build N64Wasm"\n' >> /home/vscode/.bashrc
+    && echo 'echo "" && echo "Type 'make' to build N64Wasm"\n' >> /home/vscode/.bashrc
