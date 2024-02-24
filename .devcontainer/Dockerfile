@@ -1,5 +1,5 @@
 
-FROM mcr.microsoft.com/devcontainers/base:ubuntu
+FROM mcr.microsoft.com/devcontainers/base:ubuntu-18.04
 
 RUN git clone https://github.com/emscripten-core/emsdk.git \
     && cd emsdk \
