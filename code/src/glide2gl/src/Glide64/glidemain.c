@@ -697,11 +697,11 @@ void newSwapBuffers(void)
    {
       grBufferSwap (settings.vsync);
 
-      if  (settings.buff_clear || (settings.hacks & hack_PPL && settings.ucode == 6))
+      if  (settings.buff_clear)
       {  
-//commenting this fixed blast corps
-//          grDepthMask (FXTRUE);       
-//          grBufferClear (0, 0, 0xFFFF);
+          //commenting this fixed blast corps
+          grDepthMask (FXTRUE);       
+          grBufferClear (0, 0, 0xFFFF);
       }
    }
 

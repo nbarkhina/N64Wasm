@@ -1560,6 +1560,7 @@ void ReadSpecialSettings (const char * name)
    else if (strstr(name, (const char *)"Blast Corps") || strstr(name, (const char *)"Blastdozer"))
    {
       //depthmode = 1
+      settings.buff_clear = 0;
       settings.swapmode = 0;
       smart_read = 1;
 #ifdef HAVE_HWFBE
@@ -1799,8 +1800,11 @@ void ReadSpecialSettings (const char * name)
       settings.hacks |= hack_RE2;
    else if (strstr(name, (const char *)"YOSHI STORY"))
       settings.hacks |= hack_Yoshi;
-   else if (strstr(name, (const char *)"F-Zero X") || strstr(name, (const char *)"F-ZERO X"))
-      settings.hacks |= hack_Fzero;
+   else if (strstr(name, (const char*)"F-Zero X") || strstr(name, (const char*)"F-ZERO X"))
+   {
+       settings.hacks |= hack_Fzero;
+       settings.buff_clear = 0;
+   }
    else if (strstr(name, (const char *)"PAPER MARIO") || strstr(name, (const char *)"MARIO STORY"))
       settings.hacks |= hack_PMario;
    else if (strstr(name, (const char *)"TOP GEAR RALLY 2"))
