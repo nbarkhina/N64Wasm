@@ -50,36 +50,29 @@ typedef struct
 static VBufVertex vbuf_data[VERTEX_BUFFER_SIZE];
 static GLenum     vbuf_primitive = GL_TRIANGLES;
 static unsigned   vbuf_length    = 0;
-static bool       vbuf_use_vbo   = false;
 static bool       vbuf_enabled   = false;
 static GLuint     vbuf_vbo       = 0;
 static size_t     vbuf_vbo_size  = 0;
 static bool       vbuf_drawing   = false;
 
 extern retro_environment_t environ_cb;
+extern bool vbuf_use_vbo;
 
 void vbo_init(void)
 {
    struct retro_variable var = { "mupen64-vcache-vbo", 0 };
-   vbuf_use_vbo = false;
    vbuf_length = 0;
 
-   //NEILTODO - what is this? does it give a performance boost?
 
-   // if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
-   // vbuf_use_vbo = true;
+   if (vbuf_use_vbo)
+   {
+      glGenBuffers(1, &vbuf_vbo);
 
-   //  if (vbuf_use_vbo)
-   //  {
-   //      glGenBuffers(1, &vbuf_vbo);
-   //      if (!vbuf_vbo)
-   //      {
-   //          log_cb(RETRO_LOG_ERROR, "Failed to create the VBO.");
-   //          vbuf_use_vbo = false;
-   //      }
-   //      else
-   //          log_cb(RETRO_LOG_INFO, "Vertex cache VBO enabled.\n");
-   //  }
+      if (!vbuf_vbo)
+      {
+         vbuf_use_vbo = false;
+      }
+   }
 }
 
 void vbo_free(void)
@@ -138,55 +131,35 @@ void vbo_draw(void)
 
    /* avoid infinite loop in sgl*BindBuffer */
    vbuf_drawing = true;
-
-   // if (vbuf_vbo)
-   // {
-   //    glBindBuffer(GL_ARRAY_BUFFER, vbuf_vbo);
-
-   //    glBufferSubData(GL_ARRAY_BUFFER, 0, vbuf_length * sizeof(VBufVertex), vbuf_data);
-
-   //    glDrawArrays(vbuf_primitive, 0, vbuf_length);
-   //    glBindBuffer(GL_ARRAY_BUFFER, 0);
-   // }
-   // else
-   // {
-   // }
-
+   bool draw = true;
 
    if (pilotwingsFix) //pilotwings shadow fix
    {
-      bool draw = true;
       if (vbuf_data[0].a > 150 && vbuf_data[0].a < 180 && 
          vbuf_data[0].b == 0 && vbuf_data[0].g == 0 && vbuf_data[0].r == 0)
       {
          draw = false;
       }
-      if (draw)
+   }
+
+   if (draw)
+   {
+      if (vbuf_vbo)
+      {
+         glBindBuffer(GL_ARRAY_BUFFER, vbuf_vbo);
+
+         glBufferSubData(GL_ARRAY_BUFFER, 0, vbuf_length * sizeof(VBufVertex), vbuf_data);
+
+         glDrawArrays(vbuf_primitive, 0, vbuf_length);
+         glBindBuffer(GL_ARRAY_BUFFER, 0);
+      }
+      else
       {
          glDrawArrays(vbuf_primitive, 0, vbuf_length); //NEIL - this is literally where it draws everything
       }
    }
-   else
-   {
-      glDrawArrays(vbuf_primitive, 0, vbuf_length); //NEIL - this is literally where it draws everything
-   }
-      
-       
-   //triangleCount++;
-   //if (globalTriangleTrigger == 299)
-   //{
-   //    fp = fopen("test.txt", "w+");
-   //    globalTriangleTrigger++;
-   //}
-   //if (globalTriangleTrigger == 300)
-   //{
-   //    fprintf(fp, "b %u g %u r %u a %u \n", (int)vbuf_data[0].b, (int)vbuf_data[0].g, (int)vbuf_data[0].r, (int)vbuf_data[0].a);
-   //}
-   //if (globalTriangleTrigger == 301)
-   //{
-   //    fclose(fp);
-   //    globalTriangleTrigger++;
-   //}
+
+   
 
    vbuf_length = 0;
    vbuf_drawing = false;

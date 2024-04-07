@@ -108,6 +108,7 @@ extern "C" {
     int triangleCount = 0;
     int globalTriangleTrigger = 0;
     bool pilotwingsFix = false;
+    bool vbuf_use_vbo = false;
 }
 
 void connectGamepad()
@@ -459,6 +460,15 @@ void readConfig()
                 else
                     mouseMode = false;
             }
+            
+            //use vbo
+            if (counter == 46)
+            {
+                if (mapping == 1)
+                    vbuf_use_vbo = true;
+                else
+                    vbuf_use_vbo = false;
+            }
 
             counter++;
 
@@ -682,9 +692,9 @@ int main(int argc, char* argv[])
 
     retro_init();
 
-    //sprintf(rom_name, "%s", "mario64.z64");
+    sprintf(rom_name, "%s", "mario64.z64");
     //sprintf(rom_name, "%s", "roms\\mario64_europe.n64");
-    sprintf(rom_name, "%s", "roms\\fzero.v64");
+    //sprintf(rom_name, "%s", "roms\\fzero.v64");
     //sprintf(rom_name, "%s", "roms\\goldeneye.v64");
     //sprintf(rom_name, "%s", "roms\\diddy.v64");
     //sprintf(rom_name, "%s", "roms\\mariokart.v64");
@@ -1188,7 +1198,9 @@ void mainLoopInner()
             toastCounter--;
         }
         
+        //this only does something in the windows version
         SDL_GL_SwapWindow(WindowOpenGL);
+
         resetReadyToSwap();
         swapCount++;
 
@@ -1361,6 +1373,8 @@ void limitFPS()
 
     if (forceAngry)
         sprintf(fps_text, "FPS: %d", current_fps);
+    else if (vbuf_use_vbo)
+        sprintf(fps_text, "FPS: %d GameFPS: %d VBO", current_fps, currentSwapCount);
     else
         sprintf(fps_text, "FPS: %d GameFPS: %d", current_fps, currentSwapCount);
 
