@@ -168,6 +168,8 @@ class MyClass {
             {
                 setTimeout(() => {
                     myClass.loadCloud();
+
+                    myClass.afterRun();
                 }, 500);
             }
             
@@ -182,7 +184,9 @@ class MyClass {
     }
 
     detectMobile(){
-        if (navigator.userAgent.toLocaleLowerCase().includes('iphone') || navigator.userAgent.toLocaleLowerCase().includes('ipad'))
+        let isIphone = navigator.userAgent.toLocaleLowerCase().includes('iphone');
+        let isIpad = navigator.userAgent.toLocaleLowerCase().includes('ipad');
+        if (isIphone || isIpad)
         {
             this.iosMode = true;
             try {
@@ -197,7 +201,7 @@ class MyClass {
             //     this.rivetsData.iosShowWarning = true;
             // }
         }
-        if (window.innerWidth < 600 || this.iosMode)
+        if (window.innerWidth < 600 || isIphone)
             this.mobileMode = true;
         else
             this.mobileMode = false;
@@ -440,6 +444,10 @@ class MyClass {
 
     beforeRun(){
         //add any overriding logic here before the emulator starts
+    }
+
+    afterRun(){
+        //add any overriding logic here after the emulator starts
     }
 
     WriteConfigFile()
