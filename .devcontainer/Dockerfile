@@ -1,5 +1,6 @@
-
-FROM mcr.microsoft.com/devcontainers/base:ubuntu-18.04
+# https://mcr.microsoft.com/en-us/product/devcontainers/base/tags
+# NOTE: Ubuntu 24 doesn't have python anymore
+FROM mcr.microsoft.com/devcontainers/base:ubuntu-22.04
 
 RUN git clone https://github.com/emscripten-core/emsdk.git \
     && cd emsdk \
