@@ -1626,8 +1626,7 @@ window["Module"] = {
     // printErr: (text) => myClass.print(text)
 }
 
-var rando2 = Math.floor(Math.random() * 100000);
 var script2 = document.createElement('script');
-script2.src = 'input_controller.js?v=' + rando2;
+script2.src = 'input_controller.js';
 document.getElementsByTagName('head')[0].appendChild(script2);
 
