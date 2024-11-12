@@ -177,7 +177,7 @@
                 <button class="btn btn-primary mt-2 mb-2" onclick="myApp.zoomOut()">Zoom Out</button>
                 <button class="btn btn-primary mt-2 mb-2" onclick="myApp.zoomIn()">Zoom In</button>
                 <button class="btn btn-primary mt-2 mb-2" onclick="myApp.fullscreen()" >Full Screen</button>
-                
+
 
             </div>
 
@@ -851,6 +851,13 @@
                                 <label class="form-check-label" style="margin-left: 26px;">
                                     <input type="checkbox" class="form-check-input" rv-checked="data.disableAudioSyncTemp">
                                     Vertical Sync (improves refresh rate)
+                                </label>
+                            </div>
+
+                            <div class="mt-2">
+                                <label class="form-check-label" style="margin-left: 26px;">
+                                    <input type="checkbox" class="form-check-input" rv-checked="data.useVBOTemp">
+                                    Use Vertex Buffer Objects (may improve performance)
                                 </label>
                             </div>
 

@@ -64,6 +64,7 @@ class MyClass {
             hadNipple: false,
             hadFullscreen: false,
             forceAngry: false,
+            useVBO: false,
             remapPlayer1: true,
             remapOptions: false,
             remapGameshark: false,
@@ -523,7 +524,7 @@ class MyClass {
         if (this.rivetsData.mouseMode) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
 
         //use vbo
-        if (this.iosMode) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
+        if (this.iosMode || this.rivetsData.useVBO) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
 
         FS.writeFile('config.txt',configString);
 
@@ -1266,6 +1267,7 @@ class MyClass {
         this.setFromLocalStorage('n64wasm-settingMobile','settingMobile');
         this.setFromLocalStorage('n64wasm-mouseMode','mouseMode');
         this.setFromLocalStorage('n64wasm-forceAngry','forceAngry');
+        this.setFromLocalStorage('n64wasm-useVBO','useVBO');
 
     }
 
@@ -1280,6 +1282,7 @@ class MyClass {
         this.rivetsData.disableAudioSync = this.rivetsData.disableAudioSyncTemp;
         this.rivetsData.settingMobile = this.rivetsData.settingMobileTemp;
         this.rivetsData.forceAngry = this.rivetsData.forceAngryTemp;
+        this.rivetsData.useVBO = this.rivetsData.useVBOTemp;
 
         this.setToLocalStorage('n64wasm-showfps','showFPS');
         this.setToLocalStorage('n64wasm-disableaudiosyncnew','disableAudioSync');
@@ -1290,6 +1293,7 @@ class MyClass {
         this.setToLocalStorage('n64wasm-invert4P','invert4P');
         this.setToLocalStorage('n64wasm-settingMobile','settingMobile');
         this.setToLocalStorage('n64wasm-forceAngry','forceAngry');
+        this.setToLocalStorage('n64wasm-useVBO','useVBO');
         
     }
 
@@ -1309,6 +1313,7 @@ class MyClass {
         this.rivetsData.disableAudioSyncTemp = this.rivetsData.disableAudioSync;
         this.rivetsData.settingMobileTemp = this.rivetsData.settingMobile;
         this.rivetsData.forceAngryTemp = this.rivetsData.forceAngry;
+        this.rivetsData.useVBOTemp = this.rivetsData.useVBO;
 
         //start input loop
         if (!this.rivetsData.inputLoopStarted)
@@ -1434,6 +1439,7 @@ class MyClass {
         this.rivetsData.disableAudioSyncTemp = true;
         this.rivetsData.settingMobileTemp = 'Auto';
         this.rivetsData.forceAngryTemp = false;
+        this.rivetsData.useVBOTemp = false;
     }
 
     remapPressed() {
