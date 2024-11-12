@@ -212,12 +212,18 @@ static void n64DebugCallback(void* aContext, int aLevel, const char* aMessage)
 extern m64p_rom_header ROM_HEADER;
 
 extern bool forceAngry;
+extern bool ricePlugin;
 
 static void core_settings_autoselect_gfx_plugin(void)
 {
     if (forceAngry)
     {
         gfx_plugin = GFX_ANGRYLION;
+        return;
+    }
+    if (ricePlugin)
+    {
+        gfx_plugin = GFX_RICE;
         return;
     }
 

@@ -140,13 +140,45 @@ CFILES := src/glide2gl/src/Glide64/Combine.c \
 
 CPPFILES := mymain.cpp \
 	src/Graphics/RDP/gDP_funcs.cpp \
-	src/Graphics/RSP/gSP_funcs.cpp
+	src/Graphics/RSP/gSP_funcs.cpp \
+    src/gles2rice/src/Blender.cpp \
+    src/gles2rice/src/Combiner.cpp \
+    src/gles2rice/src/ConvertImage.cpp \
+    src/gles2rice/src/ConvertImage16.cpp \
+    src/gles2rice/src/DecodedMux.cpp \
+    src/gles2rice/src/DeviceBuilder.cpp \
+    src/gles2rice/src/FrameBuffer.cpp \
+    src/gles2rice/src/gDP_rice.cpp \
+    src/gles2rice/src/GraphicsContext.cpp \
+    src/gles2rice/src/gSP_rice.cpp \
+    src/gles2rice/src/OGLCombiner.cpp \
+    src/gles2rice/src/OGLDecodedMux.cpp \
+    src/gles2rice/src/OGLES2FragmentShaders.cpp \
+    src/gles2rice/src/OGLExtCombiner.cpp \
+    src/gles2rice/src/OGLExtRender.cpp \
+    src/gles2rice/src/OGLGraphicsContext.cpp \
+    src/gles2rice/src/OGLRender.cpp \
+    src/gles2rice/src/OGLRenderExt.cpp \
+    src/gles2rice/src/OGLTexture.cpp \
+    src/gles2rice/src/Render.cpp \
+    src/gles2rice/src/RenderBase.cpp \
+    src/gles2rice/src/RenderExt.cpp \
+    src/gles2rice/src/RenderTexture.cpp \
+    src/gles2rice/src/RiceConfig.cpp \
+    src/gles2rice/src/RiceDebugger.cpp \
+    src/gles2rice/src/RSP_Parser.cpp \
+    src/gles2rice/src/RSP_S2DEX.cpp \
+    src/gles2rice/src/Texture.cpp \
+    src/gles2rice/src/TextureManager.cpp \
+    src/gles2rice/src/VectorMath.cpp \
+    src/gles2rice/src/Video.cpp
 
 FILES := $(patsubst %.c,%.o,$(CFILES)) $(patsubst %.cpp,%.o,$(CPPFILES))
 
 MYFLAGS   := \
 	-I. \
 	-I./src/glide2gl/src/Glide64 \
+	-I./src/gles2rice/src \
 	-I./src/mupen64plus-core/src \
 	-I./src/mupen64plus-core/src/api \
 	-I./src/include \
@@ -157,6 +189,7 @@ MYFLAGS   := \
 	-DHAVE_OPENGLES2 \
 	-DHAVE_GLIDE64 \
     -DHAVE_THR_AL \
+    -DHAVE_RICE \
 	-DNDEBUG \
 	-D__LIBRETRO__ \
 	-DM64P_PLUGIN_API \
@@ -197,7 +230,7 @@ n64wasm.js: $(FILES)
 	-s INVOKE_RUN=0 \
     && mv n64wasm.js ../dist/ \
     && mv n64wasm.wasm ../dist/
-
+    
 
 %.o : %.cpp
 	emcc -c $< -o $@ \

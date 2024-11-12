@@ -120,7 +120,7 @@ void FrameBufferManager::UpdateRecentCIAddr(SetImgInfo &ciinfo)
     if (ciinfo.dwAddr == g_uRecentCIInfoPtrs[0]->dwAddr)
         return;
 
-    RecentCIInfo *temp;
+    RecentCIInfo *temp = NULL;
 
     int i;
     for( i=1; i<numOfRecentCIInfos; i++ )

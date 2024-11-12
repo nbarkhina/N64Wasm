@@ -48,7 +48,7 @@ extern "C" {
 #endif
 
 extern uint32_t screen_width, screen_height;
-extern retro_environment_t environ_cb;
+//extern retro_environment_t environ_cb;
 
 #ifdef __cplusplus
 }
@@ -335,7 +335,7 @@ bool InitConfiguration(void)
 #if defined(WIN32)
     ConfigSetDefaultInt(l_ConfigVideoRice, "ScreenUpdateSetting", SCREEN_UPDATE_AT_1ST_CI_CHANGE, "Control when the screen will be updated (0=ROM default, 1=VI origin update, 2=VI origin change, 3=CI change, 4=first CI change, 5=first primitive draw, 6=before screen clear, 7=after screen drawn)");  // SCREEN_UPDATE_AT_VI_UPDATE_AND_DRAWN
 #else
-    ConfigSetDefaultInt(l_ConfigVideoRice, "ScreenUpdateSetting", SCREEN_UPDATE_AT_VI_UPDATE, "Control when the screen will be updated (0=ROM default, 1=VI origin update, 2=VI origin change, 3=CI change, 4=first CI change, 5=first primitive draw, 6=before screen clear, 7=after screen drawn)");  // SCREEN_UPDATE_AT_VI_UPDATE_AND_DRAWN
+    ConfigSetDefaultInt(l_ConfigVideoRice, "ScreenUpdateSetting", SCREEN_UPDATE_AT_1ST_CI_CHANGE, "Control when the screen will be updated (0=ROM default, 1=VI origin update, 2=VI origin change, 3=CI change, 4=first CI change, 5=first primitive draw, 6=before screen clear, 7=after screen drawn)");  // SCREEN_UPDATE_AT_VI_UPDATE_AND_DRAWN
 #endif
     ConfigSetDefaultBool(l_ConfigVideoRice, "NormalAlphaBlender", false, "Force to use normal alpha blender");
     ConfigSetDefaultBool(l_ConfigVideoRice, "FastTextureLoading", false, "Use a faster algorithm to speed up texture loading and CRC computation");
@@ -374,8 +374,8 @@ bool isMMXSupported()
 { 
    unsigned cpu = 0;
 
-   if (perf_get_cpu_features_cb)
-      cpu = perf_get_cpu_features_cb();
+   //if (perf_get_cpu_features_cb)
+   //   cpu = perf_get_cpu_features_cb();
 
    if (cpu & RETRO_SIMD_MMX)
       return true;
@@ -386,21 +386,10 @@ bool isMMXSupported()
 static void ReadConfiguration(void)
 {
    struct retro_variable var = { "parallel-n64-screensize", 0 };
-   bool ret = environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var);
+   //bool ret = environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var);
 
-   if (ret && var.value)
-   {
-      if (sscanf(var.value ? var.value : "640x480", "%dx%d", &screen_width, &screen_height) != 2)
-      {
-         screen_width = 640;
-         screen_height = 480;
-      }
-   }
-   else
-   {
-      screen_width = 640;
-      screen_height =480;
-   }
+   screen_width = 640;
+   screen_height = 480;
 
    windowSetting.uDisplayWidth = screen_width;
    windowSetting.uDisplayHeight = screen_height;
@@ -658,6 +647,16 @@ void GenerateCurrentRomOptions()
 
 void Ini_GetRomOptions(LPGAMESETTING pGameSetting)
 {
+    //TODO -read from RiceVideoLinux.ini
+    //pGameSetting->bTextureScaleHack = true;
+    //pGameSetting->dwFastTextureCRC = true;
+    //pGameSetting->dwAccurateTextureMapping = true;
+    //pGameSetting->bTxtSizeMethod2 = true;
+    //pGameSetting->bTxtSizeMethod2 = true;
+    // pGameSetting->dwNormalBlender = true;
+    // pGameSetting->UseCIWidthAndRatio = true;
+
+
 #if 0
     int i;
 

@@ -94,7 +94,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;HAVE_OPENGL;HAVE_THR_AL;HAVE_GLIDE64;NDEBUG;__LIBRETRO__;M64P_PLUGIN_API;M64P_CORE_PROTOTYPES;_ENDUSER_RELEASE;SINC_LOWER_QUALITY;NOSSE;NO_ASM;NO_LIBCO;ENABLE_3POINT;ENABLE_TEXTURE_SAMPLING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;HAVE_OPENGL;HAVE_THR_AL;HAVE_RICE;HAVE_GLIDE64;NDEBUG;__LIBRETRO__;M64P_PLUGIN_API;M64P_CORE_PROTOTYPES;_ENDUSER_RELEASE;SINC_LOWER_QUALITY;NOSSE;NO_ASM;NO_LIBCO;ENABLE_3POINT;ENABLE_TEXTURE_SAMPLING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -110,7 +110,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;HAVE_OPENGL;HAVE_THR_AL;HAVE_GLIDE64;NDEBUG;__LIBRETRO__;M64P_PLUGIN_API;M64P_CORE_PROTOTYPES;_ENDUSER_RELEASE;SINC_LOWER_QUALITY;NOSSE;NO_ASM;NO_LIBCO;ENABLE_3POINT;ENABLE_TEXTURE_SAMPLING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;HAVE_OPENGL;HAVE_RICE;HAVE_THR_AL;HAVE_GLIDE64;__LIBRETRO__;M64P_PLUGIN_API;M64P_CORE_PROTOTYPES;_ENDUSER_RELEASE;SINC_LOWER_QUALITY;NOSSE;NO_ASM;NO_LIBCO;ENABLE_3POINT;ENABLE_TEXTURE_SAMPLING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -159,6 +159,37 @@
     <ClCompile Include="minizip\unzip.c" />
     <ClCompile Include="minizip\zip.c" />
     <ClCompile Include="mymain.cpp" />
+    <ClCompile Include="src\gles2rice\src\Blender.cpp" />
+    <ClCompile Include="src\gles2rice\src\Combiner.cpp" />
+    <ClCompile Include="src\gles2rice\src\ConvertImage.cpp" />
+    <ClCompile Include="src\gles2rice\src\ConvertImage16.cpp" />
+    <ClCompile Include="src\gles2rice\src\DecodedMux.cpp" />
+    <ClCompile Include="src\gles2rice\src\DeviceBuilder.cpp" />
+    <ClCompile Include="src\gles2rice\src\FrameBuffer.cpp" />
+    <ClCompile Include="src\gles2rice\src\gDP_rice.cpp" />
+    <ClCompile Include="src\gles2rice\src\GraphicsContext.cpp" />
+    <ClCompile Include="src\gles2rice\src\gSP_rice.cpp" />
+    <ClCompile Include="src\gles2rice\src\OGLCombiner.cpp" />
+    <ClCompile Include="src\gles2rice\src\OGLDecodedMux.cpp" />
+    <ClCompile Include="src\gles2rice\src\OGLES2FragmentShaders.cpp" />
+    <ClCompile Include="src\gles2rice\src\OGLExtCombiner.cpp" />
+    <ClCompile Include="src\gles2rice\src\OGLExtRender.cpp" />
+    <ClCompile Include="src\gles2rice\src\OGLGraphicsContext.cpp" />
+    <ClCompile Include="src\gles2rice\src\OGLRender.cpp" />
+    <ClCompile Include="src\gles2rice\src\OGLRenderExt.cpp" />
+    <ClCompile Include="src\gles2rice\src\OGLTexture.cpp" />
+    <ClCompile Include="src\gles2rice\src\Render.cpp" />
+    <ClCompile Include="src\gles2rice\src\RenderBase.cpp" />
+    <ClCompile Include="src\gles2rice\src\RenderExt.cpp" />
+    <ClCompile Include="src\gles2rice\src\RenderTexture.cpp" />
+    <ClCompile Include="src\gles2rice\src\RiceConfig.cpp" />
+    <ClCompile Include="src\gles2rice\src\RiceDebugger.cpp" />
+    <ClCompile Include="src\gles2rice\src\RSP_Parser.cpp" />
+    <ClCompile Include="src\gles2rice\src\RSP_S2DEX.cpp" />
+    <ClCompile Include="src\gles2rice\src\Texture.cpp" />
+    <ClCompile Include="src\gles2rice\src\TextureManager.cpp" />
+    <ClCompile Include="src\gles2rice\src\VectorMath.cpp" />
+    <ClCompile Include="src\gles2rice\src\Video.cpp" />
     <ClCompile Include="src\glide2gl\src\Glide64\Combine.c" />
     <ClCompile Include="src\glide2gl\src\Glide64\Framebuffer_glide64.c" />
     <ClCompile Include="src\glide2gl\src\Glide64\glide64_3dmath.c" />
@@ -316,6 +347,51 @@
     <ClInclude Include="minizip\unzip.h" />
     <ClInclude Include="minizip\zip.h" />
     <ClInclude Include="neil_controller.h" />
+    <ClInclude Include="src\gles2rice\src\arm_features.h" />
+    <ClInclude Include="src\gles2rice\src\Blender.h" />
+    <ClInclude Include="src\gles2rice\src\COLOR.h" />
+    <ClInclude Include="src\gles2rice\src\Combiner.h" />
+    <ClInclude Include="src\gles2rice\src\CombinerDefs.h" />
+    <ClInclude Include="src\gles2rice\src\Config.h" />
+    <ClInclude Include="src\gles2rice\src\ConvertImage.h" />
+    <ClInclude Include="src\gles2rice\src\CSortedList.h" />
+    <ClInclude Include="src\gles2rice\src\Debugger.h" />
+    <ClInclude Include="src\gles2rice\src\DecodedMux.h" />
+    <ClInclude Include="src\gles2rice\src\DeviceBuilder.h" />
+    <ClInclude Include="src\gles2rice\src\FrameBuffer.h" />
+    <ClInclude Include="src\gles2rice\src\GraphicsContext.h" />
+    <ClInclude Include="src\gles2rice\src\IColor.h" />
+    <ClInclude Include="src\gles2rice\src\OGLCombiner.h" />
+    <ClInclude Include="src\gles2rice\src\OGLDecodedMux.h" />
+    <ClInclude Include="src\gles2rice\src\OGLES2FragmentShaders.h" />
+    <ClInclude Include="src\gles2rice\src\OGLExtCombiner.h" />
+    <ClInclude Include="src\gles2rice\src\OGLExtRender.h" />
+    <ClInclude Include="src\gles2rice\src\OGLGraphicsContext.h" />
+    <ClInclude Include="src\gles2rice\src\OGLRender.h" />
+    <ClInclude Include="src\gles2rice\src\OGLTexture.h" />
+    <ClInclude Include="src\gles2rice\src\osal_opengl.h" />
+    <ClInclude Include="src\gles2rice\src\osal_preproc.h" />
+    <ClInclude Include="src\gles2rice\src\RDP_Texture.h" />
+    <ClInclude Include="src\gles2rice\src\Render.h" />
+    <ClInclude Include="src\gles2rice\src\RenderBase.h" />
+    <ClInclude Include="src\gles2rice\src\RenderTexture.h" />
+    <ClInclude Include="src\gles2rice\src\RSP_GBI0.h" />
+    <ClInclude Include="src\gles2rice\src\RSP_GBI1.h" />
+    <ClInclude Include="src\gles2rice\src\RSP_GBI2.h" />
+    <ClInclude Include="src\gles2rice\src\RSP_GBI2_ext.h" />
+    <ClInclude Include="src\gles2rice\src\RSP_GBI_Others.h" />
+    <ClInclude Include="src\gles2rice\src\RSP_GBI_Sprite2D.h" />
+    <ClInclude Include="src\gles2rice\src\RSP_Parser.h" />
+    <ClInclude Include="src\gles2rice\src\RSP_S2DEX.h" />
+    <ClInclude Include="src\gles2rice\src\Texture.h" />
+    <ClInclude Include="src\gles2rice\src\TextureManager.h" />
+    <ClInclude Include="src\gles2rice\src\Timing.h" />
+    <ClInclude Include="src\gles2rice\src\typedefs.h" />
+    <ClInclude Include="src\gles2rice\src\ucode.h" />
+    <ClInclude Include="src\gles2rice\src\UcodeDefs.h" />
+    <ClInclude Include="src\gles2rice\src\VectorMath.h" />
+    <ClInclude Include="src\gles2rice\src\version.h" />
+    <ClInclude Include="src\gles2rice\src\Video.h" />
     <ClInclude Include="src\libretro\neil.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="zlib\crc32.h" />
